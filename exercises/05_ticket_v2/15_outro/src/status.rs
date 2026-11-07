@@ -1,5 +1,5 @@
-// TODO: Implement `TryFrom<String>` and `TryFrom<&str>` for the `Status` enum.
-//  The parsing should be case-insensitive.
+// TODO: `Status` 列挙型に `TryFrom<String>` と `TryFrom<&str>` を実装してください。
+//  パースは大文字小文字を区別しないようにしてください。
 
 pub enum Status {
     ToDo,

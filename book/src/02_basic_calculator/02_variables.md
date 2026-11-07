@@ -1,55 +1,69 @@
-# Variables
+<a id="variables"></a>
 
-In Rust, you can use the `let` keyword to declare **variables**.\
-For example:
+# 変数
+
+Rustでは、`let`キーワードを使用して**変数**を宣言できます。\
+例えば：
 
 ```rust
 let x = 42;
 ```
 
-Above we defined a variable `x` and assigned it the value `42`.
 
-## Type
+上記では変数 `x` を定義し、値 `42` を代入しました。
 
-Every variable in Rust must have a type. It can either be inferred by the compiler or explicitly specified by the
-developer.
+<a id="type"></a>
 
-### Explicit type annotation
+## 型
 
-You can specify the variable type by adding a colon `:` followed by the type after the variable name. For example:
+Rustのすべての変数には型が必要です。型はコンパイラによって推論されるか、開発者が明示的に指定します。
+
+<a id="explicit-type-annotation"></a>
+
+### 明示的な型アノテーション
+
+変数名の後にコロン `:` と型を記述することで、変数の型を指定できます。例えば次のようになります。
 
 ```rust
 // let <variable_name>: <type> = <expression>;
 let x: u32 = 42;
 ```
 
-In the example above, we explicitly constrained the type of `x` to be `u32`.
 
-### Type inference
+上記の例では、`x`の型を`u32`と明示的に制約しました。
 
-If we don't specify the type of a variable, the compiler will try to infer it based on the context in which the variable
-is used.
+<a id="type-inference"></a>
+
+### 型推論
+
+変数の型を指定しない場合、コンパイラはその変数が
+使用される文脈に基づいて型を推論しようとします。
 
 ```rust
 let x = 42;
 let y: u32 = x;
 ```
 
-In the example above, we didn't specify the type of `x`.\
-`x` is later assigned to `y`, which is explicitly typed as `u32`. Since Rust doesn't perform automatic type coercion,
-the compiler infers the type of `x` to be `u32`—the same as `y` and the only type that will allow the program to compile
-without errors.
 
-### Inference limitations
+上記の例では、`x`の型を指定していません。\
+`x`は後に、明示的に`u32`として型指定された`y`に代入されます。 Rustでは型の自動変換が行われないため、
+コンパイラは`x`の型を、`y`と同じであり、かつプログラムをエラーなく
+コンパイルできる唯一の型である`u32`であると推論します。
 
-The compiler sometimes needs a little help to infer the correct variable type based on its usage.\
-In those cases you'll get a compilation error and the compiler will ask you to provide an explicit type hint to
-disambiguate the situation.
+<a id="inference-limitations"></a>
 
-## Function arguments are variables
+### 推論の制限事項
 
-Not all heroes wear capes, not all variables are declared with `let`.\
-Function arguments are variables too!
+コンパイラは、使用状況から正しい変数型を推論するために、時として少しの手助けを必要とすることがあります。\
+そのような場合、コンパイルエラーが発生し、状況を明確にするための明示的な型ヒントを
+指定するよう求められます。
+
+<a id="function-arguments-are-variables"></a>
+
+## 関数の引数は変数です
+
+すべてのヒーローがマントを纏っているわけではありません。すべての変数が `let` で宣言されているわけでもありません。\
+関数の引数も変数です！
 
 ```rust
 fn add_one(x: u32) -> u32 {
@@ -57,30 +71,35 @@ fn add_one(x: u32) -> u32 {
 }
 ```
 
-In the example above, `x` is a variable of type `u32`.\
-The only difference between `x` and a variable declared with `let` is that functions arguments **must** have their type
-explicitly declared. The compiler won't infer it for you.\
-This constraint allows the Rust compiler (and us humans!) to understand the function's signature without having to look
-at its implementation. That's a big boost for compilation speed[^speed]!
 
-## Initialization
+上記の例では、`x` は `u32` 型の変数です。\
+`x` と `let` で宣言された変数の唯一の違いは、関数の引数は型を
+明示的に宣言**しなければならない**という点です。コンパイラが型を推論してくれることはありません。\
+この制約により、Rustコンパイラ（そして私たち人間も！）は、実装を確認することなく
+関数のシグネチャを理解できます。これはコンパイル速度の大幅な向上につながります[^speed]！
 
-You don't have to initialize a variable when you declare it.\
-For example
+<a id="initialization"></a>
+
+## 初期化
+
+変数を宣言する際に初期化する必要はありません。\
+例えば
 
 ```rust
 let x: u32;
 ```
 
-is a valid variable declaration.\
-However, you must initialize the variable before using it. The compiler will throw an error if you don't:
+
+は有効な変数宣言です。\
+ただし、変数を使用する前に初期化する必要があります。初期化しない場合、コンパイラはエラーを発生させます。
 
 ```rust
 let x: u32;
 let y = x + 1;
 ```
 
-will throw a compilation error:
+
+コンパイルエラーが発生します：
 
 ```text
 error[E0381]: used binding `x` isn't initialized
@@ -97,4 +116,5 @@ help: consider assigning a value
   |            +++
 ```
 
-[^speed]: The Rust compiler needs all the help it can get when it comes to compilation speed.
+
+[^speed]: Rustコンパイラは、コンパイル速度に関してあらゆる支援を必要としています。

@@ -1,7 +1,9 @@
+<a id="static"></a>
+
 # `'static`
 
-If you tried to borrow a slice from the vector in the previous exercise,
-you probably got a compiler error that looks something like this:
+前の演習でベクトルからスライスを借用しようとした場合、
+おそらく次のようなコンパイラエラーが表示されたはずです。
 
 ```text
 error[E0597]: `v` does not live long enough
@@ -18,15 +20,18 @@ error[E0597]: `v` does not live long enough
    |  - `v` dropped here while still borrowed
 ```
 
-`argument requires that v is borrowed for 'static`, what does that mean?
 
-The `'static` lifetime is a special lifetime in Rust.\
-It means that the value will be valid for the entire duration of the program.
+`argument requires that v is borrowed for 'static`、これはどういう意味でしょうか？
 
-## Detached threads
+`'static` ライフタイムは、Rustにおける特殊なライフタイムです。\
+これは、その値がプログラムの全期間にわたって有効であることを意味します。
 
-A thread launched via `thread::spawn` can **outlive** the thread that spawned it.\
-For example:
+<a id="detached-threads"></a>
+
+## 切り離されたスレッド
+
+`thread::spawn` を介して起動されたスレッドは、それを生成したスレッドよりも**長く生存**することがあります。\
+例えば：
 
 ```rust
 use std::thread;
@@ -43,25 +48,26 @@ fn f() {
 }
 ```
 
-In this example, the first spawned thread will in turn spawn
-a child thread that prints a message every second.\
-The first thread will then finish and exit. When that happens,
-its child thread will **continue running** for as long as the
-overall process is running.\
-In Rust's lingo, we say that the child thread has **outlived**
-its parent.
 
-## `'static` lifetime
+この例では、最初に生成されたスレッドが、さらに
+1秒ごとにメッセージを出力する子スレッドを生成します。\
+その後、最初のスレッドは処理を完了して終了します。このとき、その
+子スレッドはプロセス全体が動作している限り**実行され続けます**。\
+Rustの用語では、子スレッドが親スレッドよりも**長く生存した**と言います。
 
-Since a spawned thread can:
+<a id="static-lifetime"></a>
 
-- outlive the thread that spawned it (its parent thread)
-- run until the program exits
+## `'static` ライフタイム
 
-it must not borrow any values that might be dropped before the program exits;
-violating this constraint would expose us to a use-after-free bug.\
-That's why `std::thread::spawn`'s signature requires that the closure passed to it
-has the `'static` lifetime:
+生成されたスレッドは、以下のことが可能であるため：
+
+- それを生成したスレッド（親スレッド）よりも長く生存する
+- プログラムが終了するまで実行される
+
+プログラムが終了する前にドロップされる可能性のある値を借用してはなりません。\
+この制約に違反すると、use-after-free バグを招くことになります。\
+そのため、`std::thread::spawn` のシグネチャでは、渡されるクロージャが
+`'static` ライフタイムを持つことが要求されています：
 
 ```rust
 pub fn spawn<F, T>(f: F) -> JoinHandle<T> 
@@ -73,42 +79,51 @@ where
 }
 ```
 
-## `'static` is not (just) about references
 
-All values in Rust have a lifetime, not just references.
+<a id="static-is-not-just-about-references"></a>
 
-In particular, a type that owns its data (like a `Vec` or a `String`)
-satisfies the `'static` constraint: if you own it, you can keep working with it
-for as long as you want, even after the function that originally created it
-has returned.
+## `'static` は（単に）参照だけの話ではありません
 
-You can thus interpret `'static` as a way to say:
+Rustでは、参照だけでなく、すべての値がライフタイムを持ちます。
 
-- Give me an owned value
-- Give me a reference that's valid for the entire duration of the program
+特に、データを所有する型（`Vec` や `String` など）は、
+`'static` の制約を満たします。つまり、それを所有していれば、
+元々それを作成した関数が返却された後でも、好きなだけ使い続けることができます。
 
-The first approach is how you solved the issue in the previous exercise:
-by allocating new vectors to hold the left and right parts of the original vector,
-which were then moved into the spawned threads.
+したがって、`'static` は次のように解釈できます：
 
-## `'static` references
+- 所有された値を渡せ
+- プログラムの全期間にわたって有効な参照を渡せ
 
-Let's talk about the second case, references that are valid for the entire
-duration of the program.
+前者のアプローチは、前の演習で問題を解決した方法です。
+元のベクトルの左側と右側を保持するための新しいベクトルを割り当て、
+それらを生成されたスレッドに移動させました。
 
-### Static data
+<a id="static-references"></a>
 
-The most common case is a reference to **static data**, such as string literals:
+## `'static` 参照
+
+次に、2つ目のケースである、プログラムの全期間にわたって有効な
+参照について説明します。
+
+<a id="static-data"></a>
+
+### 静的データ
+
+最も一般的なケースは、文字列リテラルなどの**静的データ**への参照です：
 
 ```rust
 let s: &'static str = "Hello world!";
 ```
 
-Since string literals are known at compile-time, Rust stores them _inside_ your executable,
-in a region known as **read-only data segment**.
-All references pointing to that region will therefore be valid for as long as
-the program runs; they satisfy the `'static` contract.
 
-## Further reading
+文字列リテラルはコンパイル時に判明するため、Rust はそれらを実行ファイルの
+**読み取り専用データセグメント**と呼ばれる領域に格納します。
+したがって、その領域を指すすべての参照は、プログラムが動作している限り
+有効であり、`'static` の契約を満たします。
 
-- [The data segment](https://en.wikipedia.org/wiki/Data_segment)
+<a id="further-reading"></a>
+
+## さらに詳しく
+
+- [データセグメント](https://en.wikipedia.org/wiki/Data_segment)

@@ -1,7 +1,9 @@
-# Implementing traits
+<a id="implementing-traits"></a>
 
-When a type is defined in another crate (e.g. `u32`, from Rust's standard library), you
-can't directly define new methods for it. If you try:
+# トレイトの実装
+
+型が別のクレート（例：Rust標準ライブラリの `u32`）で定義されている場合、
+その型に対して直接新しいメソッドを定義することはできません。試そうとすると、
 
 ```rust
 impl u32 {
@@ -11,7 +13,8 @@ impl u32 {
 }
 ```
 
-the compiler will complain:
+
+コンパイラが次のようなエラーを出します：
 
 ```text
 error[E0390]: cannot define inherent `impl` for primitive types
@@ -22,33 +25,38 @@ error[E0390]: cannot define inherent `impl` for primitive types
   = help: consider using an extension trait instead
 ```
 
-## Extension trait
 
-An **extension trait** is a trait whose primary purpose is to attach new methods
-to foreign types, such as `u32`.
-That's exactly the pattern you deployed in the previous exercise, by defining
-the `IsEven` trait and then implementing it for `i32` and `u32`. You are then
-free to call `is_even` on those types as long as `IsEven` is in scope.
+<a id="extension-trait"></a>
+
+## 拡張トレイト
+
+**拡張トレイト**とは、`u32` のような外部の型に新しいメソッドを追加することを
+主な目的とするトレイトのことです。
+これは、前の演習で `IsEven` トレイトを定義し、
+それを `i32` と `u32` に実装した際に用いたパターンそのものです。これにより、
+`IsEven` がスコープ内にあれば、それらの型に対して `is_even` を自由に呼び出すことができます。
 
 ```rust
-// Bring the trait in scope
+// トレイトをスコープ内に取り込みます
 use my_library::IsEven;
 
 fn main() {
-    // Invoke its method on a type that implements it
+    // それを実装している型でそのメソッドを呼び出します
     if 4.is_even() {
         // [...]
     }
 }
 ```
 
-## One implementation
 
-There are limitations to the trait implementations you can write.\
-The simplest and most straight-forward one: you can't implement the same trait twice,
-in a crate, for the same type.
+<a id="one-implementation"></a>
 
-For example:
+## 単一の実装
+
+記述できるトレイトの実装には制限があります。\
+最も単純で明白な制限は、1つのクレート内で、同一の型に対して同じトレイトを2回実装することはできないということです。
+
+例えば：
 
 ```rust
 trait IsEven {
@@ -68,7 +76,8 @@ impl IsEven for u32 {
 }
 ```
 
-The compiler will reject it:
+
+コンパイラはこれを拒否します：
 
 ```text
 error[E0119]: conflicting implementations of trait `IsEven` for type `u32`
@@ -80,33 +89,38 @@ error[E0119]: conflicting implementations of trait `IsEven` for type `u32`
    | ^^^^^^^^^^^^^^^^^^^ conflicting implementation for `u32`
 ```
 
-There can be no ambiguity as to what trait implementation should be used when `IsEven::is_even`
-is invoked on a `u32` value, therefore there can only be one.
 
-## Orphan rule
+`u32` の値に対して `IsEven::is_even` が呼び出された際、どのトレイト実装を使用すべきかについて曖昧さがあってはならず、
+したがって実装は1つしか存在できません。
 
-Things get more nuanced when multiple crates are involved.
-In particular, at least one of the following must be true:
+<a id="orphan-rule"></a>
 
-- The trait is defined in the current crate
-- The implementor type is defined in the current crate
+## オーファンルール
 
-This is known as Rust's **orphan rule**. Its goal is to make the method resolution
-process unambiguous.
+複数のクレートが関わる場合、状況はより複雑になります。
+具体的には、少なくとも以下のいずれかが満たされている必要があります：
 
-Imagine the following situation:
+- トレイトが現在のクレートで定義されている
+- 実装対象の型が現在のクレートで定義されている
 
-- Crate `A` defines the `IsEven` trait
-- Crate `B` implements `IsEven` for `u32`
-- Crate `C` provides a (different) implementation of the `IsEven` trait for `u32`
-- Crate `D` depends on both `B` and `C` and calls `1.is_even()`
+これはRustの**オーファンルール**として知られています。その目的は、メソッド解決プロセスを
+一意にすることです。
 
-Which implementation should be used? The one defined in `B`? Or the one defined in `C`?\
-There's no good answer, therefore the orphan rule was defined to prevent this scenario.
-Thanks to the orphan rule, neither crate `B` nor crate `C` would compile.
+次のような状況を想定してください：
 
-## Further reading
+- クレート `A` が `IsEven` トレイトを定義している
+- クレート `B` が `u32` に対して `IsEven` を実装している
+- クレート `C` が `u32` に対して（別の）`IsEven` トレイトの実装を提供している
+- クレート `D` が `B` と `C` の両方に依存し、`1.is_even()` を呼び出す
 
-- There are some caveats and exceptions to the orphan rule as stated above.
-  Check out [the reference](https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence)
-  if you want to get familiar with its nuances.
+どの実装を使用すべきでしょうか？ `B` で定義されたものでしょうか？ それとも `C` で定義されたものでしょうか？\
+明確な答えはありません。そのため、このようなシナリオを防ぐためにオーファンルールが定義されました。
+オーファンルールのおかげで、クレート `B` もクレート `C` もコンパイルできません。
+
+<a id="further-reading"></a>
+
+## さらに詳しく
+
+- 上述のオーファンルールには、いくつかの注意点や例外があります。
+  その詳細について知りたい場合は、[リファレンス](https://doc.rust-lang.org/reference/items/implementations.html#trait-implementation-coherence)
+  を確認してください。

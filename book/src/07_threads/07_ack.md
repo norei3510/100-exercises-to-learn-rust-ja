@@ -1,16 +1,18 @@
-# Two-way communication
+<a id="two-way-communication"></a>
 
-In our current client-server implementation, communication flows in one direction: from the client to the server.\
-The client has no way of knowing if the server received the message, executed it successfully, or failed.
-That's not ideal.
+# 双方向通信
 
-To solve this issue, we can introduce a two-way communication system.
+現在のクライアント・サーバー実装では、通信はクライアントからサーバーへの一方向となっています。\
+クライアント側では、サーバーがメッセージを受信したか、正常に実行したか、あるいは失敗したかを知る術がありません。
+これは理想的とは言えません。
 
-## Response channel
+この問題を解決するために、双方向通信システムを導入することができます。
 
-We need a way for the server to send a response back to the client.\
-There are various ways to do this, but the simplest option is to include a `Sender` channel in
-the message that the client sends to the server. After processing the message, the server can use
-this channel to send a response back to the client.
+<a id="response-channel"></a>
 
-This is a fairly common pattern in Rust applications built on top of message-passing primitives.
+## レスポンスチャネル
+
+サーバーがクライアントにレスポンスを返す仕組みが必要です。\
+その方法はさまざまですが、最もシンプルなのは、クライアントがサーバーに送信するメッセージに `Sender` チャネルを含めることです。メッセージを処理した後、サーバーはこのチャネルを使用してクライアントにレスポンスを返します。
+
+これは、メッセージパッシングプリミティブを基盤としたRustアプリケーションにおいて、かなり一般的なパターンです。

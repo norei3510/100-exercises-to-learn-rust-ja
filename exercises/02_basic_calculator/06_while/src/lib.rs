@@ -1,9 +1,9 @@
-// Rewrite the factorial function using a `while` loop.
+// 階乗関数を`while`ループを用いて書き直してください。
 pub fn factorial(n: u32) -> u32 {
-    // The `todo!()` macro is a placeholder that the compiler
-    // interprets as "I'll get back to this later", thus
-    // suppressing type errors.
-    // It panics at runtime.
+    // `todo!()` マクロは、コンパイラが
+    // 「後で処理する」と解釈するプレースホルダーであり、これにより
+    // 型エラーが抑制されます。
+    // 実行時にパニックが発生します。
     todo!()
 }
 

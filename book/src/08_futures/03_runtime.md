@@ -1,48 +1,57 @@
-# Runtime architecture
+<a id="runtime-architecture"></a>
 
-So far we've been talking about async runtimes as an abstract concept.
-Let's dig a bit deeper into the way they are implemented—as you'll see soon enough,
-it has an impact on our code.
+# ランタイムアーキテクチャ
 
-## Flavors
+これまでは、非同期ランタイムを抽象的な概念として説明してきました。
+ここからは、その実装方法についてもう少し深く掘り下げてみましょう。すぐに分かる通り、
+これはコードに影響を与えます。
 
-`tokio` ships two different runtime _flavors_.
+<a id="flavors"></a>
 
-You can configure your runtime via `tokio::runtime::Builder`:
+## フレーバー
 
-- `Builder::new_multi_thread` gives you a **multithreaded `tokio` runtime**
-- `Builder::new_current_thread` will instead rely on the **current thread** for execution.
+`tokio` では、2種類の異なるランタイム「フレーバー」が提供されています。
 
-`#[tokio::main]` returns a multithreaded runtime by default, while
-`#[tokio::test]` uses a current thread runtime out of the box.
+`tokio::runtime::Builder` を通じてランタイムを設定できます：
 
-### Current thread runtime
+- `Builder::new_multi_thread` を使用すると、**マルチスレッドの `tokio` ランタイム**が利用できます。
+- `Builder::new_current_thread` を使用すると、代わりに実行に**現在のスレッド**が利用されます。
 
-The current-thread runtime, as the name implies, relies exclusively on the OS thread
-it was launched on to schedule and execute tasks.\
-When using the current-thread runtime, you have **concurrency** but no **parallelism**:
-asynchronous tasks will be interleaved, but there will always be at most one task running
-at any given time.
+`#[tokio::main]` はデフォルトでマルチスレッドランタイムを返しますが、
+`#[tokio::test]` はデフォルトで現在のスレッドランタイムを使用します。
 
-### Multithreaded runtime
+<a id="current-thread-runtime"></a>
 
-When using the multithreaded runtime, instead, there can be up to `N` tasks running
-_in parallel_ at any given time, where `N` is the number of threads used by the
-runtime. By default, `N` matches the number of available CPU cores.
+### 現在のスレッドランタイム
 
-There's more: `tokio` performs **work-stealing**.\
-If a thread is idle, it won't wait around: it'll try to find a new task that's ready for
-execution, either from a global queue or by stealing it from the local queue of another
-thread.\
-Work-stealing can have significant performance benefits, especially on tail latencies,
-whenever your application is dealing with workloads that are not perfectly balanced
-across threads.
+現在のスレッドランタイムは、その名の通り、タスクのスケジューリングと実行に、
+起動されたOSスレッドのみに依存します。\
+現在のスレッドランタイムを使用する場合、**並行性**はありますが、**並列性**はありません。
+非同期タスクはインターリーブされますが、任意の時点で実行されるタスクは常に最大1つとなります。
 
-## Implications
+<a id="multithreaded-runtime"></a>
 
-`tokio::spawn` is flavor-agnostic: it'll work no matter if you're running on the multithreaded
-or current-thread runtime. The downside is that the signature assumes the worst case
-(i.e. multithreaded) and is constrained accordingly:
+### マルチスレッドランタイム
+
+一方、マルチスレッドランタイムを使用すると、任意の時点で最大 `N` 個のタスクを
+**並列に**実行できます。ここで `N` はランタイムが使用するスレッド数です。
+デフォルトでは、`N` は利用可能なCPUコア数と一致します。
+
+さらに、`tokio` は**ワークスティール**を行います。\
+スレッドがアイドル状態の場合、そのまま待機するのではなく、グローバルキューから、あるいは
+他のスレッドのローカルキューからタスクをスティールすることで、実行可能な新しいタスクを
+探し出そうとします。\
+ワークスティールは、特にアプリケーションのワークロードがスレッド間で完全に均等に
+分散されていない場合に、テールレイテンシの面で大きなパフォーマンス上のメリットを
+もたらす可能性があります。
+
+<a id="implications"></a>
+
+## 影響
+
+`tokio::spawn` はフレーバーに依存しません。マルチスレッドランタイムでも現在のスレッドランタイムでも
+動作します。デメリットは、シグネチャが最悪のケース（すなわちマルチスレッド）を想定しており、
+それに応じて制約が設けられている点です：
 
 ```rust
 pub fn spawn<F>(future: F) -> JoinHandle<F::Output>
@@ -52,19 +61,19 @@ where
 { /* */ }
 ```
 
-Let's ignore the `Future` trait for now to focus on the rest.\
-`spawn` is asking all its inputs to be `Send` and have a `'static` lifetime.
 
-The `'static` constraint follows the same rationale of the `'static` constraint
-on `std::thread::spawn`: the spawned task may outlive the context it was spawned
-from, therefore it shouldn't depend on any local data that may be de-allocated
-after the spawning context is destroyed.
+他の部分に集中するため、ひとまず `Future` トレイトは無視しましょう。\
+`spawn` は、すべての入力が `Send` であり、かつ `'static` ライフタイムを持つことを要求しています。
+
+`'static` の制約は、`std::thread::spawn` における `'static` の制約と同じ根拠に基づいています。
+すなわち、スポーンされたタスクは、それがスポーンされたコンテキストよりも長く生存する
+可能性があるため、スポーン元のコンテキストが破棄された後に解放される可能性のある
+ローカルデータに依存すべきではないということです。
 
 ```rust
 fn spawner() {
     let v = vec![1, 2, 3];
-    // This won't work, since `&v` doesn't
-    // live long enough.
+    // これではうまくいきません。`&v` の生存期間が足りないためです。
     tokio::spawn(async { 
         for x in &v {
             println!("{x}")
@@ -73,14 +82,15 @@ fn spawner() {
 }
 ```
 
-`Send`, on the other hand, is a direct consequence of `tokio`'s work-stealing strategy:
-a task that was spawned on thread `A` may end up being moved to thread `B` if that's idle,
-thus requiring a `Send` bound since we're crossing thread boundaries.
+
+一方で `Send` は、`tokio` のワークスティール戦略の直接的な結果です。
+スレッド `A` でスポーンされたタスクは、もしスレッド `B` がアイドル状態であれば
+そこに移動させられる可能性があり、スレッド境界を越えるため `Send` の境界が必要になります。
 
 ```rust
 fn spawner(input: Rc<u64>) {
-    // This won't work either, because
-    // `Rc` isn't `Send`.
+    // これもうまくいきません。なぜなら
+    // `Rc` は `Send` ではないからです。
     tokio::spawn(async move {
         println!("{}", input);
     })

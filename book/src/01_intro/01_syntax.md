@@ -1,51 +1,60 @@
-# Syntax
+<a id="syntax"></a>
+
+# 構文
 
 <div class="warning">
 
-Don't jump ahead!\
-Complete the exercise for the previous section before you start this one.\
-It's located in `exercises/01_intro/00_welcome`, in the [course GitHub's repository](https://github.com/mainmatter/100-exercises-to-learn-rust).\
-Use [`wr`](00_welcome.md#wr-the-workshop-runner) to start the course and verify your solutions.
+先走らないでください！\
+このセクションを始める前に、前のセクションの演習を完了させてください。\
+演習は [course GitHub's repository](https://github.com/mainmatter/100-exercises-to-learn-rust) 内の `exercises/01_intro/00_welcome` にあります。\
+コースを開始し、解答を確認するには [`wr`](00_welcome.md#wr-the-workshop-runner) を使用してください。
 
 </div>
 
-The previous task doesn't even qualify as an exercise, but it already exposed you to quite a bit of Rust **syntax**.
-We won't cover every single detail of Rust's syntax used in the previous exercise.
-Instead, we'll cover _just enough_ to keep going without getting stuck in the details.\
-One step at a time!
+前のタスクは演習と呼ぶほどのものではありませんでしたが、すでにかなりの量の Rust の**構文**に触れています。
+前の演習で使用した Rust の構文のあらゆる詳細を網羅するわけではありません。
+その代わりに、細部に囚われず先に進めるための_最低限必要な範囲_を解説します。\
+一歩ずつ進めていきましょう！
 
-## Comments
+<a id="comments"></a>
 
-You can use `//` for single-line comments:
+## コメント
+
+単一行コメントには `//` を使用できます：
 
 ```rust
-// This is a single-line comment
-// Followed by another single-line comment
+// これは単一行コメントです
+// 続いて別の単一行コメントです
 ```
 
-## Functions
 
-Functions in Rust are defined using the `fn` keyword, followed by the function's name, its input parameters, and its
-return type.
-The function's body is enclosed in curly braces `{}`.
+<a id="functions"></a>
 
-In previous exercise, you saw the `greeting` function:
+## 関数
+
+Rust の関数は `fn` キーワードを使用し、その後に関数名、入力パラメータ、および
+戻り値の型を続けて定義します。
+関数の本体は波括弧 `{}` で囲みます。
+
+前の演習では、`greeting` 関数が登場しました：
 
 ```rust
 // `fn` <function_name> ( <input params> ) -> <return_type> { <body> }
 fn greeting() -> &'static str {
-    // TODO: fix me 👇
+    // TODO: 修正してください 👇
     "I'm ready to __!"
 }
 ```
 
-`greeting` has no input parameters and returns a reference to a string slice (`&'static str`).
 
-### Return type
+`greeting` は入力パラメータを持たず、文字列スライス (`&'static str`) への参照を返します。
 
-The return type can be omitted from the signature if the function doesn't return anything (i.e. if it returns `()`,
-Rust's unit type).
-That's what happened with the `test_welcome` function:
+<a id="return-type"></a>
+
+### 戻り値の型
+
+関数が何も返さない場合（つまり Rust のユニット型である `()` を返す場合）、シグネチャから戻り値の型を省略できます。
+`test_welcome` 関数がまさにその例です：
 
 ```rust
 fn test_welcome() {
@@ -53,63 +62,72 @@ fn test_welcome() {
 }
 ```
 
-The above is equivalent to:
+
+上記は以下と等価です：
 
 ```rust
-// Spelling out the unit return type explicitly
+// ユニット戻り値の型を明示的に記述する
 //                   👇
 fn test_welcome() -> () {
     assert_eq!(greeting(), "I'm ready to learn Rust!");
 }
 ```
 
-### Returning values
 
-The last expression in a function is implicitly returned:
+<a id="returning-values"></a>
+
+### 値の返却
+
+関数内の最後の式は暗黙的に返されます：
 
 ```rust
 fn greeting() -> &'static str {
-    // This is the last expression in the function
-    // Therefore its value is returned by `greeting`
+    // これは関数内の最後の式です。
+    // したがって、その値が `greeting` によって返されます。
     "I'm ready to learn Rust!"
 }
 ```
 
-You can also use the `return` keyword to return a value early:
+
+また、`return` キーワードを使用して、早期に値を返すこともできます：
 
 ```rust
 fn greeting() -> &'static str {
-    // Notice the semicolon at the end of the line!
+    // 行末のセミコロンに注目してください！
     return "I'm ready to learn Rust!";
 }
 ```
 
-It is considered idiomatic to omit the `return` keyword when possible.
 
-### Input parameters
+可能な限り `return` キーワードを省略するのが慣用的な書き方とされています。
 
-Input parameters are declared inside the parentheses `()` that follow the function's name.\
-Each parameter is declared with its name, followed by a colon `:`, followed by its type.
+<a id="input-parameters"></a>
 
-For example, the `greet` function below takes a `name` parameter of type `&str` (a "string slice"):
+### 入力パラメータ
+
+入力パラメータは、関数名に続く括弧 `()` の中で宣言します。\
+各パラメータは、名前、コロン `:`、そして型の順に宣言します。
+
+例えば、以下の `greet` 関数は、`&str`（「文字列スライス」）型の `name` パラメータを受け取ります：
 
 ```rust
-// An input parameter
+// 入力パラメータ
 //        👇
 fn greet(name: &str) -> String {
     format!("Hello, {}!", name)
 }
 ```
 
-If there are multiple input parameters, they must be separated with commas.
 
-### Type annotations
+入力パラメータが複数ある場合は、カンマで区切る必要があります。
 
-Since we've been mentioned "types" a few times, let's state it clearly: Rust is a **statically typed language**.\
-Every single value in Rust has a type and that type must be known to the compiler at compile-time.
+<a id="type-annotations"></a>
 
-Types are a form of **static analysis**.\
-You can think of a type as a **tag** that the compiler attaches to every value in your program. Depending on the
-tag, the compiler can enforce different rules—e.g. you can't add a string to a number, but you can add two numbers
-together.
-If leveraged correctly, types can prevent whole classes of runtime bugs.
+### 型アノテーション
+
+「型」について何度か言及しましたので、明確に述べておきます。Rust は**静的型付け言語**です。\
+Rust のあらゆる値には型があり、その型はコンパイル時にコンパイラに知られている必要があります。
+
+型は**静的解析**の一種です。\
+型とは、コンパイラがプログラム内のすべての値に付ける**タグ**のようなものだと考えることができます。タグに応じて、コンパイラは異なるルールを適用できます。例えば、文字列に数値を足すことはできませんが、2つの数値を足し合わせることは可能です。
+型を正しく活用すれば、ランタイムバグのクラス全体を防ぐことができます。

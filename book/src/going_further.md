@@ -1,52 +1,66 @@
-# Epilogue
+<a id="epilogue"></a>
 
-Our tour of Rust ends here.\
-It has been quite extensive, but by no means exhaustive: Rust is a language with
-a large surface area, and an even larger ecosystem!\
-Don't let this scare you, though: there's **no need to learn everything**.
-You'll pick up whatever is necessary to be effective in the domain
-(backend, embedded, CLIs, GUIs, etc.) **while working on your projects**.
+# エピローグ
 
-In the end, there are no shortcuts: if you want to get good at something,
-you need to do it, over and over again. Throughout this course you wrote a fair
-amount of Rust, enough to get the language and its syntax flowing under your
-fingers. It'll take many more lines of code to feel it "yours", but that moment
-will come without a doubt if you keep practicing.
+Rustを巡る旅も、ここで終わりです。\
+かなり広範囲にわたりましたが、決してすべてを網羅したわけではありません。Rustは
+習得すべき範囲が広く、エコシステムはさらに巨大な言語なのです！\
+とはいえ、怖がる必要はありません。**すべてを学ぶ必要はない**のです。
+その分野（バックエンド、組み込み、CLI、GUIなど）で成果を出すために必要なことは、
+**プロジェクトに取り組む中で**自然と身についていきます。
 
-## Going further
+結局のところ、近道はありません。何かを上達させたいなら、
+何度も繰り返し実践する必要があります。このコースを通じて、かなりの量の
+Rustを書いてきたため、言語とその構文が手に馴染むようになったはずです。
+「自分のものになった」と感じるまでには、さらに多くのコードを書く必要がありますが、
+練習を続ければ、間違いなくその瞬間は訪れます。
 
-Let's close with some pointers to additional resources that you might find
-useful as you move forward in your journey with Rust.
+<a id="going-further"></a>
 
-### Exercises
+## さらに先へ
 
-You can find more exercises to practice Rust in the [`rustlings`](https://github.com/rust-lang/rustlings)
-project and on [exercism.io](https://exercism.io)'s Rust track.
+Rustの旅を続ける上で役立つと思われる、追加リソースをいくつか
+ご紹介して締めくくりたいと思います。
 
-### Introductory material
+<a id="exercises"></a>
 
-Check out [the Rust book](https://doc.rust-lang.org/book/title-page.html) and
-["Programming Rust"](https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/)
-if you're looking for a different perspective on the same concepts we covered throughout this course.
-You'll certainly learn something new since they don't cover exactly the same topics; Rust has a lot of surface area!
+### 演習
 
-### Advanced material
+Rustを練習するためのさらなる演習は、[`rustlings`](https://github.com/rust-lang/rustlings)
+プロジェクトや [exercism.io](https://exercism.io) のRustトラックで見つけることができます。
 
-If you want to dive deeper into the language, refer to the [Rustonomicon](https://doc.rust-lang.org/nomicon/)
-and ["Rust for Rustaceans"](https://nostarch.com/rust-rustaceans).\
-The ["Decrusted" series](https://www.youtube.com/playlist?list=PLqbS7AVVErFirH9armw8yXlE6dacF-A6z) is another excellent
-resource to learn more about the internals of many of the most popular Rust libraries.
+<a id="introductory-material"></a>
 
-### Domain-specific material
+### 入門資料
 
-If you want to use Rust for backend development,
-check out ["Zero to Production in Rust"](https://zero2prod.com).\
-If you want to use Rust for embedded development,
-check out the [Embedded Rust book](https://docs.rust-embedded.org/book/).
+このコースで扱った概念について別の視点をお探しの方は、
+[Rust本](https://doc.rust-lang.org/book/title-page.html) や
+["Programming Rust"](https://www.oreilly.com/library/view/programming-rust-2nd/9781492052586/) をチェックしてみてください。
+扱っているトピックが完全に一致しているわけではないため、きっと新しい発見があるはずです。Rustは習得すべき範囲が非常に広いですからね！
 
-### Masterclasses
+<a id="advanced-material"></a>
 
-You can then find resources on key topics that cut across domains.\
-For testing, check out
-["Advanced testing, going beyond the basics"](https://rust-exercises.com/advanced-testing/).\
-For telemetry, check out ["You can't fix what you can't see"](https://rust-exercises.com/telemetry/).
+### 上級資料
+
+言語をより深く掘り下げたい場合は、[Rustonomicon](https://doc.rust-lang.org/nomicon/)
+や ["Rust for Rustaceans"](https://nostarch.com/rust-rustaceans) を参照してください。\
+["Decrusted" シリーズ](https://www.youtube.com/playlist?list=PLqbS7AVVErFirH9armw8yXlE6dacF-A6z) も、
+多くの人気Rustライブラリの内部構造について詳しく学ぶための優れたリソースです。
+
+<a id="domain-specific-material"></a>
+
+### 分野別資料
+
+バックエンド開発にRustを使いたい場合は、
+["Zero to Production in Rust"](https://zero2prod.com) をチェックしてください。\
+組み込み開発にRustを使いたい場合は、
+[Embedded Rust book](https://docs.rust-embedded.org/book/) をチェックしてください。
+
+<a id="masterclasses"></a>
+
+### マスタークラス
+
+次に、分野を横断する主要なトピックに関するリソースを紹介します。\
+テストについては、
+["Advanced testing, going beyond the basics"](https://rust-exercises.com/advanced-testing/) をチェックしてください。\
+テレメトリについては、["You can't fix what you can't see"](https://rust-exercises.com/telemetry/) をチェックしてください。

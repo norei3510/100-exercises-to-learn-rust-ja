@@ -1,12 +1,16 @@
-# Nullability
+<a id="nullability"></a>
 
-Our implementation of the `assigned` method is fairly blunt: panicking for to-do and done tickets is far from ideal.\
-We can do better using **Rust's `Option` type**.
+# Null許容性
+
+`assigned` メソッドの実装はかなり単純で、to-do チケットや done チケットに対してパニックを起こすのは理想的とは言えません。\
+**Rust の `Option` 型** を使えば、より優れた実装が可能です。
+
+<a id="option"></a>
 
 ## `Option`
 
-`Option` is a Rust type that represents **nullable values**.\
-It is an enum, defined in Rust's standard library:
+`Option` は、**null 許容値** を表す Rust の型です。\
+これは Rust の標準ライブラリで定義されている列挙型です：
 
 ```rust
 enum Option<T> {
@@ -15,33 +19,41 @@ enum Option<T> {
 }
 ```
 
-`Option` encodes the idea that a value might be present (`Some(T)`) or absent (`None`).\
-It also forces you to **explicitly handle both cases**. You'll get a compiler error if you are working with
-a nullable value and you forget to handle the `None` case.\
-This is a significant improvement over "implicit" nullability in other languages, where you can forget to check
-for `null` and thus trigger a runtime error.
 
-## `Option`'s definition
+`Option` は、値が存在する場合 (`Some(T)`) と存在しない場合 (`None`) があるという概念を表現しています。\
+また、**両方のケースを明示的に処理すること** を強制します。null 許容値を扱う際に `None` のケースの処理を忘れると、
+コンパイラエラーが発生します。\
+これは、`null` のチェックを忘れ、その結果ランタイムエラーを引き起こしかねない他の言語における「暗黙的な」null 許容性に比べ、
+大幅な改善となります。
 
-`Option`'s definition uses a Rust construct that you haven't seen before: **tuple-like variants**.
+<a id="options-definition"></a>
 
-### Tuple-like variants
+## `Option` の定義
 
-`Option` has two variants: `Some(T)` and `None`.\
-`Some` is a **tuple-like variant**: it's a variant that holds **unnamed fields**.
+`Option` の定義では、まだ見たことのない Rust の構文である **タプル風バリアント** が使われています。
 
-Tuple-like variants are often used when there is a single field to store, especially when we're looking at a
-"wrapper" type like `Option`.
+<a id="tuple-like-variants"></a>
 
-### Tuple-like structs
+### タプル風バリアント
 
-They're not specific to enums—you can define tuple-like structs too:
+`Option` には、`Some(T)` と `None` という 2 つのバリアントがあります。\
+`Some` は **タプル風バリアント** であり、**名前のないフィールド** を持つバリアントです。
+
+タプル風バリアントは、格納するフィールドが 1 つだけである場合、特に `Option` のような
+「ラッパー」型を扱う際によく使用されます。
+
+<a id="tuple-like-structs"></a>
+
+### タプル風構造体
+
+これは列挙型に限った話ではなく、タプル風構造体を定義することもできます：
 
 ```rust
 struct Point(i32, i32);
 ```
 
-You can then access the two fields of a `Point` instance using their positional index:
+
+そして、`Point` インスタンスの 2 つのフィールドに、位置インデックスを使ってアクセスできます：
 
 ```rust
 let point = Point(3, 4);
@@ -49,21 +61,25 @@ let x = point.0;
 let y = point.1;
 ```
 
-### Tuples
 
-It's weird to say that something is tuple-like when we haven't seen tuples yet!\
-Tuples are another example of a primitive Rust type.
-They group together a fixed number of values with (potentially different) types:
+<a id="tuples"></a>
+
+### タプル
+
+まだタプルを見ていない段階で、何かを「タプル風」と呼ぶのは奇妙かもしれませんね！\
+タプルは、Rust のプリミティブ型のもう一つの例です。
+タプルは、（型が異なる可能性のある）固定数の値をグループ化します：
 
 ```rust
-// Two values, same type
+// 2つの値、同じ型
 let first: (i32, i32) = (3, 4);
-// Three values, different types
+// 3つの値、異なる型
 let second: (i32, u32, u8) = (-42, 3, 8);
 ```
 
-The syntax is simple: you list the types of the values between parentheses, separated by commas.
-You can access the fields of a tuple using the dot notation and the field index:
+
+構文はシンプルで、値の型を括弧で囲み、カンマで区切って列挙します。
+ドット記法とフィールドインデックスを使って、タプルのフィールドにアクセスできます：
 
 ```rust
 assert_eq!(second.0, -42);
@@ -71,4 +87,5 @@ assert_eq!(second.1, 3);
 assert_eq!(second.2, 8);
 ```
 
-Tuples are a convenient way of grouping values together when you can't be bothered to define a dedicated struct type.
+
+タプルは、専用の構造体型を定義するのが手間な場合に、値をまとめて扱う便利な方法です。

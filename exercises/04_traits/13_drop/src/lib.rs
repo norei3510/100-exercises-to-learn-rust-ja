@@ -1,6 +1,6 @@
-// TODO: implement a so-called "Drop bomb": a type that panics when dropped
-//  unless a certain operation has been performed on it.
-//  You can see the expected API in the tests below.
+// TODO: いわゆる「Drop bomb」を実装してください。これは、特定の操作が行われていない限り、
+// ドロップ時にパニックを起こす型です。
+// 想定されるAPIは、以下のテストで確認できます。
 
 #[cfg(test)]
 mod tests {
@@ -10,14 +10,13 @@ mod tests {
     #[should_panic]
     fn test_drop_bomb() {
         let bomb = DropBomb::new();
-        // The bomb should panic when dropped
+        // 爆弾は投下時にパニックを起こすべきです。
     }
 
     #[test]
     fn test_defused_drop_bomb() {
         let mut bomb = DropBomb::new();
         bomb.defuse();
-        // The bomb should not panic when dropped
-        // since it has been defused
+        // 爆弾は解除済みであるため、投下時にパニックを起こしてはなりません。
     }
 }

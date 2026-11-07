@@ -1,40 +1,38 @@
-// This is a Rust file. It is a plain text file with a `.rs` extension.
+// これはRustのファイルです。`.rs`という拡張子を持つプレーンテキストファイルです。
 //
-// Like most modern programming languages, Rust supports comments. You're looking at one right now!
-// Comments are ignored by the compiler; you can leverage them to annotate code with notes and
-// explanations.
-// There are various ways to write comments in Rust, each with its own purpose.
-// For now we'll stick to the most common one: the line comment.
-// Everything from `//` to the end of the line is considered a comment.
+// 多くの現代的なプログラミング言語と同様に、Rustもコメントをサポートしています。今ご覧いただいているのも、まさにその一つです！
+// コメントはコンパイラによって無視されるため、メモや
+// 解説を添えてコードに注釈を付けるのに活用できます。
+// Rustにはコメントの書き方がいくつかあり、それぞれに目的があります。
+// まずは最も一般的な「行コメント」に絞って説明しましょう。
+// `//`から行末までのすべてがコメントとして扱われます。
 
-// Exercises will include `TODO`, `todo!()` or `__` markers to draw your attention to the lines
-// where you need to write code.
-// You'll need to replace these markers with your own code to complete the exercise.
-// Sometimes it'll be enough to write a single line of code, other times you'll have to write
-// longer sections.
+// 演習問題には、コードを記述すべき箇所を示すために `TODO`、`todo!()`、または `__` といったマーカーが含まれます。
+// 演習を完了するには、これらのマーカーを自身のコードに置き換える必要があります。
+// 場合によっては1行のコードを記述するだけで十分なこともあれば、より長いセクションを
+// 記述しなければならないこともあります。
 //
-// If you get stuck for more than 10 minutes on an exercise, grab a trainer! We're here to help!
-// You can also find solutions to all exercises in the `solutions` git branch.
+// 演習で10分以上行き詰まったら、トレーナーに相談してください！私たちがサポートします！
+// また、すべての演習の解答は `solutions` の git ブランチで確認できます。
 fn greeting() -> &'static str {
-    // TODO: fix me 👇
+    // TODO: 修正してください 👇
     "I'm ready to __!"
 }
 
-// Your solutions will be automatically verified by a set of tests.
-// You can run these tests directly by invoking the `cargo test` command in your terminal,
-// from the root of this exercise's directory. That's what the `wr` command does for you
-// under the hood.
+// 提出した解答は、一連のテストによって自動的に検証されます。
+// この演習ディレクトリのルートから、ターミナルで `cargo test` コマンドを実行することで、
+// これらのテストを直接実行できます。`wr` コマンドは、内部的にこの処理を行っています。
 //
-// Rust lets you write tests alongside your code.
-// The `#[cfg(test)]` attribute tells the compiler to only compile the code below when
-// running tests (i.e. when you run `cargo test`).
-// You'll learn more about attributes and testing later in the course.
-// For now, just know that you need to look for the `#[cfg(test)]` attribute to find the tests
-// that will be verifying the correctness of your solutions!
+// Rustでは、コードと並行してテストを記述できます。
+// `#[cfg(test)]` 属性は、テスト実行時（つまり `cargo test` を実行したとき）にのみ、
+// 後続のコードをコンパイルするようコンパイラに指示します。
+// 属性とテストについては、コースの後半で詳しく学びます。
+// 今のところは、解答の正しさを検証するテストを探すには、
+// `#[cfg(test)]` 属性に注目すればよいということだけ覚えておいてください！
 //
-// ⚠️ **DO NOT MODIFY THE TESTS** ⚠️
-// They are there to help you validate your solutions. You should only change the code that's being
-// tested, not the tests themselves.
+// ⚠️ **テストを変更しないでください** ⚠️
+// テストは、解答を検証するためのものです。変更するのはテスト対象のコードのみとし、
+// テスト自体を変更しないでください。
 #[cfg(test)]
 mod tests {
     use crate::greeting;

@@ -1,21 +1,27 @@
-# Memory layout
+<a id="memory-layout"></a>
 
-We've looked at ownership and references from an operational point of view—what you can and can't do with them.
-Now it's a good time to take a look under the hood: let's talk about **memory**.
+# メモリレイアウト
 
-## Stack and heap
+これまで所有権と参照について、操作上の観点から――何ができ、何ができないか――を見てきました。
+ここで、いよいよ内部の仕組みに目を向けてみましょう。**メモリ**についてお話しします。
 
-When discussing memory, you'll often hear people talk about the **stack** and the **heap**.\
-These are two different memory regions used by programs to store data.
+<a id="stack-and-heap"></a>
 
-Let's start with the stack.
+## スタックとヒープ
 
-## Stack
+メモリについて議論する際、**スタック**と**ヒープ**という言葉をよく耳にするでしょう。\
+これらは、プログラムがデータを格納するために使用する2つの異なるメモリ領域です。
 
-The **stack** is a **LIFO** (Last In, First Out) data structure.\
-When you call a function, a new **stack frame** is added on top of the stack. That stack frame stores
-the function's arguments, local variables and a few "bookkeeping" values.\
-When the function returns, the stack frame is popped off the stack[^stack-overflow].
+まずはスタックから見ていきましょう。
+
+<a id="stack"></a>
+
+## スタック
+
+**スタック**は**LIFO**（後入れ先出し）のデータ構造です。\
+関数を呼び出すと、スタックの最上部に新しい**スタックフレーム**が追加されます。そのスタックフレームには、
+関数の引数、ローカル変数、およびいくつかの「管理用」の値が格納されます。\
+関数が戻ると、そのスタックフレームはスタックからポップされます[^stack-overflow]。
 
 ```text
 +-----------------+
@@ -39,34 +45,39 @@ When the function returns, the stack frame is popped off the stack[^stack-overfl
 +-----------------+
 ```
 
-From an operational point of view, stack allocation/de-allocation is **very fast**.\
-We are always pushing and popping data from the top of the stack, so we don't need to search for free memory.
-We also don't have to worry about fragmentation: the stack is a single contiguous block of memory.
+
+操作上の観点から見ると、スタックの割り当てと解放は**非常に高速**です。\
+常にスタックの最上部からデータのプッシュとポップを行うため、空きメモリを探す必要がありません。
+また、フラグメンテーションを心配する必要もありません。スタックは単一の連続したメモリブロックだからです。
+
+<a id="rust"></a>
 
 ### Rust
 
-Rust will often allocate data on the stack.\
-You have a `u32` input argument in a function? Those 32 bits will be on the stack.\
-You define a local variable of type `i64`? Those 64 bits will be on the stack.\
-It all works quite nicely because the size of those integers is known at compile time, therefore
-the compiled program knows how much space it needs to reserve on the stack for them.
+Rustは多くの場合、データをスタック上に割り当てます。\
+関数に`u32`という入力引数がありますか？ その32ビットはスタック上に配置されます。\
+`i64`型のローカル変数を定義しましたか？ その64ビットはスタック上に配置されます。\
+これらの整数のサイズはコンパイル時に分かっているため、コンパイル済みのプログラムはスタック上にどれくらいの領域を確保すべきかを把握でき、すべてが非常にスムーズに動作します。
+
+<a id="stdmemsize_of"></a>
 
 ### `std::mem::size_of`
 
-You can verify how much space a type would take on the stack
-using the [`std::mem::size_of`](https://doc.rust-lang.org/std/mem/fn.size_of.html) function.
+ある型がスタック上でどれくらいの領域を占有するかは、
+[`std::mem::size_of`](https://doc.rust-lang.org/std/mem/fn.size_of.html)関数を使って確認できます。
 
-For a `u8`, for example:
+例えば`u8`の場合：
 
 ```rust
-// We'll explain this funny-looking syntax (`::<u8>`) later on.
-// Ignore it for now.
+// この奇妙な見た目の構文 (`::<u8>`) については、後ほど説明します。
+// 今は無視してください。
 assert_eq!(std::mem::size_of::<u8>(), 1);
 ```
 
-1 makes sense, because a `u8` is 8 bits long, or 1 byte.
 
-[^stack-overflow]: If you have nested function calls, each function pushes its data onto the stack when it's called but
-it doesn't pop it off until the innermost function returns.
-If you have too many nested function calls, you can run out of stack space—the stack is not infinite!
-That's called a [**stack overflow**](https://en.wikipedia.org/wiki/Stack_overflow).
+1という結果は理にかなっています。`u8`は8ビット、つまり1バイトだからです。
+
+[^stack-overflow]: 関数呼び出しがネストしている場合、各関数は呼び出された際にデータをスタックにプッシュしますが、
+最内層の関数が戻るまでそれをポップすることはありません。
+関数呼び出しが深くネストしすぎると、スタック領域が不足することがあります。スタックは無限ではありません！
+これを[**スタックオーバーフロー**](https://en.wikipedia.org/wiki/Stack_overflow)と呼びます。

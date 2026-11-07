@@ -1,7 +1,9 @@
-# Ownership
+<a id="ownership"></a>
 
-If you solved the previous exercise using what this course has taught you so far,
-your accessor methods probably look like this:
+# 所有権
+
+これまでのコースで学んだ内容を使って前回の演習を解いた場合、
+アクセサメソッドはおそらく次のようになっているはずです：
 
 ```rust
 impl Ticket {
@@ -19,19 +21,21 @@ impl Ticket {
 }
 ```
 
-Those methods compile and are enough to get tests to pass, but in a real-world scenario they won't get you very far.
-Consider this snippet:
+
+これらのメソッドはコンパイルが通りますし、テストをパスさせるには十分ですが、実際の開発現場ではあまり役に立ちません。
+次のスニペットを考えてみましょう：
 
 ```rust
 if ticket.status() == "To-Do" {
-    // We haven't covered the `println!` macro yet,
-    // but for now it's enough to know that it prints 
-    // a (templated) message to the console
+    // `println!` マクロについてはまだ取り上げていませんが、
+    // とりあえずは、これがコンソールに
+    // （テンプレート化された）メッセージを出力するということだけ知っておけば十分です。
     println!("Your next task is: {}", ticket.title());
 }
 ```
 
-If you try to compile it, you'll get an error:
+
+これをコンパイルしようとすると、エラーが発生します：
 
 ```text
 error[E0382]: use of moved value: `ticket`
@@ -55,57 +59,65 @@ note: `Ticket::status` takes ownership of the receiver `self`,
    |                       ^^^^
 ```
 
-Congrats, this is your first borrow-checker error!
 
-## The perks of Rust's ownership system
+おめでとうございます、これが初めての借用チェッカーのエラーです！
 
-Rust's ownership system is designed to ensure that:
+<a id="the-perks-of-rusts-ownership-system"></a>
 
-- Data is never mutated while it's being read
-- Data is never read while it's being mutated
-- Data is never accessed after it has been destroyed
+## Rustの所有権システムのメリット
 
-These constraints are enforced by the **borrow checker**, a subsystem of the Rust compiler,
-often the subject of jokes and memes in the Rust community.
+Rustの所有権システムは、以下のことを保証するように設計されています：
 
-Ownership is a key concept in Rust, and it's what makes the language unique.
-Ownership enables Rust to provide **memory safety without compromising performance**.
-All these things are true at the same time for Rust:
+- データが読み取られている間、決して変更されないこと
+- データが変更されている間、決して読み取られないこと
+- データが破棄された後、決してアクセスされないこと
 
-1. There is no runtime garbage collector
-2. As a developer, you rarely have to manage memory directly
-3. You can't cause dangling pointers, double frees, and other memory-related bugs
+これらの制約は、Rustコンパイラのサブシステムである**借用チェッカー**によって強制されます。
+借用チェッカーは、Rustコミュニティにおいてしばしばジョークやミームのネタにされる存在です。
 
-Languages like Python, JavaScript, and Java give you 2. and 3., but not 1.\
-Language like C or C++ give you 1., but neither 2. nor 3.
+所有権はRustにおける重要な概念であり、この言語をユニークにしている要素です。
+所有権があることで、Rustは**パフォーマンスを損なうことなくメモリ安全性**を提供できます。
+Rustでは、以下のことがすべて同時に実現されています：
 
-Depending on your background, 3. might sound a bit arcane: what is a "dangling pointer"?
-What is a "double free"? Why are they dangerous?\
-Don't worry: we'll cover these concepts in more details during the rest of the course.
+1. ランタイムのガベージコレクタが存在しない
+2. 開発者がメモリを直接管理しなければならない場面がほとんどない
+3. ダングリングポインタや二重解放、その他のメモリ関連のバグを引き起こせない
 
-For now, though, let's focus on learning how to work within Rust's ownership system.
+Python、JavaScript、Javaのような言語は、2と3を提供しますが、1は提供しません。\
+CやC++のような言語は1を提供しますが、2も3も提供しません。
 
-## The owner
+バックグラウンドによっては、3は少し難解に聞こえるかもしれません。「ダングリングポインタ」とは何か？
+「二重解放」とは何か？なぜ危険なのか？\
+心配はいりません。これらの概念については、コースの後半でより詳しく解説します。
 
-In Rust, each value has an **owner**, statically determined at compile-time.
-There is only one owner for each value at any given time.
+今は、Rustの所有権システムの中でどのように動作させるかを学ぶことに集中しましょう。
 
-## Move semantics
+<a id="the-owner"></a>
 
-Ownership can be transferred.
+## 所有者
 
-If you own a value, for example, you can transfer ownership to another variable:
+Rustでは、各値にはコンパイル時に静的に決定される**所有者**が存在します。
+ある時点において、各値の所有者はただ一人だけです。
+
+<a id="move-semantics"></a>
+
+## ムーブセマンティクス
+
+所有権は譲渡することができます。
+
+例えば、ある値を所有している場合、その所有権を別の変数に譲渡できます：
 
 ```rust
-let a = "hello, world".to_string(); // <- `a` is the owner of the String
-let b = a;  // <- `b` is now the owner of the String
+let a = "hello, world".to_string(); // <- `a` は String の所有者です
+let b = a;  // <- `b` が String の所有者になりました
 ```
 
-Rust's ownership system is baked into the type system: each function has to declare in its signature
-_how_ it wants to interact with its arguments.
 
-So far, all our methods and functions have **consumed** their arguments: they've taken ownership of them.
-For example:
+Rustの所有権システムは型システムに組み込まれています。各関数は、そのシグネチャにおいて、
+引数と_どのように_やり取りしたいのかを宣言しなければなりません。
+
+これまでのところ、すべてのメソッドと関数は引数を**消費**してきました。つまり、引数の所有権を取得していたということです。
+例えば：
 
 ```rust
 impl Ticket {
@@ -115,11 +127,12 @@ impl Ticket {
 }
 ```
 
-`Ticket::description` takes ownership of the `Ticket` instance it's called on.\
-This is known as **move semantics**: ownership of the value (`self`) is **moved** from the caller to
-the callee, and the caller can't use it anymore.
 
-That's exactly the language used by the compiler in the error message we saw earlier:
+`Ticket::description` は、呼び出された `Ticket` インスタンスの所有権を取得します。\
+これは**ムーブセマンティクス**として知られています。値 (`self`) の所有権が呼び出し元から
+呼び出し先へ**ムーブ**され、呼び出し元はもうその値を使用できなくなります。
+
+これは、先ほど見たエラーメッセージでコンパイラが使用していた表現そのものです：
 
 ```text
 error[E0382]: use of moved value: `ticket`
@@ -143,53 +156,58 @@ note: `Ticket::status` takes ownership of the receiver `self`,
    |                       ^^^^
 ```
 
-In particular, this is the sequence of events that unfold when we call `ticket.status()`:
 
-- `Ticket::status` takes ownership of the `Ticket` instance
-- `Ticket::status` extracts `status` from `self` and transfers ownership of `status` back to the caller
-- The rest of the `Ticket` instance is discarded (`title` and `description`)
+具体的に、`ticket.status()` を呼び出した際に起こる一連の流れは以下の通りです：
 
-When we try to use `ticket` again via `ticket.title()`, the compiler complains: the `ticket` value is gone now,
-we no longer own it, therefore we can't use it anymore.
+- `Ticket::status` が `Ticket` インスタンスの所有権を取得する
+- `Ticket::status` が `self` から `status` を抽出し、`status` の所有権を呼び出し元に返す
+- `Ticket` インスタンスの残りの部分（`title` と `description`）が破棄される
 
-To build _useful_ accessor methods we need to start working with **references**.
+`ticket.title()` を介して再び `ticket` を使用しようとすると、コンパイラが警告を出します。`ticket` の値はもう存在せず、
+私たちはそれを所有していないため、もう使用できないということです。
 
-## Borrowing
+_有用な_ アクセサメソッドを作成するには、**参照**を使い始める必要があります。
 
-It is desirable to have methods that can read the value of a variable without taking ownership of it.\
-Programming would be quite limited otherwise. In Rust, that's done via **borrowing**.
+<a id="borrowing"></a>
 
-Whenever you borrow a value, you get a **reference** to it.\
-References are tagged with their privileges[^refine]:
+## 借用
 
-- Immutable references (`&`) allow you to read the value, but not to mutate it
-- Mutable references (`&mut`) allow you to read and mutate the value
+変数の所有権を取得せずにその値を読み取ることができるメソッドがあることは望ましいことです。\
+そうでなければ、プログラミングはかなり制限されてしまいます。Rustでは、これを**借用**によって実現します。
 
-Going back to the goals of Rust's ownership system:
+値を借用するたびに、その値への**参照**が得られます。\
+参照にはその権限[^refine]が付与されています：
 
-- Data is never mutated while it's being read
-- Data is never read while it's being mutated
+- 不変参照 (`&`) では、値の読み取りはできますが、変更はできません
+- 可変参照 (`&mut`) では、値の読み取りと変更の両方が可能です
 
-To ensure these two properties, Rust has to introduce some restrictions on references:
+Rustの所有権システムの目的に立ち返ってみましょう：
 
-- You can't have a mutable reference and an immutable reference to the same value at the same time
-- You can't have more than one mutable reference to the same value at the same time
-- The owner can't mutate the value while it's being borrowed
-- You can have as many immutable references as you want, as long as there are no mutable references
+- データが読み取られている間は、決して変更されない
+- データが変更されている間は、決して読み取られない
 
-In a way, you can think of an immutable reference as a "read-only" lock on the value,
-while a mutable reference is like a "read-write" lock.
+これら2つの特性を保証するため、Rustは参照にいくつかの制限を設けています：
 
-All these restrictions are enforced at compile-time by the borrow checker.
+- 同一の値に対して、可変参照と不変参照を同時に持つことはできません
+- 同一の値に対して、同時に2つ以上の可変参照を持つことはできません
+- 値が借用されている間、所有者はその値を変更することはできません
+- 可変参照が存在しない限り、不変参照はいくつでも持つことができます
 
-### Syntax
+ある意味で、不変参照は値に対する「読み取り専用」ロックのようなものであり、
+可変参照は「読み書き可能」なロックのようなものだと考えることができます。
 
-How do you borrow a value, in practice?\
-By adding `&` or `&mut` **in front a variable**, you're borrowing its value.
-Careful though! The same symbols (`&` and `&mut`) in **front of a type** have a different meaning:
-they denote a different type, a reference to the original type.
+これらの制限はすべて、コンパイル時に借用チェッカーによって強制されます。
 
-For example:
+<a id="syntax"></a>
+
+### 構文
+
+実際に値を借用するにはどうすればよいでしょうか？\
+**変数の前**に `&` または `&mut` を付けることで、その値を借用できます。
+ただし注意してください！**型の前**にある同じ記号 (`&` と `&mut`) は異なる意味を持ちます。
+これらは別の型、つまり元の型への参照を表しています。
+
+例えば：
 
 ```rust
 struct Configuration {
@@ -202,38 +220,42 @@ fn main() {
         version: 1,
         active: true,
     };
-    // `b` is a reference to the `version` field of `config`.
-    // The type of `b` is `&u32`, since it contains a reference to 
-    // a `u32` value.
-    // We create a reference by borrowing `config.version`, using 
-    // the `&` operator.
-    // Same symbol (`&`), different meaning depending on the context!
+    // `b` は `config` の `version` フィールドへの参照です。
+    // `b` の型は `&u32` です。これは `u32` 値への
+    // 参照を含んでいるためです。
+    // `&` 演算子を用いて `config.version` を借用することで、
+    // 参照を作成します。
+    // 同じ記号 (`&`) でも、文脈によって意味が異なります！
     let b: &u32 = &config.version;
-    //     ^ The type annotation is not necessary, 
-    //       it's just there to clarify what's going on
+    //     ^ 型アノテーションは必須ではありません。
+    //       単に状況を明確にするためのものです。
 }
 ```
 
-The same concept applies to function arguments and return types:
+
+同じ概念が関数の引数や戻り値の型にも適用されます：
 
 ```rust
-// `f` takes a mutable reference to a `u32` as an argument, 
-// bound to the name `number`
+// `f`は`u32`への可変参照を引数として受け取ります。
+// これは`number`という名前にバインドされています。
 fn f(number: &mut u32) -> &u32 {
     // [...]
 }
 ```
 
-## Breathe in, breathe out
 
-Rust's ownership system can be a bit overwhelming at first.\
-But don't worry: it'll become second nature with practice.\
-And you're going to get a lot of practice over the rest of this chapter, as well as the rest of the course!
-We'll revisit each concept multiple times to make sure you get familiar with them
-and truly understand how they work.
+<a id="breathe-in-breathe-out"></a>
 
-Towards the end of this chapter we'll explain _why_ Rust's ownership system is designed the way it is.
-For the time being, focus on understanding the _how_. Take each compiler error as a learning opportunity!
+## 深呼吸しましょう
 
-[^refine]: This is a great mental model to start out, but it doesn't capture the _full_ picture.
-We'll refine our understanding of references [later in the course](../07_threads/06_interior_mutability.md).
+Rustの所有権システムは、最初は少し圧倒されるかもしれません。\
+ですが心配はいりません。練習すれば自然と身につきます。\
+そして、この章の残りの部分はもちろん、コースの後半でもたくさん練習することになります！
+各概念に何度も立ち戻り、十分に慣れ、
+その仕組みを真に理解できるようにしていきます。
+
+この章の終盤で、Rustの所有権システムが_なぜ_このような設計になっているのかを説明します。
+今はひとまず、_どのように_動作するのかを理解することに集中してください。コンパイラエラーが出るたびに、それを学習の機会として捉えましょう！
+
+[^refine]: これは学習を始めるにあたって優れたメンタルモデルですが、_全体像_を捉えているわけではありません。
+参照についての理解は、[コースの後半で](../07_threads/06_interior_mutability.md) さらに深めていきます。

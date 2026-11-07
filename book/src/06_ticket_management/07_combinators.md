@@ -1,57 +1,63 @@
-# Combinators
+<a id="combinators"></a>
 
-Iterators can do so much more than `for` loops!\
-If you look at the documentation for the `Iterator` trait, you'll find a **vast** collection of
-methods that you can leverage to transform, filter, and combine iterators in various ways.
+# コンビネータ
 
-Let's mention the most common ones:
+イテレータは、`for` ループよりもはるかに多くのことが可能です！\
+`Iterator` トレイトのドキュメントを見ると、イテレータをさまざまな方法で変換、フィルタリング、結合するために活用できる**膨大な**メソッド群が見つかります。
 
-- `map` applies a function to each element of the iterator.
-- `filter` keeps only the elements that satisfy a predicate.
-- `filter_map` combines `filter` and `map` in one step.
-- `cloned` converts an iterator of references into an iterator of values, cloning each element.
-- `enumerate` returns a new iterator that yields `(index, value)` pairs.
-- `skip` skips the first `n` elements of the iterator.
-- `take` stops the iterator after `n` elements.
-- `chain` combines two iterators into one.
+代表的なものをいくつか挙げます：
 
-These methods are called **combinators**.\
-They are usually **chained** together to create complex transformations in a concise and readable way:
+- `map` は、イテレータの各要素に関数を適用します。
+- `filter` は、述語を満たす要素のみを保持します。
+- `filter_map` は、`filter` と `map` を一度に組み合わせます。
+- `cloned` は、参照のイテレータを値のイテレータに変換し、各要素をクローンします。
+- `enumerate` は、`(index, value)` ペアを生成する新しいイテレータを返します。
+- `skip` は、イテレータの先頭 `n` 個の要素をスキップします。
+- `take` は、`n` 個の要素の後でイテレータを停止します。
+- `chain` は、2つのイテレータを1つに結合します。
+
+これらのメソッドは**コンビネータ**と呼ばれます。\
+通常、これらを**チェーン**させることで、簡潔で読みやすい方法で複雑な変換を実現します：
 
 ```rust
 let numbers = vec![1, 2, 3, 4, 5];
-// The sum of the squares of the even numbers
+// 偶数の2乗の和
 let outcome: u32 = numbers.iter()
     .filter(|&n| n % 2 == 0)
     .map(|&n| n * n)
     .sum();
 ```
 
-## Closures
 
-What's going on with the `filter` and `map` methods above?\
-They take **closures** as arguments.
+<a id="closures"></a>
 
-Closures are **anonymous functions**, i.e. functions that are not defined using the `fn` syntax we are used to.\
-They are defined using the `|args| body` syntax, where `args` are the arguments and `body` is the function body.
-`body` can be a block of code or a single expression.
-For example:
+## クロージャ
+
+上記の `filter` と `map` メソッドはどうなっているのでしょうか？\
+これらは引数として**クロージャ**を受け取ります。
+
+クロージャとは**無名関数**、つまり私たちが慣れ親しんでいる `fn` 構文を用いて定義されない関数のことです。\
+クロージャは `|args| body` 構文を用いて定義され、`args` が引数、`body` が関数本体となります。
+`body` はコードブロックまたは単一の式になります。
+例えば：
 
 ```rust
-// An anonymous function that adds 1 to its argument
+// 引数に1を加算する匿名関数
 let add_one = |x| x + 1;
-// Could be written with a block too:
+// ブロックを使って記述することも可能です：
 let add_one = |x| { x + 1 };
 ```
 
-Closures can take more than one argument:
+
+クロージャは複数の引数を取ることができます：
 
 ```rust
 let add = |x, y| x + y;
 let sum = add(1, 2);
 ```
 
-They can also capture variables from their environment:
+
+また、周囲の環境から変数をキャプチャすることもできます：
 
 ```rust
 let x = 42;
@@ -59,24 +65,28 @@ let add_x = |y| x + y;
 let sum = add_x(1);
 ```
 
-If necessary, you can specify the types of the arguments and/or the return type:
+
+必要に応じて、引数の型や戻り値の型を指定できます：
 
 ```rust
-// Just the input type
+// 入力タイプのみ
 let add_one = |x: i32| x + 1;
-// Or both input and output types, using the `fn` syntax
+// または、`fn`構文を用いて入出力型の両方を指定します。
 let add_one: fn(i32) -> i32 = |x| x + 1;
 ```
 
+
+<a id="collect"></a>
+
 ## `collect`
 
-What happens when you're done transforming an iterator using combinators?\
-You either iterate over the transformed values using a `for` loop, or you collect them into a collection.
+コンビネータを使ってイテレータの変換が終わったらどうなるでしょうか？\
+変換後の値を `for` ループで反復処理するか、あるいはコレクションに収集します。
 
-The latter is done using the `collect` method.\
-`collect` consumes the iterator and collects its elements into a collection of your choice.
+後者は `collect` メソッドを使用して行います。\
+`collect` はイテレータを消費し、その要素を任意のコレクションに収集します。
 
-For example, you can collect the squares of the even numbers into a `Vec`:
+例えば、偶数の2乗を `Vec` に収集できます：
 
 ```rust
 let numbers = vec![1, 2, 3, 4, 5];
@@ -86,22 +96,25 @@ let squares_of_evens: Vec<u32> = numbers.iter()
     .collect();
 ```
 
-`collect` is generic over its **return type**.\
-Therefore you usually need to provide a type hint to help the compiler infer the correct type.
-In the example above, we annotated the type of `squares_of_evens` to be `Vec<u32>`.
-Alternatively, you can use the **turbofish syntax** to specify the type:
+
+`collect` は**戻り値の型**に関してジェネリックです。\
+そのため、通常はコンパイラが正しい型を推論できるよう、型ヒントを提供する必要があります。
+上記の例では、`squares_of_evens` の型を `Vec<u32>` としてアノテーションしました。
+あるいは、**ターボフィッシュ構文**を使用して型を指定することもできます：
 
 ```rust
 let squares_of_evens = numbers.iter()
     .filter(|&n| n % 2 == 0)
     .map(|&n| n * n)
-    // Turbofish syntax: `<method_name>::<type>()`
-    // It's called turbofish because `::<>` looks like a fish
+    // ターボフィッシュ構文: `<method_name>::<type>()`
+    // `::<>`が魚のように見えるため、ターボフィッシュと呼ばれています。
     .collect::<Vec<u32>>();
 ```
 
-## Further reading
 
-- [`Iterator`'s documentation](https://doc.rust-lang.org/std/iter/trait.Iterator.html) gives you an
-  overview of the methods available for iterators in `std`.
-- [The `itertools` crate](https://docs.rs/itertools/) defines even **more** combinators for iterators.
+<a id="further-reading"></a>
+
+## さらに詳しく
+
+- [`Iterator` のドキュメント](https://doc.rust-lang.org/std/iter/trait.Iterator.html) では、`std` のイテレータで利用可能なメソッドの概要を確認できます。
+- [The `itertools` crate](https://docs.rs/itertools/) では、イテレータ用の**さらに多くの**コンビネータが定義されています。

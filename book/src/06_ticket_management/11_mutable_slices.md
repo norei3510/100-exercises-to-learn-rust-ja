@@ -1,30 +1,35 @@
-# Mutable slices
+<a id="mutable-slices"></a>
 
-Every time we've talked about slice types (like `str` and `[T]`), we've used their immutable borrow form (`&str` and `&[T]`).\
-But slices can also be mutable!
+# 可変スライス
 
-Here's how you create a mutable slice:
+これまでスライス型（`str` や `[T]` など）について触れてきた際は、常に不変借用の形式（`&str` や `&[T]`）を使用してきました。\
+しかし、スライスは可変にすることもできます！
+
+可変スライスの作成方法は以下の通りです：
 
 ```rust
 let mut numbers = vec![1, 2, 3];
 let slice: &mut [i32] = &mut numbers;
 ```
 
-You can then modify the elements in the slice:
+
+これで、スライス内の要素を変更できるようになります：
 
 ```rust
 slice[0] = 42;
 ```
 
-This will change the first element of the `Vec` to `42`.
 
-## Limitations
+これにより、`Vec` の最初の要素が `42` に変更されます。
 
-When working with immutable borrows, the recommendation was clear: prefer slice references over references to
-the owned type (e.g. `&[T]` over `&Vec<T>`).\
-That's **not** the case with mutable borrows.
+<a id="limitations"></a>
 
-Consider this scenario:
+## 制限事項
+
+不変借用を扱う際は、所有型への参照よりもスライスへの参照を優先する（例：`&Vec<T>` よりも `&[T]`）という明確な推奨事項がありました。\
+しかし、可変借用の場合は**そうではありません**。
+
+次のようなシナリオを考えてみましょう：
 
 ```rust
 let mut numbers = Vec::with_capacity(2);
@@ -32,10 +37,9 @@ let mut slice: &mut [i32] = &mut numbers;
 slice.push(1);
 ```
 
-It won't compile!\
-`push` is a method on `Vec`, not on slices. This is the manifestation of a more general principle: Rust won't
-allow you to add or remove elements from a slice. You will only be able to modify/replace the elements that are
-already there.
 
-In this regard, a `&mut Vec` or a `&mut String` are strictly more powerful than a `&mut [T]` or a `&mut str`.\
-Choose the type that best fits based on the operations you need to perform.
+これはコンパイルできません！\
+`push` は `Vec` のメソッドであり、スライスのメソッドではありません。これは、Rust ではスライスへの要素の追加や削除が許可されていないという、より一般的な原則の現れです。すでに存在する要素の変更や置換のみが可能です。
+
+この点において、`&mut Vec` や `&mut String` は、`&mut [T]` や `&mut str` よりも厳密に強力な機能を持っています。\
+実行したい操作に基づいて、最適な型を選択してください。

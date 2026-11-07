@@ -1,12 +1,14 @@
-# The `Drop` trait
+<a id="the-drop-trait"></a>
 
-When we introduced [destructors](../03_ticket_v1/11_destructor.md),
-we mentioned that the `drop` function:
+# `Drop` トレイト
 
-1. reclaims the memory occupied by the type (i.e. `std::mem::size_of` bytes)
-2. cleans up any additional resources that the value might be managing (e.g. the heap buffer of a `String`)
+[デストラクタ](../03_ticket_v1/11_destructor.md) を紹介した際、
+`drop` 関数が以下の処理を行うことに触れました。
 
-Step 2. is where the `Drop` trait comes in.
+1. 型が占有するメモリ（すなわち `std::mem::size_of` バイト）を回収する
+2. 値が管理している可能性のある追加リソース（例：`String` のヒープバッファ）をクリーンアップする
+
+ステップ 2 で登場するのが `Drop` トレイトです。
 
 ```rust
 pub trait Drop {
@@ -14,34 +16,38 @@ pub trait Drop {
 }
 ```
 
-The `Drop` trait is a mechanism for you to define _additional_ cleanup logic for your types,
-beyond what the compiler does for you automatically.\
-Whatever you put in the `drop` method will be executed when the value goes out of scope.
 
-## `Drop` and `Copy`
+`Drop` トレイトは、コンパイラが自動的に行う処理に加えて、
+型に対する_追加の_クリーンアップロジックを定義するための仕組みです。\
+`drop` メソッドに記述した内容は、値がスコープ外になった際に実行されます。
 
-When talking about the `Copy` trait, we said that a type can't implement `Copy` if it
-manages additional resources beyond the `std::mem::size_of` bytes that it occupies in memory.
+<a id="drop-and-copy"></a>
 
-You might wonder: how does the compiler know if a type manages additional resources?
-That's right: `Drop` trait implementations!\
-If your type has an explicit `Drop` implementation, the compiler will assume
-that your type has additional resources attached to it and won't allow you to implement `Copy`.
+## `Drop` と `Copy`
+
+`Copy` トレイトについて説明した際、型がメモリ上で占有する `std::mem::size_of` バイト以外の追加リソースを管理している場合、
+その型は `Copy` を実装できないと述べました。
+
+ここで、「コンパイラはどうやって型が追加リソースを管理しているか判断するのだろうか」と疑問に思うかもしれません。
+その通りです。`Drop` トレイトの実装です！\
+型に明示的な `Drop` 実装がある場合、コンパイラはその型に追加リソースが紐付いていると判断し、
+`Copy` の実装を許可しません。
 
 ```rust
-// This is a unit struct, i.e. a struct with no fields.
+// これはユニット構造体、つまりフィールドを持たない構造体です。
 #[derive(Clone, Copy)]
 struct MyType;
 
 impl Drop for MyType {
     fn drop(&mut self) {
-       // We don't need to do anything here,
-       // it's enough to have an "empty" Drop implementation
+       // ここでは特に何もする必要はありません。
+       // 「空の」Drop実装があれば十分です。
     }
 }
 ```
 
-The compiler will complain with this error message:
+
+コンパイラは以下のエラーメッセージを表示します。
 
 ```text
 error[E0184]: the trait `Copy` cannot be implemented for this type; 

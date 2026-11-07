@@ -1,26 +1,30 @@
-# References
+<a id="references"></a>
 
-What about references, like `&String` or `&mut String`? How are they represented in memory?
+# 参照
 
-Most references[^fat] in Rust are represented, in memory, as a pointer to a memory location.\
-It follows that their size is the same as the size of a pointer, a `usize`.
+`&String` や `&mut String` のような参照はどうでしょうか？メモリ上ではどのように表現されるのでしょうか？
 
-You can verify this using `std::mem::size_of`:
+Rust のほとんどの参照[^fat]は、メモリ上ではメモリ上の位置を指すポインタとして表現されます。\
+したがって、そのサイズはポインタのサイズ、すなわち `usize` と同じになります。
+
+これは `std::mem::size_of` を使って確認できます：
 
 ```rust
 assert_eq!(std::mem::size_of::<&String>(), 8);
 assert_eq!(std::mem::size_of::<&mut String>(), 8);
 ```
 
-A `&String`, in particular, is a pointer to the memory location where the `String`'s metadata is stored.\
-If you run this snippet:
+
+特に `&String` は、`String` のメタデータが格納されているメモリ上の位置を指すポインタです。\
+このスニペットを実行すると：
 
 ```rust
 let s = String::from("Hey");
 let r = &s;
 ```
 
-you'll get something like this in memory:
+
+メモリ上では次のような状態になります：
 
 ```
            --------------------------------------
@@ -37,14 +41,17 @@ Heap   | H | e | y | ? | ? |
        +---+---+---+---+---+
 ```
 
-It's a pointer to a pointer to the heap-allocated data, if you will.
-The same goes for `&mut String`.
 
-## Not all pointers point to the heap
+いわば、ヒープに確保されたデータへのポインタへのポインタということになります。
+`&mut String` についても同様です。
 
-The example above should clarify one thing: not all pointers point to the heap.\
-They just point to a memory location, which _may_ be on the heap, but doesn't have to be.
+<a id="not-all-pointers-point-to-the-heap"></a>
 
-[^fat]: [Later in the course](../04_traits/06_str_slice.md) we'll talk about **fat pointers**,
-i.e. pointers with additional metadata. As the name implies, they are larger than
-the pointers we discussed in this chapter, also known as **thin pointers**.
+## すべてのポインタがヒープを指すわけではない
+
+上記の例から、一点明確になるはずです。すべてのポインタがヒープを指すわけではありません。\
+ポインタは単にメモリ上の位置を指しているのであり、そこがヒープ上にある _可能性はありますが_、必ずしもそうである必要はありません。
+
+[^fat]: [コースの後半で](../04_traits/06_str_slice.md) **ファットポインタ**、
+つまり追加のメタデータを持つポインタについて説明します。その名の通り、これらは本章で扱った
+**シンポインタ**とも呼ばれるポインタよりもサイズが大きくなります。

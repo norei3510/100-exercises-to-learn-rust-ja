@@ -1,15 +1,15 @@
-// 👇 The lines below, starting with `///`, are called **documentation comments**.
-//    They attach documentation to the item that follows them. In this case, the `speed` function.
-//    If you run `cargo doc --open` from this exercise's directory, Rust will generate
-//    HTML documentation from these comments and open it in your browser.
+// 👇 `///` から始まる以下の行は、**ドキュメントコメント**と呼ばれます。
+//    これらは、後続のアイテムにドキュメントを付与します。この場合は `speed` 関数です。
+//    この演習のディレクトリから `cargo doc --open` を実行すると、Rust が
+//    これらのコメントから HTML ドキュメントを生成し、ブラウザで開きます。
 
-/// Given the start and end points of a journey, and the time it took to complete it,
-/// calculate the average speed.
+/// 旅の出発点と終点、および完了までにかかった時間が与えられたとき、
+/// 平均速度を計算してください。
 pub fn speed(start: u32, end: u32, time_elapsed: u32) -> u32 {
-    // TODO: define a variable named `distance` with the right value to get tests to pass
-    //  Do you need to annotate the type of `distance`? Why or why not?
+    // TODO: テストをパスさせるために、適切な値を持つ `distance` という名前の変数を定義してください。
+    //  `distance` に型アノテーションを付ける必要はありますか？その理由も併せて教えてください。
 
-    // Don't change the line below
+    // 以下の行は変更しないでください
     distance / time_elapsed
 }
 

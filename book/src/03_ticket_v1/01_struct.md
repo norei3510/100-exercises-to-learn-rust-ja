@@ -1,20 +1,24 @@
-# Structs
+<a id="structs"></a>
 
-We need to keep track of three pieces of information for each ticket:
+# 構造体
 
-- A title
-- A description
-- A status
+各チケットについて、以下の3つの情報を管理する必要があります。
 
-We can start by using a [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
-to represent them. `String` is the type defined in Rust's standard library to represent
-[UTF-8 encoded](https://en.wikipedia.org/wiki/UTF-8) text.
+- タイトル
+- 説明
+- ステータス
 
-But how do we **combine** these three pieces of information into a single entity?
+まずは、これらを表現するために [`String`](https://doc.rust-lang.org/std/string/struct.String.html)
+を使用することから始めましょう。`String` は、Rust の標準ライブラリで定義されている、
+[UTF-8 エンコード](https://en.wikipedia.org/wiki/UTF-8) されたテキストを表現するための型です。
 
-## Defining a `struct`
+では、これら3つの情報をどのようにして1つの実体に**まとめる**のでしょうか？
 
-A `struct` defines a **new Rust type**.
+<a id="defining-a-struct"></a>
+
+## `struct` の定義
+
+`struct` は、**新しい Rust の型**を定義します。
 
 ```rust
 struct Ticket {
@@ -24,14 +28,17 @@ struct Ticket {
 }
 ```
 
-A struct is quite similar to what you would call a class or an object in other programming languages.
 
-## Defining fields
+構造体は、他のプログラミング言語でいうクラスやオブジェクトと非常によく似ています。
 
-The new type is built by combining other types as **fields**.\
-Each field must have a name and a type, separated by a colon, `:`. If there are multiple fields, they are separated by a comma, `,`.
+<a id="defining-fields"></a>
 
-Fields don't have to be of the same type, as you can see in the `Configuration` struct below:
+## フィールドの定義
+
+新しい型は、他の型を**フィールド**として組み合わせることで構築されます。\
+各フィールドには名前と型が必要で、それらはコロンで区切られます `:`。フィールドが複数ある場合は、カンマで区切ります `,`。
+
+以下の `Configuration` 構造体に見られるように、フィールドの型は必ずしも同じである必要はありません。
 
 ```rust
 struct Configuration {
@@ -40,12 +47,15 @@ struct Configuration {
 }
 ```
 
-## Instantiation
 
-You can create an instance of a struct by specifying the values for each field:
+<a id="instantiation"></a>
+
+## インスタンス化
+
+各フィールドの値を指定することで、構造体のインスタンスを作成できます。
 
 ```rust
-// Syntax: <StructName> { <field_name>: <value>, ... }
+// 構文: <StructName> { <field_name>: <value>, ... }
 let ticket = Ticket {
     title: "Build a ticket system".into(),
     description: "A Kanban board".into(),
@@ -53,19 +63,25 @@ let ticket = Ticket {
 };
 ```
 
-## Accessing fields
 
-You can access the fields of a struct using the `.` operator:
+<a id="accessing-fields"></a>
+
+## フィールドへのアクセス
+
+`.` 演算子を使用して、構造体のフィールドにアクセスできます。
 
 ```rust
-// Field access
+// フィールドアクセス
 let x = ticket.description;
 ```
 
-## Methods
 
-We can attach behaviour to our structs by defining **methods**.\
-Using the `Ticket` struct as an example:
+<a id="methods"></a>
+
+## メソッド
+
+**メソッド**を定義することで、構造体に振る舞いを持たせることができます。\
+`Ticket` 構造体を例に説明します。
 
 ```rust
 impl Ticket {
@@ -74,35 +90,40 @@ impl Ticket {
     }
 }
 
-// Syntax:
+// 構文：
 // impl <StructName> {
 //    fn <method_name>(<parameters>) -> <return_type> {
-//        // Method body
+//        // メソッド本体
 //    }
 // }
 ```
 
-Methods are pretty similar to functions, with two key differences:
 
-1. methods must be defined inside an **`impl` block**
-2. methods may use `self` as their first parameter.
-   `self` is a keyword and represents the instance of the struct the method is being called on.
+メソッドは関数と非常によく似ていますが、2つの重要な違いがあります。
+
+1. メソッドは **`impl` ブロック** 内で定義する必要があります。
+2. メソッドは第1引数として `self` を使用できます。
+   `self` はキーワードであり、そのメソッドが呼び出されている構造体のインスタンスを表します。
+
+<a id="self"></a>
 
 ### `self`
 
-If a method takes `self` as its first parameter, it can be called using the **method call syntax**:
+メソッドが第1引数として `self` を取る場合、**メソッド呼び出し構文**を使用して呼び出すことができます。
 
 ```rust
-// Method call syntax: <instance>.<method_name>(<parameters>)
+// メソッド呼び出しの構文: <instance>.<method_name>(<parameters>)
 let is_open = ticket.is_open();
 ```
 
-This is the same calling syntax you used to perform saturating arithmetic operations on `u32` values
-in [the previous chapter](../02_basic_calculator/09_saturating.md).
 
-### Static methods
+これは、[前の章](../02_basic_calculator/09_saturating.md) で `u32` の値に対して飽和算術演算を行った際と同じ呼び出し構文です。
 
-If a method doesn't take `self` as its first parameter, it's a **static method**.
+<a id="static-methods"></a>
+
+### 静的メソッド
+
+メソッドが第1引数として `self` を取らない場合、それは**静的メソッド**となります。
 
 ```rust
 struct Configuration {
@@ -111,29 +132,34 @@ struct Configuration {
 }
 
 impl Configuration {
-    // `default` is a static method on `Configuration`
+    // `default`は`Configuration`の静的メソッドです。
     fn default() -> Configuration {
         Configuration { version: 0, active: false }
     }
 }
 ```
 
-The only way to call a static method is by using the **function call syntax**:
+
+静的メソッドを呼び出す唯一の方法は、**関数呼び出し構文**を使用することです。
 
 ```rust
-// Function call syntax: <StructName>::<method_name>(<parameters>)
+// 関数呼び出しの構文: <StructName>::<method_name>(<parameters>)
 let default_config = Configuration::default();
 ```
 
-### Equivalence
 
-You can use the function call syntax even for methods that take `self` as their first parameter:
+<a id="equivalence"></a>
+
+### 等価性
+
+第1引数として `self` を取るメソッドであっても、関数呼び出し構文を使用できます。
 
 ```rust
-// Function call syntax:
+// 関数呼び出しの構文：
 //   <StructName>::<method_name>(<instance>, <parameters>)
 let is_open = Ticket::is_open(ticket);
 ```
 
-The function call syntax makes it quite clear that `ticket` is being used as `self`, the first parameter of the method,
-but it's definitely more verbose. Prefer the method call syntax when possible.
+
+関数呼び出し構文を使えば、`ticket` がメソッドの第1引数である `self` として使用されていることが非常に明確になりますが、
+間違いなく記述が冗長になります。可能な限りメソッド呼び出し構文を優先してください。

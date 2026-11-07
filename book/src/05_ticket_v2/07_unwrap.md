@@ -1,37 +1,44 @@
+<a id="unwrapping"></a>
+
 # Unwrapping
 
-`Ticket::new` now returns a `Result` instead of panicking on invalid inputs.\
-What does this mean for the caller?
+`Ticket::new` は、無効な入力に対してパニックを起こす代わりに、`Result` を返すようになりました。\
+これは呼び出し側にとってどのような意味を持つのでしょうか？
 
-## Failures can't be (implicitly) ignored
+<a id="failures-cant-be-implicitly-ignored"></a>
 
-Unlike exceptions, Rust's `Result` forces you to **handle errors at the call site**.\
-If you call a function that returns a `Result`, Rust won't allow you to implicitly ignore the error case.
+## 失敗を（暗黙的に）無視できない
+
+例外とは異なり、Rust の `Result` では **呼び出し側でエラーを処理する** ことが強制されます。\
+`Result` を返す関数を呼び出した場合、Rust はエラーケースを暗黙的に無視することを許可しません。
 
 ```rust
 fn parse_int(s: &str) -> Result<i32, ParseIntError> {
     // ...
 }
 
-// This won't compile: we're not handling the error case.
-// We must either use `match` or one of the combinators provided by 
-// `Result` to "unwrap" the success value or handle the error.
+// これはコンパイルできません。エラーケースを処理していないためです。
+// `match` または `Result` が提供するコンビネータのいずれかを使用して、
+// 成功値を「アンラップ」するか、エラーを処理する必要があります。
 let number = parse_int("42") + 2;
 ```
 
-## You got a `Result`. Now what?
 
-When you call a function that returns a `Result`, you have two key options:
+<a id="you-got-a-result-now-what"></a>
 
-- Panic if the operation failed.
-  This is done using either the `unwrap` or `expect` methods.
+## `Result` が返されました。次はどうすればいいでしょうか？
+
+`Result` を返す関数を呼び出す際、主に 2 つの選択肢があります。
+
+- 操作が失敗した場合にパニックを起こす。
+  これは `unwrap` または `expect` メソッドを使用して行います。
   ```rust
-  // Panics if `parse_int` returns an `Err`.
+  // `parse_int` が `Err` を返した場合にパニックが発生します。
   let number = parse_int("42").unwrap();
-  // `expect` lets you specify a custom panic message.
+  // `expect` を使用すると、カスタムのパニックメッセージを指定できます。
   let number = parse_int("42").expect("Failed to parse integer");
   ```
-- Destructure the `Result` using a `match` expression to deal with the error case explicitly.
+- `match` 式を用いて `Result` を分解し、エラーケースを明示的に処理する。
   ```rust
   match parse_int("42") {
       Ok(number) => println!("Parsed number: {}", number),

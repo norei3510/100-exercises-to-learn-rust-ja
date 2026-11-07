@@ -1,41 +1,46 @@
-# Channels
+<a id="channels"></a>
 
-All our spawned threads have been fairly short-lived so far.\
-Get some input, run a computation, return the result, shut down.
+# チャネル
 
-For our ticket management system, we want to do something different:
-a client-server architecture.
+これまで生成してきたスレッドは、いずれも比較的短寿命なものでした。\
+入力を受け取り、計算を実行し、結果を返して終了するという流れです。
 
-We will have **one long-running server thread**, responsible for managing
-our state, the stored tickets.
+チケット管理システムでは、これとは異なるアプローチ、つまり
+クライアント・サーバーアーキテクチャを採用したいと考えています。
 
-We will then have **multiple client threads**.\
-Each client will be able to send **commands** and **queries** to
-the stateful thread, in order to change its state (e.g. add a new ticket)
-or retrieve information (e.g. get the status of a ticket).\
-Client threads will run concurrently.
+ここでは、状態（保存されたチケット）の管理を担う
+**1つの長時間稼働するサーバースレッド**を用意します。
 
-## Communication
+そして、**複数のクライアントスレッド**を用意します。\
+各クライアントは、状態を持つスレッドに対して**コマンド**や**クエリ**を送信し、
+状態を変更したり（例：新しいチケットを追加）、
+情報を取得したり（例：チケットのステータスを取得）することができます。\
+クライアントスレッドは並行して動作します。
 
-So far we've only had very limited parent-child communication:
+<a id="communication"></a>
 
-- The spawned thread borrowed/consumed data from the parent context
-- The spawned thread returned data to the parent when joined
+## 通信
 
-This isn't enough for a client-server design.\
-Clients need to be able to send and receive data from the server thread
-_after_ it has been launched.
+これまでは、親スレッドと子スレッド間の通信は非常に限定的でした。
 
-We can solve the issue using **channels**.
+- 生成されたスレッドが親コンテキストからデータを借りたり消費したりしていた
+- 生成されたスレッドが join された際に親へデータを返していた
 
-## Channels
+これではクライアント・サーバー設計としては不十分です。\
+クライアントは、サーバースレッドが起動した_後_でも、
+サーバースレッドとの間でデータを送受信できる必要があります。
 
-Rust's standard library provides **multi-producer, single-consumer** (mpsc) channels
-in its `std::sync::mpsc` module.\
-There are two channel flavours: bounded and unbounded. We'll stick to the unbounded
-version for now, but we'll discuss the pros and cons later on.
+この問題は、**チャネル**を用いることで解決できます。
 
-Channel creation looks like this:
+<a id="channels-1"></a>
+
+## チャネル
+
+Rustの標準ライブラリの `std::sync::mpsc` モジュールでは、**マルチプロデューサー・シングルコンシューマー** (mpsc) チャネルが提供されています。\
+チャネルには、有界（bounded）と無界（unbounded）の2種類があります。今回は無界バージョンを使用しますが、
+メリットとデメリットについては後ほど説明します。
+
+チャネルの作成は以下のようになります。
 
 ```rust
 use std::sync::mpsc::channel;
@@ -43,31 +48,37 @@ use std::sync::mpsc::channel;
 let (sender, receiver) = channel();
 ```
 
-You get a sender and a receiver.\
-You call `send` on the sender to push data into the channel.\
-You call `recv` on the receiver to pull data from the channel.
 
-### Multiple senders
+これにより、送信側（sender）と受信側（receiver）が得られます。\
+送信側で `send` を呼び出すことで、チャネルにデータを送り込みます。\
+受信側で `recv` を呼び出すことで、チャネルからデータを取り出します。
 
-`Sender` is clonable: we can create multiple senders (e.g. one for
-each client thread) and they will all push data into the same channel.
+<a id="multiple-senders"></a>
 
-`Receiver`, instead, is not clonable: there can only be a single receiver
-for a given channel.
+### 複数の送信側
 
-That's what **mpsc** (multi-producer single-consumer) stands for!
+`Sender` はクローン可能です。つまり、複数の送信側（例：各クライアントスレッドに1つずつ）を作成でき、
+それらすべてが同じチャネルにデータを送り込むことができます。
 
-### Message type
+一方、`Receiver` はクローン不可能です。あるチャネルに対して、受信側は1つしか存在できません。
 
-Both `Sender` and `Receiver` are generic over a type parameter `T`.\
-That's the type of the _messages_ that can travel on our channel.
+これがまさに **mpsc** (multi-producer single-consumer) の意味するところです！
 
-It could be a `u64`, a struct, an enum, etc.
+<a id="message-type"></a>
 
-### Errors
+### メッセージ型
 
-Both `send` and `recv` can fail.\
-`send` returns an error if the receiver has been dropped.\
-`recv` returns an error if all senders have been dropped and the channel is empty.
+`Sender` と `Receiver` はどちらも型パラメータ `T` を持つジェネリックな型です。\
+これは、チャネルを介してやり取りされる_メッセージ_の型になります。
 
-In other words, `send` and `recv` error when the channel is effectively closed.
+`u64` や構造体、列挙型（enum）などが考えられます。
+
+<a id="errors"></a>
+
+### エラー
+
+`send` と `recv` はどちらも失敗する可能性があります。\
+`send` は、受信側がドロップされた場合にエラーを返します。\
+`recv` は、すべての送信側がドロップされ、チャネルが空の場合にエラーを返します。
+
+言い換えれば、`send` と `recv` は、チャネルが実質的に閉じられたときにエラーとなります。

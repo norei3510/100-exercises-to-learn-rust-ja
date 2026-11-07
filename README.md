@@ -1,44 +1,60 @@
-# Learn Rust, one exercise at a time
+<a id="learn-rust-one-exercise-at-a-time"></a>
 
-You've heard about Rust, but you never had the chance to try it out?\
-This course is for you!
+# 演習を一つずつこなしてRustを学ぼう
 
-You'll learn Rust by solving 100 exercises.\
-You'll go from knowing nothing about Rust to being able to start
-writing your own programs, one exercise at a time.
+> [!IMPORTANT]
+> Mainmatter GmbH（原著者: Luca Palmieri）による「100 Exercises To Learn Rust」の**非公式AI翻訳版**です。
+> 翻訳には大学GPU上の [PLaMo 3 Translate 31B](https://huggingface.co/pfnet/plamo-3-translate-31b-GGUF)（GGUF Q4_K_M）を使用しました。
+> [原文リポジトリ](https://github.com/mainmatter/100-exercises-to-learn-rust) / [翻訳の記録](TRANSLATION.md)
+> 原文のライセンスは [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) です。
+
+Rustのことは聞いたことがあるけれど、実際に試す機会がなかったという方はいらっしゃいませんか？\
+そんな方にぴったりのコースです！
+
+100個の演習問題を解くことで、Rustを習得できます。\
+Rustに関する知識が全くない状態から、演習を一つずつ進めることで、
+自分でプログラムを書き始められるようになります。
 
 > [!NOTE]
-> This course has been written by [Mainmatter](https://mainmatter.com/rust-consulting/).\
-> It's one of the trainings in [our portfolio of Rust workshops](https://mainmatter.com/services/workshops/rust/).\
-> Check out our [landing page](https://mainmatter.com/rust-consulting/) if you're looking for Rust consulting or
-> training!
+> 本コースは [Mainmatter](https://mainmatter.com/rust-consulting/) によって作成されました。\
+> [Rustワークショップのポートフォリオ](https://mainmatter.com/services/workshops/rust/) に含まれるトレーニングの一つです。\
+> Rustのコンサルティングやトレーニングをお探しの方は、\
+> [ランディングページ](https://mainmatter.com/rust-consulting/) をご覧ください！
 
-## Getting started
+<a id="getting-started"></a>
 
-Go to [rust-exercises.com](https://rust-exercises.com) and follow the instructions there
-to get started with the course.
+## はじめに
 
-## Requirements
+[rust-exercises.com](https://rust-exercises.com) にアクセスし、記載されている手順に従って
+コースを開始してください。
 
-- **Rust** (follow instructions [here](https://www.rust-lang.org/tools/install)).\
-  If `rustup` is already installed on your system, run `rustup update` (or another appropriate command depending on how
-  you installed Rust on your system)
-  to make sure you're running on the latest stable version.
-- _(Optional but recommended)_ An IDE with Rust autocompletion support.
-  We recommend one of the following:
+<a id="requirements"></a>
+
+## 要件
+
+- **Rust**（[こちら](https://www.rust-lang.org/tools/install) の手順に従ってください）。\
+  システムに `rustup` が既にインストールされている場合は、`rustup update`（またはRustのインストール方法に応じた
+  適切なコマンド）を実行し、
+  最新の安定版が動作していることを確認してください。
+- _（任意ですが推奨）_ Rustの自動補完に対応したIDE。
+  以下のいずれかを推奨します：
   - [RustRover](https://www.jetbrains.com/rust/);
-  - [Visual Studio Code](https://code.visualstudio.com) with
-    the [`rust-analyzer`](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) extension.
+  - [Visual Studio Code](https://code.visualstudio.com) と
+    [`rust-analyzer`](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) 拡張機能。
 
-## Solutions
+<a id="solutions"></a>
 
-You can find the solutions to the exercises in
-the [`solutions` branch](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions) of this repository.
+## 解答
 
-# License
+演習問題の解答は、このリポジトリの
+[`solutions`ブランチ](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions) で確認できます。
 
-Copyright © 2024- Mainmatter GmbH (https://mainmatter.com), released under the
-[PolyForm-Noncommercial-1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
+<a id="license"></a>
 
-If you're planning to use this course internally at your company, please [reach out](mailto:training@mainmatter.com) for a license.
-We also offer this course as an [instructor-led workshop](https://mainmatter.com/training/learn-rust-starting-from-scratch/).
+# ライセンス
+
+Copyright © 2024- Mainmatter GmbH (https://mainmatter.com)、[PolyForm-Noncommercial-1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) の下で
+公開されています。
+
+本コースを社内で利用される場合は、ライセンスについて [お問い合わせください](mailto:training@mainmatter.com)。
+また、本コースを [講師主導のワークショップ](https://mainmatter.com/training/learn-rust-starting-from-scratch/) としても提供しています。

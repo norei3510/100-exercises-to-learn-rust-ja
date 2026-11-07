@@ -1,6 +1,6 @@
-// TODO: Given a static slice of integers, split the slice into two halves and
-//  sum each half in a separate thread.
-//  Do not allocate any additional memory!
+// TODO: 整数の静的スライスが与えられたとき、そのスライスを2等分し、
+//  それぞれの半分の和を別々のスレッドで計算してください。
+//  追加のメモリは割り当てないでください！
 use std::thread;
 
 pub fn sum(slice: &'static [i32]) -> i32 {

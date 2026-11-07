@@ -1,10 +1,12 @@
-# Encapsulation
+<a id="encapsulation"></a>
 
-Now that we have a basic understanding of modules and visibility, let's circle back to **encapsulation**.\
-Encapsulation is the practice of hiding the internal representation of an object. It is most commonly
-used to enforce some **invariants** on the object's state.
+# カプセル化
 
-Going back to our `Ticket` struct:
+モジュールと可視性について基本的な理解が得られたところで、改めて**カプセル化**について見ていきましょう。\
+カプセル化とは、オブジェクトの内部表現を隠蔽することです。これは一般的に、
+オブジェクトの状態に対して何らかの**不変条件**を強制するために用いられます。
+
+先ほどの `Ticket` 構造体に戻ってみましょう：
 
 ```rust
 struct Ticket {
@@ -14,20 +16,19 @@ struct Ticket {
 }
 ```
 
-If all fields are made public, there is no encapsulation.\
-You must assume that the fields can be modified at any time, set to any value that's allowed by
-their type. You can't rule out that a ticket might have an empty title or a status
-that doesn't make sense.
 
-To enforce stricter rules, we must keep the fields private[^newtype].
-We can then provide public methods to interact with a `Ticket` instance.
-Those public methods will have the responsibility of upholding our invariants (e.g. a title must not be empty).
+すべてのフィールドを公開にすると、カプセル化は行われません。\
+フィールドはいつでも変更可能であり、その型で許容される任意の値に設定できると想定しなければなりません。
+チケットのタイトルが空だったり、意味をなさないステータスになっていたりする可能性を排除できません。
 
-If at least one field is private it is no longer possible to create a `Ticket` instance directly using the struct
-instantiation syntax:
+より厳格なルールを強制するには、フィールドをプライベートにする必要があります[^newtype]。
+その上で、`Ticket` インスタンスを操作するための公開メソッドを提供します。
+これらの公開メソッドが、不変条件（例：タイトルは空であってはならない）を維持する責任を担います。
+
+少なくとも1つのフィールドがプライベートである場合、構造体のインスタンス化構文を用いて直接 `Ticket` インスタンスを作成することはできなくなります：
 
 ```rust
-// This won't work!
+// これではうまくいきません！
 let ticket = Ticket {
     title: "Build a ticket system".into(),
     description: "A Kanban board".into(),
@@ -35,25 +36,27 @@ let ticket = Ticket {
 };
 ```
 
-You've seen this in action in the previous exercise on visibility.\
-We now need to provide one or more public **constructors**—i.e. static methods or functions that can be used
-from outside the module to create a new instance of the struct.\
-Luckily enough we already have one: `Ticket::new`, as implemented in [a previous exercise](02_validation.md).
 
-## Accessor methods
+これは、先ほどの可視性に関する演習で実際に確認した通りです。\
+ここで、1つ以上の公開**コンストラクタ**――つまり、モジュールの外部から構造体の新しいインスタンスを作成するために使用できる静的メソッドまたは関数――を提供する必要があります。\
+幸いなことに、[以前の演習](02_validation.md)で実装した `Ticket::new` がすでに用意されています。
 
-In summary:
+<a id="accessor-methods"></a>
 
-- All `Ticket` fields are private
-- We provide a public constructor, `Ticket::new`, that enforces our validation rules on creation
+## アクセサメソッド
 
-That's a good start, but it's not enough: apart from creating a `Ticket`, we also need to interact with it.
-But how can we access the fields if they're private?
+まとめると：
 
-We need to provide **accessor methods**.\
-Accessor methods are public methods that allow you to read the value of a private field (or fields) of a struct.
+- すべての `Ticket` フィールドはプライベートである
+- 作成時にバリデーションルールを強制する公開コンストラクタ `Ticket::new` を提供する
 
-Rust doesn't have a built-in way to generate accessor methods for you, like some other languages do.
-You have to write them yourself—they're just regular methods.
+これは良いスタートですが、これだけでは不十分です。`Ticket` を作成するだけでなく、それを操作する必要もあります。
+しかし、フィールドがプライベートである場合、どうやってアクセスすればよいのでしょうか？
 
-[^newtype]: Or refine their type, a technique we'll explore [later on](../05_ticket_v2/15_outro.md).
+ここで**アクセサメソッド**を提供する必要があります。\
+アクセサメソッドとは、構造体のプライベートフィールド（または複数のフィールド）の値を読み取ることができる公開メソッドのことです。
+
+Rustには、他の言語にあるようなアクセサメソッドを自動生成する組み込み機能はありません。
+自分で記述する必要があります。これらは単なる通常のメソッドです。
+
+[^newtype]: あるいは、その型を精緻化するという手法もあります。これについては[後ほど](../05_ticket_v2/15_outro.md)解説します。

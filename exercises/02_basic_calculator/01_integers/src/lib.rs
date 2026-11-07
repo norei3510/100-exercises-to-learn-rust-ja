@@ -1,5 +1,5 @@
 fn compute(a: u32, b: u32) -> u32 {
-    // TODO: change the line below to fix the compiler error and make the tests pass.
+    // TODO: 以下の行を修正してコンパイラエラーを解消し、テストをパスさせてください。
     let multiplier: u8 = 4;
     a + b * multiplier
 }

@@ -1,26 +1,26 @@
-// TODO: you have something to do in each of the modules in this crate!
+// TODO: このクレートの各モジュールで、やるべきことがあります！
 mod description;
 mod status;
 mod title;
 
-// A common pattern in Rust is to split code into multiple (private) modules
-// and then re-export the public parts of those modules at the root of the crate.
+// Rustでよく見られるパターンは、コードを複数の（プライベート）モジュールに分割し、
+// それらのモジュールの公開部分をクレートのルートで再エクスポートすることです。
 //
-// This hides the internal structure of the crate from your users, while still
-// allowing you to organize your code however you like.
+// これにより、クレートの内部構造をユーザーから隠しつつ、
+// コードを任意の方法で整理することができます。
 pub use description::TicketDescription;
 pub use status::Status;
 pub use title::TicketTitle;
 
 #[derive(Debug, PartialEq, Clone)]
-// We no longer need to make the fields private!
-// Since each field encapsulates its own validation logic, there is no risk of
-// a user of `Ticket` modifying the fields in a way that would break the
-// invariants of the struct.
+// フィールドをプライベートにする必要はもうありません！
+// 各フィールドが独自の検証ロジックをカプセル化しているため、`Ticket`の利用者が
+// 構造体の不変条件を損なう形でフィールドを変更する
+// リスクはありません。
 //
-// Careful though: if you had any invariants that spanned multiple fields, you
-// would need to ensure that those invariants are still maintained and go back
-// to making the fields private.
+// ただしご注意ください。複数のフィールドにまたがる不変条件がある場合は、
+// それらの不変条件が引き続き維持されるようにした上で、
+// フィールドを再びprivateに戻す必要があります。
 pub struct Ticket {
     pub title: TicketTitle,
     pub description: TicketDescription,

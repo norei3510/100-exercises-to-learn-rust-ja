@@ -1,9 +1,9 @@
-// Define a struct named `Order` with the following fields:
-// - `price`, an unsigned integer
-// - `quantity`, an unsigned integer
+// 以下のフィールドを持つ`Order`という名前の構造体を定義してください。
+// - `price`、符号なし整数
+// - `quantity`、符号なし整数
 //
-// It should also have a method named `is_available` that returns a `true` if the quantity is
-// greater than 0, otherwise `false`.
+// また、数量が0より大きい場合は`true`を、それ以外の場合は`false`を返す
+// `is_available`という名前のメソッドも備えている必要があります。
 
 #[cfg(test)]
 mod tests {

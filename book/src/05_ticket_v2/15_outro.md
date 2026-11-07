@@ -1,18 +1,22 @@
-# Wrapping up
+<a id="wrapping-up"></a>
 
-When it comes to domain modelling, the devil is in the details.\
-Rust offers a wide range of tools to help you represent the constraints of your domain directly in the type system,
-but it takes some practice to get it right and write code that looks idiomatic.
+# まとめ
 
-Let's close the chapter with one final refinement of our `Ticket` model.\
-We'll introduce a new type for each of the fields in `Ticket` to encapsulate the respective constraints.\
-Every time someone accesses a `Ticket` field, they'll get back a value that's guaranteed to be valid—i.e. a
-`TicketTitle` instead of a `String`. They won't have to worry about the title being empty elsewhere in the code:
-as long as they have a `TicketTitle`, they know it's valid **by construction**.
+ドメインモデリングにおいては、細部にこそ落とし穴があります。\
+Rustには、ドメインの制約を型システムに直接反映させるための多彩なツールが用意されていますが、
+それらを適切に使いこなし、慣用的なコードを書くにはある程度の習熟が必要です。
 
-This is just an example of how you can use Rust's type system to make your code safer and more expressive.
+最後に、`Ticket` モデルをもう一段階洗練させて、この章を締めくくりましょう。\
+`Ticket` の各フィールドに対して新しい型を導入し、それぞれの制約をカプセル化します。\
+`Ticket` のフィールドにアクセスするたびに、必ず有効な値――つまり
+`String` ではなく `TicketTitle`――が返されるようになります。コードの他の箇所でタイトルが空であるかどうかを心配する必要はありません。
+`TicketTitle` さえあれば、それが**構成上**有効であることが保証されるからです。
 
-## Further reading
+これは、Rustの型システムを活用してコードの安全性と表現力を高める方法の一例に過ぎません。
 
-- [Parse, don't validate](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/)
-- [Using types to guarantee domain invariants](https://www.lpalmieri.com/posts/2020-12-11-zero-to-production-6-domain-modelling/)
+<a id="further-reading"></a>
+
+## 関連資料
+
+- [バリデーションではなくパースを](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/)
+- [型を用いてドメイン不変条件を保証する](https://www.lpalmieri.com/posts/2020-12-11-zero-to-production-6-domain-modelling/)

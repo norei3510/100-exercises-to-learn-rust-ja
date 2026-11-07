@@ -1,38 +1,39 @@
-# Visibility
+<a id="visibility"></a>
 
-When you start breaking down your code into multiple modules, you need to start thinking about **visibility**.
-Visibility determines which regions of your code (or other people's code) can access a given entity,
-be it a struct, a function, a field, etc.
+# 可視性
 
-## Private by default
+コードを複数のモジュールに分割し始めると、**可視性**について考える必要があります。
+可視性は、構造体、関数、フィールドなどの特定の要素に、コードのどの領域（あるいは他者のコード）からアクセスできるかを決定します。
 
-By default, everything in Rust is **private**.\
-A private entity can only be accessed:
+<a id="private-by-default"></a>
 
-1. within the same module where it's defined, or
-2. by one of its submodules
+## デフォルトではプライベート
 
-We've used this extensively in the previous exercises:
+Rustでは、デフォルトですべてが**プライベート**です。\
+プライベートな要素にアクセスできるのは、以下の場合のみです。
 
-- `create_todo_ticket` worked (once you added a `use` statement) because `helpers` is a submodule of the crate root,
-  where `Ticket` is defined. Therefore, `create_todo_ticket` can access `Ticket` without any issues even
-  though `Ticket` is private.
-- All our unit tests are defined in a submodule of the code they're testing, so they can access everything without
-  restrictions.
+1. それが定義されている同一モジュール内
+2. そのサブモジュールのいずれかから
 
-## Visibility modifiers
+これまでの演習でも、この仕組みを多用してきました。
 
-You can modify the default visibility of an entity using a **visibility modifier**.\
-Some common visibility modifiers are:
+- `create_todo_ticket` が動作したのは（`use` ステートメントを追加したことで）、`helpers` が `Ticket` が定義されているクレートルートのサブモジュールであるためです。したがって、`Ticket` がプライベートであっても、`create_todo_ticket` は問題なく `Ticket` にアクセスできます。
+- すべてのユニットテストは、テスト対象のコードのサブモジュール内で定義されているため、制限なくすべてにアクセスできます。
 
-- `pub`: makes the entity **public**, i.e. accessible from outside the module where it's defined, potentially from
-  other crates.
-- `pub(crate)`: makes the entity public within the same **crate**, but not outside of it.
-- `pub(super)`: makes the entity public within the parent module.
-- `pub(in path::to::module)`: makes the entity public within the specified module.
+<a id="visibility-modifiers"></a>
 
-You can use these modifiers on modules, structs, functions, fields, etc.
-For example:
+## 可視性修飾子
+
+**可視性修飾子**を使用して、要素のデフォルトの可視性を変更できます。\
+よく使われる可視性修飾子には以下のようなものがあります。
+
+- `pub`: 要素を**パブリック**にします。つまり、定義されているモジュールの外部から、場合によっては他のクレートからもアクセス可能になります。
+- `pub(crate)`: 要素を同一**クレート**内でパブリックにしますが、クレート外からはアクセスできません。
+- `pub(super)`: 要素を親モジュール内でパブリックにします。
+- `pub(in path::to::module)`: 要素を指定のモジュール内でパブリックにします。
+
+これらの修飾子は、モジュール、構造体、関数、フィールドなどに使用できます。
+例えば：
 
 ```rust
 pub struct Configuration {
@@ -41,5 +42,6 @@ pub struct Configuration {
 }
 ```
 
-`Configuration` is public, but you can only access the `version` field from within the same crate.
-The `active` field, instead, is private and can only be accessed from within the same module or one of its submodules.
+
+`Configuration` はパブリックですが、`version` フィールドには同一クレート内からのみアクセスできます。
+一方、`active` フィールドはプライベートであり、同一モジュールまたはそのサブモジュール内からのみアクセス可能です。

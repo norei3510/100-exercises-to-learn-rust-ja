@@ -1,42 +1,46 @@
+<a id="iter"></a>
+
 # `.iter()`
 
-`IntoIterator` **consumes** `self` to create an iterator.
+`IntoIterator` は `self` を**消費**してイテレータを生成します。
 
-This has its benefits: you get **owned** values from the iterator.
-For example: if you call `.into_iter()` on a `Vec<Ticket>` you'll get an iterator that returns `Ticket` values.
+これには利点があります。イテレータから**所有された**値を取得できる点です。
+例えば、`Vec<Ticket>` に対して `.into_iter()` を呼び出すと、`Ticket` の値を返すイテレータが得られます。
 
-That's also its downside: you can no longer use the original collection after calling `.into_iter()` on it.
-Quite often you want to iterate over a collection without consuming it, looking at **references** to the values instead.
-In the case of `Vec<Ticket>`, you'd want to iterate over `&Ticket` values.
+一方で、これが欠点にもなります。`.into_iter()` を呼び出した後は、元のコレクションを使用できなくなります。
+多くの場合、コレクションを消費せずに反復処理を行い、代わりに値への**参照**を参照したいと考えます。
+`Vec<Ticket>` の場合、`&Ticket` の値を反復処理したいはずです。
 
-Most collections expose a method called `.iter()` that returns an iterator over references to the collection's elements.
-For example:
+ほとんどのコレクションは、コレクションの要素への参照を返すイテレータを提供する `.iter()` というメソッドを備えています。
+例えば：
 
 ```rust
 let numbers: Vec<u32> = vec![1, 2];
-// `n` has type `&u32` here
+// `n`はここで`&u32`型です
 for n in numbers.iter() {
     // [...]
 }
 ```
 
-This pattern can be simplified by implementing `IntoIterator` for a **reference to the collection**.
-In our example above, that would be `&Vec<Ticket>`.\
-The standard library does this, that's why the following code works:
+
+このパターンは、**コレクションへの参照**に対して `IntoIterator` を実装することで簡略化できます。
+上記の例では、それは `&Vec<Ticket>` になります。\
+標準ライブラリではこのように実装されているため、以下のコードが動作します：
 
 ```rust
 let numbers: Vec<u32> = vec![1, 2];
-// `n` has type `&u32` here
-// We didn't have to call `.iter()` explicitly
-// It was enough to use `&numbers` in the `for` loop
+// ここでは `n` の型は `&u32` です
+// `.iter()` を明示的に呼び出す必要はありませんでした
+// `for` ループ内で `&numbers` を使用するだけで十分でした
 for n in &numbers {
     // [...]
 }
 ```
 
-It's idiomatic to provide both options:
 
-- An implementation of `IntoIterator` for a reference to the collection.
-- An `.iter()` method that returns an iterator over references to the collection's elements.
+両方のオプションを提供することが慣用的です：
 
-The former is convenient in `for` loops, the latter is more explicit and can be used in other contexts.
+- コレクションへの参照に対する `IntoIterator` の実装。
+- コレクションの要素への参照を返すイテレータを返す `.iter()` メソッド。
+
+前者は `for` ループで便利であり、後者はより明示的で、他のコンテキストでも使用できます。

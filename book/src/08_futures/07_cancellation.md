@@ -1,11 +1,13 @@
-# Cancellation
+<a id="cancellation"></a>
 
-What happens when a pending future is dropped?\
-The runtime will no longer poll it, therefore it won't make any further progress.
-In other words, its execution has been **cancelled**.
+# キャンセル
 
-In the wild, this often happens when working with timeouts.
-For example:
+保留中のフューチャーがドロップされるとどうなるでしょうか？\
+ランタイムはそのフューチャーをポーリングしなくなるため、それ以上の進展はなくなります。
+言い換えれば、その実行は**キャンセル**されたことになります。
+
+実際の開発では、タイムアウトを扱う際にこのような状況がよく発生します。
+例えば：
 
 ```rust
 use tokio::time::timeout;
@@ -17,7 +19,7 @@ async fn http_call() {
 }
 
 async fn run() {
-    // Wrap the future with a `Timeout` set to expire in 10 milliseconds.
+    // futureを、10ミリ秒後に期限が切れるように設定した`Timeout`でラップしてください。
     let duration = Duration::from_millis(10);
     if let Err(_) = timeout(duration, http_call()).await {
         println!("Didn't receive a value within 10 ms");
@@ -25,8 +27,9 @@ async fn run() {
 }
 ```
 
-When the timeout expires, the future returned by `http_call` will be cancelled.
-Let's imagine that this is `http_call`'s body:
+
+タイムアウトが切れると、`http_call` が返すフューチャーはキャンセルされます。
+これが `http_call` の本体であると想定してみましょう：
 
 ```rust
 use std::net::TcpStream;
@@ -38,23 +41,19 @@ async fn http_call() {
 }
 ```
 
-Each yield point becomes a **cancellation point**.\
-`http_call` can't be preempted by the runtime, so it can only be discarded after
-it has yielded control back to the executor via `.await`.
-This applies recursively—e.g. `stream.write_all(&request)` is likely to have multiple
-yield points in its implementation. It is perfectly possible to see `http_call` pushing
-a _partial_ request before being cancelled, thus dropping the connection and never
-finishing transmitting the body.
 
-## Clean up
+各 yield ポイントが**キャンセルポイント**となります。\
+`http_call` はランタイムによってプリエンプトされないため、`.await` を介してエグゼキュータに制御を戻して初めて破棄されます。
+これは再帰的に適用されます。例えば `stream.write_all(&request)` の実装には複数の yield ポイントがある可能性が高いです。`http_call` がキャンセルされる前に _部分的な_ リクエストを送信し、その結果接続が切断されてボディの送信が完了しない、という事態は十分に起こり得ます。
 
-Rust's cancellation mechanism is quite powerful—it allows the caller to cancel an ongoing task
-without needing any form of cooperation from the task itself.\
-At the same time, this can be quite dangerous. It may be desirable to perform a
-**graceful cancellation**, to ensure that some clean-up tasks are performed
-before aborting the operation.
+<a id="clean-up"></a>
 
-For example, consider this fictional API for a SQL transaction:
+## クリーンアップ
+
+Rust のキャンセル機構は非常に強力です。呼び出し側は、タスク自体のいかなる協力も必要とせずに、進行中のタスクをキャンセルできます。\
+同時に、これは非常に危険な側面もあります。操作を中断する前に、いくつかのクリーンアップタスクが確実に実行されるよう、**グレースフルなキャンセル**を行うことが望ましい場合があります。
+
+例えば、SQL トランザクション用の架空の API を考えてみましょう：
 
 ```rust
 async fn transfer_money(
@@ -70,40 +69,41 @@ async fn transfer_money(
 }
 ```
 
-On cancellation, it'd be ideal to explicitly abort the pending transaction rather
-than leaving it hanging.
-Rust, unfortunately, doesn't provide a bullet-proof mechanism for this kind of
-**asynchronous** clean up operations.
 
-The most common strategy is to rely on the `Drop` trait to schedule the required
-clean-up work. This can be by:
+キャンセル時には、保留中のトランザクションを放置するのではなく、明示的にアボートさせるのが理想的です。
+残念ながら、Rust にはこのような**非同期**なクリーンアップ操作のための万全なメカニズムは用意されていません。
 
-- Spawning a new task on the runtime
-- Enqueueing a message on a channel
-- Spawning a background thread
+最も一般的な戦略は、`Drop` トレイトを利用して必要なクリーンアップ作業をスケジュールすることです。具体的には以下のような方法があります：
 
-The optimal choice is contextual.
+- ランタイム上で新しいタスクをスポーンする
+- チャネルにメッセージをエンキューする
+- バックグラウンドスレッドをスポーンする
 
-## Cancelling spawned tasks
+最適な選択肢は状況によって異なります。
 
-When you spawn a task using `tokio::spawn`, you can no longer drop it;
-it belongs to the runtime.\
-Nonetheless, you can use its `JoinHandle` to cancel it if needed:
+<a id="cancelling-spawned-tasks"></a>
+
+## スポーンしたタスクのキャンセル
+
+`tokio::spawn` を使用してタスクをスポーンすると、そのタスクをドロップすることはできなくなります。
+それはランタイムに属することになるからです。\
+それでも、必要に応じてその `JoinHandle` を使用してキャンセルすることができます：
 
 ```rust
 async fn run() {
-    let handle = tokio::spawn(/* some async task */);
-    // Cancel the spawned task
+    let handle = tokio::spawn(/* 何らかの非同期タスク */);
+    // 生成したタスクをキャンセルします
     handle.abort();
 }
 ```
 
-## Further reading
 
-- Be extremely careful when using `tokio`'s `select!` macro to "race" two different futures.
-  Retrying the same task in a loop is dangerous unless you can ensure **cancellation safety**.
-  Check out [`select!`'s documentation](https://tokio.rs/tokio/tutorial/select) for more details.\
-  If you need to interleave two asynchronous streams of data (e.g. a socket and a channel), prefer using
-  [`StreamExt::merge`](https://docs.rs/tokio-stream/latest/tokio_stream/trait.StreamExt.html#method.merge) instead.
-- A [`CancellationToken`](https://docs.rs/tokio-util/latest/tokio_util/sync/struct.CancellationToken.html) may be
-  preferable to `JoinHandle::abort` in some cases.
+<a id="further-reading"></a>
+
+## 関連資料
+
+- `tokio` の `select!` マクロを使用して 2 つの異なるフューチャーを「競わせる」場合は、細心の注意を払ってください。
+  **キャンセル安全性**を確保できない限り、同じタスクをループでリトライするのは危険です。
+  詳細は [`select!` のドキュメント](https://tokio.rs/tokio/tutorial/select) を参照してください。\
+  2 つの非同期データストリーム（例えばソケットとチャネル）をインターリーブする必要がある場合は、代わりに [`StreamExt::merge`](https://docs.rs/tokio-stream/latest/tokio_stream/trait.StreamExt.html#method.merge) の使用を検討してください。
+- 場合によっては、`JoinHandle::abort` よりも [`CancellationToken`](https://docs.rs/tokio-util/latest/tokio_util/sync/struct.CancellationToken.html) の方が適していることがあります。

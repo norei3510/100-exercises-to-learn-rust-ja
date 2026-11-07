@@ -1,15 +1,17 @@
-# `TryFrom` and `TryInto`
+<a id="tryfrom-and-tryinto"></a>
 
-In the previous chapter we looked at the [`From` and `Into` traits](../04_traits/09_from.md),
-Rust's idiomatic interfaces for **infallible** type conversions.\
-But what if the conversion is not guaranteed to succeed?
+# `TryFrom` と `TryInto`
 
-We now know enough about errors to discuss the **fallible** counterparts of `From` and `Into`:
-`TryFrom` and `TryInto`.
+前章では、**失敗のない**型変換のためのRustの慣用的なインターフェースである[`From` と `Into` トレイト](../04_traits/09_from.md)について見ました。\
+では、変換の成功が保証されていない場合はどうすればよいでしょうか。
 
-## `TryFrom` and `TryInto`
+エラーについて十分に理解できたところで、`From` と `Into` に対応する**失敗しうる**トレイトである `TryFrom` と `TryInto` について解説します。
 
-Both `TryFrom` and `TryInto` are defined in the `std::convert` module, just like `From` and `Into`.
+<a id="tryfrom-and-tryinto-1"></a>
+
+## `TryFrom` と `TryInto`
+
+`TryFrom` と `TryInto` は、`From` や `Into` と同様に、`std::convert` モジュールで定義されています。
 
 ```rust
 pub trait TryFrom<T>: Sized {
@@ -23,18 +25,22 @@ pub trait TryInto<T>: Sized {
 }
 ```
 
-The main difference between `From`/`Into` and `TryFrom`/`TryInto` is that the latter return a `Result` type.\
-This allows the conversion to fail, returning an error instead of panicking.
+
+`From`/`Into` と `TryFrom`/`TryInto` の主な違いは、後者が `Result` 型を返す点です。\
+これにより、パニックを起こす代わりにエラーを返して変換を失敗させることができます。
+
+<a id="selferror"></a>
 
 ## `Self::Error`
 
-Both `TryFrom` and `TryInto` have an associated `Error` type.
-This allows each implementation to specify its own error type, ideally the most appropriate for the conversion
-being attempted.
+`TryFrom` と `TryInto` には、それぞれ関連付けられた `Error` 型があります。
+これにより、各実装で独自のエラー型を指定でき、理想的には試みられている変換に最も適切な型を使用できます。
 
-`Self::Error` is a way to refer to the `Error` associated type defined in the trait itself.
+`Self::Error` は、トレイト自体で定義された `Error` 関連型を参照する方法です。
 
-## Duality
+<a id="duality"></a>
 
-Just like `From` and `Into`, `TryFrom` and `TryInto` are dual traits.\
-If you implement `TryFrom` for a type, you get `TryInto` for free.
+## 双対性
+
+`From` と `Into` と同様に、`TryFrom` と `TryInto` は双対的なトレイトです。\
+ある型に対して `TryFrom` を実装すれば、`TryInto` も自動的に得られます。

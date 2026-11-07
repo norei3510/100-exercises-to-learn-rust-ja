@@ -1,6 +1,8 @@
-# Interior mutability
+<a id="interior-mutability"></a>
 
-Let's take a moment to reason about the signature of `Sender`'s `send`:
+# 内部可変性
+
+`Sender` の `send` のシグネチャについて、少し考えてみましょう。
 
 ```rust
 impl<T> Sender<T> {
@@ -10,105 +12,108 @@ impl<T> Sender<T> {
 }
 ```
 
-`send` takes `&self` as its argument.\
-But it's clearly causing a mutation: it's adding a new message to the channel.
-What's even more interesting is that `Sender` is cloneable: we can have multiple instances of `Sender`
-trying to modify the channel state **at the same time**, from different threads.
 
-That's the key property we are using to build this client-server architecture. But why does it work?
-Doesn't it violate Rust's rules about borrowing? How are we performing mutations via an _immutable_ reference?
+`send` は引数として `&self` を受け取ります。\
+しかし、これは明らかに変更操作を行っています。チャネルに新しいメッセージを追加しているからです。
+さらに興味深いのは、`Sender` がクローン可能である点です。つまり、異なるスレッドから、**同時に** チャネルの状態を変更しようとする `Sender` のインスタンスを複数持つことができます。
 
-## Shared rather than immutable references
+これが、このクライアント・サーバーアーキテクチャを構築する上で利用している重要な特性です。しかし、なぜこれが動作するのでしょうか？
+Rust の借用に関するルールに違反しているのではないでしょうか？ どうして _不変_ な参照を介して変更操作が行えるのでしょうか？
 
-When we introduced the borrow-checker, we named the two types of references we can have in Rust:
+<a id="shared-rather-than-immutable-references"></a>
 
-- immutable references (`&T`)
-- mutable references (`&mut T`)
+## 不変参照ではなく共有参照
 
-It would have been more accurate to name them:
+借用チェッカーを紹介した際、Rust で利用可能な2種類の参照を次のように呼びました。
 
-- shared references (`&T`)
-- exclusive references (`&mut T`)
+- 不変参照 (`&T`)
+- 可変参照 (`&mut T`)
 
-Immutable/mutable is a mental model that works for the vast majority of cases, and it's a great one to get started
-with Rust. But it's not the whole story, as you've just seen: `&T` doesn't actually guarantee that the data it
-points to is immutable.\
-Don't worry, though: Rust is still keeping its promises.
-It's just that the terms are a bit more nuanced than they might seem at first.
+より正確に呼ぶなら、次のようになります。
+
+- 共有参照 (`&T`)
+- 排他参照 (`&mut T`)
+
+「不変／可変」という考え方は、大多数のケースで有効であり、Rust を始めるにあたって非常に優れたモデルです。しかし、先ほど見たように、それがすべてではありません。`&T` は、それが指すデータが実際に不変であることを保証しているわけではないのです。\
+とはいえ、心配はいりません。Rust は依然としてその約束を守っています。
+単に、用語が一見して思うよりも少し微妙なニュアンスを持っているだけなのです。
+
+<a id="unsafecell"></a>
 
 ## `UnsafeCell`
 
-Whenever a type allows you to mutate data through a shared reference, you're dealing with **interior mutability**.
+ある型が共有参照を通じてデータの変更を許可する場合、それは **内部可変性** を扱っていることになります。
 
-By default, the Rust compiler assumes that shared references are immutable. It **optimises your code** based on that assumption.\
-The compiler can reorder operations, cache values, and do all sorts of magic to make your code faster.
+デフォルトでは、Rust コンパイラは共有参照が不変であると想定します。そして、その想定に基づいて **コードを最適化** します。\
+コンパイラは操作の順序を入れ替えたり、値をキャッシュしたり、あらゆる工夫を凝らしてコードを高速化します。
 
-You can tell the compiler "No, this shared reference is actually mutable" by wrapping the data in an `UnsafeCell`.\
-Every time you see a type that allows interior mutability, you can be certain that `UnsafeCell` is involved,
-either directly or indirectly.\
-Using `UnsafeCell`, raw pointers and `unsafe` code, you can mutate data through shared references.
+データを `UnsafeCell` でラップすることで、コンパイラに「いいえ、この共有参照は実際には可変です」と伝えることができます。\
+内部可変性を許可する型を目にするたびに、直接的か間接的かを問わず、`UnsafeCell` が関わっていることが分かります。\
+`UnsafeCell`、生ポインタ、および `unsafe` コードを使用することで、共有参照を通じてデータを変更できます。
 
-Let's be clear, though: `UnsafeCell` isn't a magic wand that allows you to ignore the borrow-checker!\
-`unsafe` code is still subject to Rust's rules about borrowing and aliasing.
-It's an (advanced) tool that you can leverage to build **safe abstractions** whose safety can't be directly expressed
-in Rust's type system. Whenever you use the `unsafe` keyword you're telling the compiler:
-"I know what I'm doing, I won't violate your invariants, trust me."
+ただし、明確にしておきましょう。`UnsafeCell` は、借用チェッカーを無視できる魔法の杖ではありません！\
+`unsafe` コードであっても、依然として Rust の借用とエイリアシングに関するルールの適用対象となります。
+これは、Rust の型システムでは直接表現できない安全性を備えた **安全な抽象化** を構築するために活用できる（高度な）ツールです。`unsafe` キーワードを使用するたびに、あなたはコンパイラにこう伝えていることになります。
+「自分が何をしているかは分かっています。不変条件は破りません。信じてください」
 
-Every time you call an `unsafe` function, there will be documentation explaining its **safety preconditions**:
-under what circumstances it's safe to execute its `unsafe` block. You can find the ones for `UnsafeCell`
-[in `std`'s documentation](https://doc.rust-lang.org/std/cell/struct.UnsafeCell.html).
+`unsafe` 関数を呼び出すたびに、その **安全性の前提条件**、つまりどのような状況であれば `unsafe` ブロックを実行しても安全であるかを説明するドキュメントが用意されています。`UnsafeCell` のものについては、`std` のドキュメント [([参照](https://doc.rust-lang.org/std/cell/struct.UnsafeCell.html))] で確認できます。
 
-We won't be using `UnsafeCell` directly in this course, nor will we be writing `unsafe` code.
-But it's important to know that it's there, why it exists and how it relates to the types you use
-every day in Rust.
+このコースでは `UnsafeCell` を直接使用することはありませんし、`unsafe` コードを書くこともありません。
+しかし、それが存在すること、なぜそのようなものがあるのか、そして Rust で日常的に使用する型とどのように関連しているかを知っておくことは重要です。
 
-## Key examples
+<a id="key-examples"></a>
 
-Let's go through a couple of important `std` types that leverage interior mutability.\
-These are types that you'll encounter somewhat often in Rust code, especially if you peek under the hood of
-some the libraries you use.
+## 主要な例
 
-### Reference counting
+内部可変性を活用した重要な `std` 型をいくつか見ていきましょう。\
+これらは、Rust のコード、特に使用しているライブラリの内部構造を覗いた際に、比較的よく遭遇する型です。
 
-`Rc` is a reference-counted pointer.\
-It wraps around a value and keeps track of how many references to the value exist.
-When the last reference is dropped, the value is deallocated.\
-The value wrapped in an `Rc` is immutable: you can only get shared references to it.
+<a id="reference-counting"></a>
+
+### 参照カウント
+
+`Rc`は参照カウント付きポインタです。\
+値をラップし、その値への参照がいくつ存在するかを追跡します。
+最後の参照がドロップされると、値は解放されます。\
+`Rc`にラップされた値は不変であり、共有参照を取得することしかできません。
 
 ```rust
 use std::rc::Rc;
 
 let a: Rc<String> = Rc::new("My string".to_string());
-// Only one reference to the string data exists.
+// 文字列データへの参照は1つしかありません。
 assert_eq!(Rc::strong_count(&a), 1);
 
-// When we call `clone`, the string data is not copied!
-// Instead, the reference count for `Rc` is incremented.
+// `clone`を呼び出すと、文字列データはコピーされません！
+// 代わりに、`Rc`の参照カウントがインクリメントされます。
 let b = Rc::clone(&a);
 assert_eq!(Rc::strong_count(&a), 2);
 assert_eq!(Rc::strong_count(&b), 2);
-// ^ Both `a` and `b` point to the same string data
-//   and share the same reference counter.
+// ^ `a` と `b` はどちらも同じ文字列データを指しており、
+//   同一の参照カウンタを共有しています。
 ```
 
-`Rc` uses `UnsafeCell` internally to allow shared references to increment and decrement the reference count.
+
+`Rc`は内部的に`UnsafeCell`を使用し、共有参照が参照カウントを増減できるようにしています。
+
+<a id="refcell"></a>
 
 ### `RefCell`
 
-`RefCell` is one of the most common examples of interior mutability in Rust.
-It allows you to mutate the value wrapped in a `RefCell` even if you only have an
-immutable reference to the `RefCell` itself.
+`RefCell`は、Rustにおける内部可変性の最も一般的な例の一つです。
+これにより、`RefCell`自体への不変参照しか持っていなくても、
+`RefCell`にラップされた値を変更することができます。
 
-This is done via **runtime borrow checking**.
-The `RefCell` keeps track of the number (and type) of references to the value it contains at runtime.
-If you try to borrow the value mutably while it's already borrowed immutably,
-the program will panic, ensuring that Rust's borrowing rules are always enforced.
+これは**実行時借用チェック**によって実現されています。
+`RefCell`は、実行時に内包する値への参照の数（および型）を追跡します。
+値がすでに不変に借用されている状態で、それを可変に借用しようとすると、
+プログラムはパニックを起こし、Rustの借用ルールが常に遵守されることが保証されます。
 
 ```rust
 use std::cell::RefCell;
 
 let x = RefCell::new(42);
 
-let y = x.borrow(); // Immutable borrow
-let z = x.borrow_mut(); // Panics! There is an active immutable borrow.
+let y = x.borrow(); // 不変の借用
+let z = x.borrow_mut(); // パニックが発生しました！アクティブな不変借用が存在します。
 ```

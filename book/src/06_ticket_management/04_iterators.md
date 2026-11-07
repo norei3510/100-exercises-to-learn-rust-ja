@@ -1,27 +1,32 @@
-# Iteration
+<a id="iteration"></a>
 
-During the very first exercises, you learned that Rust lets you iterate over collections using `for` loops.
-We were looking at ranges at that point (e.g. `0..5`), but the same holds true for collections like arrays and vectors.
+# 反復処理
+
+最初の演習で、Rustでは `for` ループを使ってコレクションを反復処理できることを学びました。
+当時は範囲（例：`0..5`）を扱っていましたが、これは配列やベクタなどのコレクションでも同様です。
 
 ```rust
-// It works for `Vec`s
+// `Vec`sで動作します。
 let v = vec![1, 2, 3];
 for n in v {
     println!("{}", n);
 }
 
-// It also works for arrays
+// 配列でも動作します
 let a: [u32; 3] = [1, 2, 3];
 for n in a {
     println!("{}", n);
 }
 ```
 
-It's time to understand how this works under the hood.
 
-## `for` desugaring
+ここからは、その仕組みの内部的な動作について理解していきましょう。
 
-Every time you write a `for` loop in Rust, the compiler _desugars_ it into the following code:
+<a id="for-desugaring"></a>
+
+## `for` デシュガーリング
+
+Rustで `for` ループを記述するたびに、コンパイラはそれを以下のコードに _デシュガーリング_ します。
 
 ```rust
 let mut iter = IntoIterator::into_iter(v);
@@ -35,14 +40,17 @@ loop {
 }
 ```
 
-`loop` is another looping construct, on top of `for` and `while`.\
-A `loop` block will run forever, unless you explicitly `break` out of it.
 
-## `Iterator` trait
+`loop` は、`for` と `while` の上に構築されたもう一つのループ構文です。\
+`loop` ブロックは、明示的に `break` で抜けない限り、永遠に実行され続けます。
 
-The `next` method in the previous code snippet comes from the `Iterator` trait.
-The `Iterator` trait is defined in Rust's standard library and provides a shared interface for
-types that can produce a sequence of values:
+<a id="iterator-trait"></a>
+
+## `Iterator` トレイト
+
+先ほどのコードスニペットにある `next` メソッドは、`Iterator` トレイトに由来します。
+`Iterator` トレイトはRustの標準ライブラリで定義されており、値のシーケンスを生成できる型に
+共通のインターフェースを提供します。
 
 ```rust
 trait Iterator {
@@ -51,19 +59,22 @@ trait Iterator {
 }
 ```
 
-The `Item` associated type specifies the type of the values produced by the iterator.
 
-`next` returns the next value in the sequence.\
-It returns `Some(value)` if there's a value to return, and `None` when there isn't.
+`Item` 関連型は、イテレータが生成する値の型を指定します。
 
-Be careful: there is no guarantee that an iterator is exhausted when it returns `None`. That's only
-guaranteed if the iterator implements the (more restrictive)
-[`FusedIterator`](https://doc.rust-lang.org/std/iter/trait.FusedIterator.html) trait.
+`next` は、シーケンスの次の値を返します。\
+返す値がある場合は `Some(value)` を、ない場合は `None` を返します。
 
-## `IntoIterator` trait
+注意してください。イテレータが `None` を返したときに、必ずしも反復処理が終了しているとは限りません。それが保証されるのは、
+イテレータが（より制約の厳しい）
+[`FusedIterator`](https://doc.rust-lang.org/std/iter/trait.FusedIterator.html) トレイトを実装している場合のみです。
 
-Not all types implement `Iterator`, but many can be converted into a type that does.\
-That's where the `IntoIterator` trait comes in:
+<a id="intoiterator-trait"></a>
+
+## `IntoIterator` トレイト
+
+すべての型が `Iterator` を実装しているわけではありませんが、多くは実装済みの型に変換可能です。\
+そこで `IntoIterator` トレイトの出番となります。
 
 ```rust
 trait IntoIterator {
@@ -73,18 +84,21 @@ trait IntoIterator {
 }
 ```
 
-The `into_iter` method consumes the original value and returns an iterator over its elements.\
-A type can only have one implementation of `IntoIterator`: there can be no ambiguity as to what `for` should desugar to.
 
-One detail: every type that implements `Iterator` automatically implements `IntoIterator` as well.
-They just return themselves from `into_iter`!
+`into_iter` メソッドは元の値を消費し、その要素に対するイテレータを返します。\
+ある型が持つ `IntoIterator` の実装は一つだけです。これにより、`for` が何にデシュガーリングされるべきかについて曖昧さがなくなります。
 
-## Bounds checks
+一点補足すると、`Iterator` を実装するすべての型は、自動的に `IntoIterator` も実装することになります。
+`into_iter` から単に自分自身を返すだけなのです！
 
-Iterating over iterators has a nice side effect: you can't go out of bounds, by design.\
-This allows Rust to remove bounds checks from the generated machine code, making iteration faster.
+<a id="bounds-checks"></a>
 
-In other words,
+## 境界チェック
+
+イテレータによる反復処理には、設計上、境界外アクセスが発生しないという嬉しい副次効果があります。\
+これにより、Rustは生成されるマシンコードから境界チェックを削除でき、反復処理を高速化できます。
+
+言い換えれば、
 
 ```rust
 let v = vec![1, 2, 3];
@@ -93,7 +107,8 @@ for n in v {
 }
 ```
 
-is usually faster than
+
+は通常、
 
 ```rust
 let v = vec![1, 2, 3];
@@ -102,6 +117,8 @@ for i in 0..v.len() {
 }
 ```
 
-There are exceptions to this rule: the compiler can sometimes prove that you're not going out of bounds even
-with manual indexing, thus removing the bounds checks anyway. But in general, prefer iteration to indexing
-where possible.
+
+よりも高速です。
+
+このルールには例外もあります。コンパイラが、手動のインデックス指定であっても境界外アクセスが発生しないことを証明できれば、
+同様に境界チェックを削除することがあります。しかし一般的には、可能な限りインデックス指定よりも反復処理を優先してください。

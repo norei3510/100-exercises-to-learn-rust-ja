@@ -1,6 +1,5 @@
-// We need some more machinery to write a proper exercise for destructors.
-// We'll pick the concept up again in a later chapter after covering traits and
-// interior mutability.
+// デストラクタに関する適切な演習問題を作成するには、さらにいくつかの仕組みが必要です。
+// この概念については、トレイトと内部可変性を扱った後の章で改めて取り上げます。
 fn outro() -> &'static str {
     "I have a basic understanding of __!"
 }

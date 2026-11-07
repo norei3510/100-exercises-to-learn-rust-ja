@@ -1,20 +1,22 @@
-# Trait bounds
+<a id="trait-bounds"></a>
 
-We've seen two use cases for traits so far:
+# トレイト境界
 
-- Unlocking "built-in" behaviour (e.g. operator overloading)
-- Adding new behaviour to existing types (i.e. extension traits)
+これまで、トレイトの2つのユースケースを見てきました：
 
-There's a third use case: **generic programming**.
+- 「組み込み」の動作の有効化（例：演算子のオーバーロード）
+- 既存の型への新しい動作の追加（すなわち拡張トレイト）
 
-## The problem
+3つ目のユースケースがあります。それが**ジェネリックプログラミング**です。
 
-All our functions and methods, so far, have been working with **concrete types**.\
-Code that operates on concrete types is usually straightforward to write and understand. But it's also
-limited in its reusability.\
-Let's imagine, for example, that we want to write a function that returns `true` if an integer is even.
-Working with concrete types, we'd have to write a separate function for each integer type we want to
-support:
+<a id="the-problem"></a>
+
+## 問題点
+
+これまでの関数やメソッドは、すべて**具体的な型**を対象としていました。\
+具体的な型を扱うコードは、通常、記述も理解も簡単です。しかし、再利用性には限界があります。\
+例えば、整数が偶数である場合に `true` を返す関数を書きたいとしましょう。
+具体的な型を扱う場合、サポートしたい整数型ごとに個別の関数を書く必要があります：
 
 ```rust
 fn is_even_i32(n: i32) -> bool {
@@ -25,10 +27,11 @@ fn is_even_i64(n: i64) -> bool {
     n % 2 == 0
 }
 
-// Etc.
+// など。
 ```
 
-Alternatively, we could write a single extension trait and then different implementations for each integer type:
+
+あるいは、単一の拡張トレイトを書き、整数型ごとに異なる実装を提供することもできます：
 
 ```rust
 trait IsEven {
@@ -47,15 +50,18 @@ impl IsEven for i64 {
     }
 }
 
-// Etc.
+// など。
 ```
 
-The duplication remains.
 
-## Generic programming
+それでも重複は残ります。
 
-We can do better using **generics**.\
-Generics allow us to write code that works with a **type parameter** instead of a concrete type:
+<a id="generic-programming"></a>
+
+## ジェネリックプログラミング
+
+**ジェネリクス**を使えば、より優れた方法があります。\
+ジェネリクスを使用すると、具体的な型の代わりに**型パラメータ**を用いて動作するコードを記述できます：
 
 ```rust
 fn print_if_even<T>(n: T)
@@ -68,20 +74,23 @@ where
 }
 ```
 
-`print_if_even` is a **generic function**.\
-It isn't tied to a specific input type. Instead, it works with any type `T` that:
 
-- Implements the `IsEven` trait.
-- Implements the `Debug` trait.
+`print_if_even` は**ジェネリック関数**です。\
+これは特定の入力型に紐付いていません。代わりに、以下の条件を満たす任意の型 `T` で動作します：
 
-This contract is expressed with a **trait bound**: `T: IsEven + Debug`.\
-The `+` symbol is used to require that `T` implements multiple traits. `T: IsEven + Debug` is equivalent to
-"where `T` implements `IsEven` **and** `Debug`".
+- `IsEven` トレイトを実装していること。
+- `Debug` トレイトを実装していること。
 
-## Trait bounds
+この契約は**トレイト境界**を用いて表現されます：`T: IsEven + Debug`。\
+`+` という記号は、`T` が複数のトレイトを実装していることを要求するために使用されます。`T: IsEven + Debug` は
+「where `T` が `IsEven` **かつ** `Debug` を実装している」ことと同等です。
 
-What purpose do trait bounds serve in `print_if_even`?\
-To find out, let's try to remove them:
+<a id="trait-bounds-1"></a>
+
+## トレイト境界
+
+`print_if_even` において、トレイト境界はどのような役割を果たすのでしょうか？\
+それを確かめるために、トレイト境界を削除してみましょう：
 
 ```rust
 fn print_if_even<T>(n: T) {
@@ -91,7 +100,8 @@ fn print_if_even<T>(n: T) {
 }
 ```
 
-This code won't compile:
+
+このコードはコンパイルできません：
 
 ```text
 error[E0599]: no method named `is_even` found for type parameter `T` 
@@ -118,42 +128,47 @@ help: consider restricting type parameter `T`
   |                   +++++++++++++++++
 ```
 
-Without trait bounds, the compiler doesn't know what `T` **can do**.\
-It doesn't know that `T` has an `is_even` method, and it doesn't know how to format `T` for printing.
-From the compiler point of view, a bare `T` has no behaviour at all.\
-Trait bounds restrict the set of types that can be used by ensuring that the behaviour required by the function
-body is present.
 
-## Syntax: inlining trait bounds
+トレイト境界がないと、コンパイラは `T` が**何ができるのか**を把握できません。\
+`T` に `is_even` メソッドがあることも、`T` を出力用にフォーマットする方法も分かりません。
+コンパイラの視点からすると、単なる `T` には動作が全くないことになります。\
+トレイト境界は、関数本体で要求される動作が存在することを保証することで、使用できる型の集合を制限します。
 
-All the examples above used a **`where` clause** to specify trait bounds:
+<a id="syntax-inlining-trait-bounds"></a>
+
+## 構文：トレイト境界のインライン記述
+
+上記の例ではすべて、**`where` 句**を使用してトレイト境界を指定していました：
 
 ```rust
 fn print_if_even<T>(n: T)
 where
     T: IsEven + Debug
 //  ^^^^^^^^^^^^^^^^^
-//  This is a `where` clause
+//  これは`where`条項です
 {
     // [...]
 }
 ```
 
-If the trait bounds are simple, you can **inline** them directly next to the type parameter:
+
+トレイト境界が単純な場合は、型パラメータのすぐ隣に**インラインで**記述することもできます：
 
 ```rust
 fn print_if_even<T: IsEven + Debug>(n: T) {
     //           ^^^^^^^^^^^^^^^^^
-    //           This is an inline trait bound
+    //           これはインラインのトレイト境界です
     // [...]
 }
 ```
 
-## Syntax: meaningful names
 
-In the examples above, we used `T` as the type parameter name. This is a common convention when a function has
-only one type parameter.\
-Nothing stops you from using a more meaningful name, though:
+<a id="syntax-meaningful-names"></a>
+
+## 構文：意味のある名前
+
+上記の例では、型パラメータの名前として `T` を使用しました。これは、関数に型パラメータが1つしかない場合の一般的な慣習です。\
+とはいえ、より意味のある名前を使用することを妨げるものはありません：
 
 ```rust
 fn print_if_even<Number: IsEven + Debug>(n: Number) {
@@ -161,16 +176,18 @@ fn print_if_even<Number: IsEven + Debug>(n: Number) {
 }
 ```
 
-It is actually **desirable** to use meaningful names when there are multiple type parameters at play or when the name
-`T` doesn't convey enough information about the type's role in the function.
-Maximize clarity and readability when naming type parameters, just as you would with variables or function parameters.
-Follow Rust's conventions, though: use [upper camel case for type parameter names](https://rust-lang.github.io/api-guidelines/naming.html#casing-conforms-to-rfc-430-c-case).
 
-## The function signature is king
+実際には、複数の型パラメータが関わる場合や、`T` という名前では関数内での型の役割について十分な情報が伝わらない場合には、意味のある名前を使用することが**望ましい**です。
+変数や関数パラメータと同様に、型パラメータの命名においても明確さと可読性を最大限に高めてください。
+ただし、Rustの慣習に従い、[型パラメータ名にはアッパーキャメルケース](https://rust-lang.github.io/api-guidelines/naming.html#casing-conforms-to-rfc-430-c-case) を使用してください。
 
-You may wonder why we need trait bounds at all. Can't the compiler infer the required traits from the function's body?\
-It could, but it won't.\
-The rationale is the same as for [explicit type annotations on function parameters](../02_basic_calculator/02_variables.md#function-arguments-are-variables):
-each function signature is a contract between the caller and the callee, and the terms must be explicitly stated.
-This allows for better error messages, better documentation, less unintentional breakages across versions,
-and faster compilation times.
+<a id="the-function-signature-is-king"></a>
+
+## 関数シグネチャこそがすべて
+
+そもそもなぜトレイト境界が必要なのか、疑問に思うかもしれません。コンパイラが関数本体から必要なトレイトを推論できるのではないでしょうか？\
+可能ではありますが、実際には行いません。\
+その理由は[関数パラメータへの明示的な型アノテーション](../02_basic_calculator/02_variables.md#function-arguments-are-variables)の場合と同様です。
+各関数シグネチャは呼び出し側と呼び出し先との間の契約であり、その条件は明示的に記述される必要があります。
+これにより、より優れたエラーメッセージ、より充実したドキュメント、バージョン間における意図しない不具合の減少、
+そしてコンパイル時間の短縮が実現します。

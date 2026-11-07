@@ -1,14 +1,15 @@
-# Lifetimes
+<a id="lifetimes"></a>
 
-Let's try to complete the previous exercise by adding an implementation of `IntoIterator` for `&TicketStore`, for
-maximum convenience in `for` loops.
+# ライフタイム
 
-Let's start by filling in the most "obvious" parts of the implementation:
+`for` ループ内で最大限の利便性を確保するため、`&TicketStore` に対する `IntoIterator` の実装を追加して、前回の演習を完成させてみましょう。
+
+まずは、実装の中で最も「明白な」部分を埋めることから始めましょう：
 
 ```rust
 impl IntoIterator for &TicketStore {
     type Item = &Ticket;
-    type IntoIter = // What goes here?
+    type IntoIter = // ここには何を入れますか？
 
     fn into_iter(self) -> Self::IntoIter {
         self.tickets.iter()
@@ -16,51 +17,55 @@ impl IntoIterator for &TicketStore {
 }
 ```
 
-What should `type IntoIter` be set to?\
-Intuitively, it should be the type returned by `self.tickets.iter()`, i.e. the type returned by `Vec::iter()`.\
-If you check the standard library documentation, you'll find that `Vec::iter()` returns an `std::slice::Iter`.
-The definition of `Iter` is:
+
+`type IntoIter` には何を指定すべきでしょうか？\
+直感的には、`self.tickets.iter()` が返す型、つまり `Vec::iter()` が返す型になるはずです。\
+標準ライブラリのドキュメントを確認すると、`Vec::iter()` は `std::slice::Iter` を返すことがわかります。
+`Iter` の定義は以下の通りです：
 
 ```rust
-pub struct Iter<'a, T> { /* fields omitted */ }
+pub struct Iter<'a, T> { /* フィールド省略 */ }
 ```
 
-`'a` is a **lifetime parameter**.
 
-## Lifetime parameters
+`'a` は**ライフタイムパラメータ**です。
 
-Lifetimes are **labels** used by the Rust compiler to keep track of how long a reference (either mutable or
-immutable) is valid.\
-The lifetime of a reference is constrained by the scope of the value it refers to. Rust always makes sure, at compile-time,
-that references are not used after the value they refer to has been dropped, to avoid dangling pointers and use-after-free bugs.
+<a id="lifetime-parameters"></a>
 
-This should sound familiar: we've already seen these concepts in action when we discussed ownership and borrowing.
-Lifetimes are just a way to **name** how long a specific reference is valid.
+## ライフタイムパラメータ
 
-Naming becomes important when you have multiple references and you need to clarify how they **relate to each other**.
-Let's look at the signature of `Vec::iter()`:
+ライフタイムとは、参照（可変または不変）がいつまで有効であるかを追跡するために Rust コンパイラが使用する**ラベル**のことです。\
+参照のライフタイムは、それが参照する値のスコープによって制約されます。Rust はコンパイル時に、ダングリングポインタや use-after-free バグを防ぐため、参照先の値がドロップされた後にその参照が使用されないことを常に保証します。
+
+これは聞き覚えがあるはずです。所有権と借用について議論した際に、すでにこれらの概念が登場しました。
+ライフタイムとは、特定の参照がいつまで有効であるかを**名前付け**するための手段に過ぎません。
+
+複数の参照が存在し、それらが**互いにどのように関連しているか**を明確にする必要がある場合に、名前付けが重要になります。
+`Vec::iter()` のシグネチャを見てみましょう：
 
 ```rust
 impl <T> Vec<T> {
-    // Slightly simplified
+    // 若干簡略化されています
     pub fn iter<'a>(&'a self) -> Iter<'a, T> {
         // [...]
     }
 }
 ```
 
-`Vec::iter()` is generic over a lifetime parameter, named `'a`.\
-`'a` is used to **tie together** the lifetime of the `Vec` and the lifetime of the `Iter` returned by `iter()`.
-In plain English: the `Iter` returned by `iter()` cannot outlive the `Vec` reference (`&self`) it was created from.
 
-This is important because `Vec::iter`, as we discussed, returns an iterator over **references** to the `Vec`'s elements.
-If the `Vec` is dropped, the references returned by the iterator would be invalid. Rust must make sure this doesn't happen,
-and lifetimes are the tool it uses to enforce this rule.
+`Vec::iter()` は、`'a` という名前のライフタイムパラメータに対してジェネリックです。\
+`'a` は、`Vec` のライフタイムと、`iter()` によって返される `Iter` のライフタイムを**結びつける**ために使用されます。
+平易な言葉で言えば、`iter()` によって返される `Iter` は、それが作成された元となった `Vec` 参照 (`&self`) よりも長く生存することはできません。
 
-## Lifetime elision
+これが重要なのは、前述の通り `Vec::iter` が `Vec` の要素への**参照**のイテレータを返すためです。
+もし `Vec` がドロップされると、イテレータによって返される参照は無効になります。Rust はこのような事態が起こらないようにしなければならず、ライフタイムはこのルールを強制するためのツールとなります。
 
-Rust has a set of rules, called **lifetime elision rules**, that allow you to omit explicit lifetime annotations in many cases.
-For example, `Vec::iter`'s definition looks like this in `std`'s source code:
+<a id="lifetime-elision"></a>
+
+## ライフタイムの省略
+
+Rust には**ライフタイム省略ルール**と呼ばれる一連のルールがあり、多くの場合で明示的なライフタイムアノテーションを省略できます。
+例えば、`std` のソースコードにおける `Vec::iter` の定義は次のようになっています：
 
 ```rust
 impl <T> Vec<T> {
@@ -70,15 +75,18 @@ impl <T> Vec<T> {
 }
 ```
 
-No explicit lifetime parameter is present in the signature of `Vec::iter()`.
-Elision rules imply that the lifetime of the `Iter` returned by `iter()` is tied to the lifetime of the `&self` reference.
-You can think of `'_` as a **placeholder** for the lifetime of the `&self` reference.
 
-See the [References](#references) section for a link to the official documentation on lifetime elision.\
-In most cases, you can rely on the compiler telling you when you need to add explicit lifetime annotations.
+`Vec::iter()` のシグネチャには、明示的なライフタイムパラメータが存在しません。
+省略ルールにより、`iter()` によって返される `Iter` のライフタイムは、`&self` 参照のライフタイムに結び付けられていることになります。
+`'_` は、`&self` 参照のライフタイムの**プレースホルダー**であると考えることができます。
 
-## References
+ライフタイム省略に関する公式ドキュメントへのリンクについては、[References](#references) セクションを参照してください。\
+ほとんどの場合、明示的なライフタイムアノテーションを追加する必要があるかどうかは、コンパイラの指摘に従うことで判断できます。
+
+<a id="references"></a>
+
+## 参考文献
 
 - [std::vec::Vec::iter](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.iter)
 - [std::slice::Iter](https://doc.rust-lang.org/std/slice/struct.Iter.html)
-- [Lifetime elision rules](https://doc.rust-lang.org/reference/lifetime-elision.html)
+- [ライフタイム省略ルール](https://doc.rust-lang.org/reference/lifetime-elision.html)

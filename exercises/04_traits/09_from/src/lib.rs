@@ -1,4 +1,4 @@
-// TODO: Implement the `From` trait for the `WrappingU32` type to make `example` compile.
+// TODO: `example`をコンパイルできるように、`WrappingU32`型に`From`トレイトを実装してください。
 
 pub struct WrappingU32 {
     value: u32,

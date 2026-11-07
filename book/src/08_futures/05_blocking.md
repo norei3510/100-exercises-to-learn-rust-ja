@@ -1,59 +1,65 @@
-# Don't block the runtime
+<a id="dont-block-the-runtime"></a>
 
-Let's circle back to yield points.\
-Unlike threads, **Rust tasks cannot be preempted**.
+# ランタイムをブロックしない
 
-`tokio` cannot, on its own, decide to pause a task and run another one in its place.
-The control goes back to the executor **exclusively** when the task yields—i.e.
-when `Future::poll` returns `Poll::Pending` or, in the case of `async fn`, when
-you `.await` a future.
+再び yield ポイントの話に戻りましょう。\
+スレッドとは異なり、**Rust のタスクはプリエンプトされません**。
 
-This exposes the runtime to a risk: if a task never yields, the runtime will never
-be able to run another task. This is called **blocking the runtime**.
+`tokio` は、単独でタスクを一時停止させ、代わりに別のタスクを実行するという判断を下すことはできません。
+制御がエグゼキュータに戻るのは、**タスクが yield したときのみ**です。つまり
+`Future::poll` が `Poll::Pending` を返したとき、あるいは `async fn` の場合、
+Future を `.await` したときです。
 
-## What is blocking?
+これにより、ランタイムにリスクが生じます。もしタスクが一度も yield しなければ、ランタイムは
+他のタスクを決して実行できなくなります。これを **ランタイムのブロック** と呼びます。
 
-How long is too long? How much time can a task spend without yielding before it
-becomes a problem?
+<a id="what-is-blocking"></a>
 
-It depends on the runtime, the application, the number of in-flight tasks, and
-many other factors. But, as a general rule of thumb, try to spend less than 100
-microseconds between yield points.
+## ブロックとは何か？
 
-## Consequences
+どの程度の時間が「長すぎる」のでしょうか？ 問題となるまでに、タスクが yield せずに消費してよい時間は
+どれくらいでしょうか？
 
-Blocking the runtime can lead to:
+それはランタイム、アプリケーション、実行中のタスク数、およびその他の多くの要因によって異なります。しかし、一般的な目安として、yield ポイント間の時間は 100
+マイクロ秒未満に抑えるようにしてください。
 
-- **Deadlocks**: if the task that's not yielding is waiting for another task to
-  complete, and that task is waiting for the first one to yield, you have a deadlock.
-  No progress can be made, unless the runtime is able to schedule the other task on
-  a different thread.
-- **Starvation**: other tasks might not be able to run, or might run after a long
-  delay, which can lead to poor performances (e.g. high tail latencies).
+<a id="consequences"></a>
 
-## Blocking is not always obvious
+## 影響
 
-Some types of operations should generally be avoided in async code, like:
+ランタイムをブロックすると、以下のような事態を招く可能性があります。
 
-- Synchronous I/O. You can't predict how long it will take, and it's likely to be
-  longer than 100 microseconds.
-- Expensive CPU-bound computations.
+- **デッドロック**: yield しないタスクが別のタスクの完了を待っており、
+  そのタスクがさらに最初のタスクの yield を待っている場合、デッドロックが発生します。
+  ランタイムが別のスレッドで他方のタスクをスケジューリングできない限り、
+  処理は進みません。
+- **スターベーション**: 他のタスクが実行できなくなったり、実行までに長い遅延が生じたりし、
+  パフォーマンスの低下（例：高いテールレイテンシ）につながる可能性があります。
 
-The latter category is not always obvious though. For example, sorting a vector with
-a few elements is not a problem; that evaluation changes if the vector has billions
-of entries.
+<a id="blocking-is-not-always-obvious"></a>
 
-## How to avoid blocking
+## ブロックは必ずしも明白ではない
 
-OK, so how do you avoid blocking the runtime assuming you _must_ perform an operation
-that qualifies or risks qualifying as blocking?\
-You need to move the work to a different thread. You don't want to use the so-called
-runtime threads, the ones used by `tokio` to run tasks.
+非同期コードでは、一般的に以下のような操作を避けるべきです。
 
-`tokio` provides a dedicated threadpool for this purpose, called the **blocking pool**.
-You can spawn a synchronous operation on the blocking pool using the
-`tokio::task::spawn_blocking` function. `spawn_blocking` returns a future that resolves
-to the result of the operation when it completes.
+- 同期 I/O。所要時間を予測できず、100 マイクロ秒を超える可能性が高くなります。
+- 負荷の高い CPU バウンドな計算。
+
+ただし、後者のカテゴリーは必ずしも明白ではありません。例えば、要素数の少ないベクトルのソートは問題ありませんが、
+ベクトルに数十億個の要素がある場合、評価は変わります。
+
+<a id="how-to-avoid-blocking"></a>
+
+## ブロックを避ける方法
+
+では、ブロックに該当する、あるいは該当するリスクがある操作を _どうしても_ 実行しなければならない場合、
+どうすればランタイムのブロックを避けられるでしょうか？\
+処理を別のスレッドに移す必要があります。`tokio` がタスクの実行に使用する、いわゆる
+ランタイムスレッドは使用しないでください。
+
+`tokio` は、この目的のために **ブロッキングプール** と呼ばれる専用のスレッドプールを提供しています。
+`tokio::task::spawn_blocking` 関数を使用して、ブロッキングプール上で同期操作をスポーンできます。`spawn_blocking` は、
+操作が完了したときにその結果を返す Future を返します。
 
 ```rust
 use tokio::task;
@@ -64,16 +70,19 @@ fn expensive_computation() -> u64 {
 
 async fn run() {
     let handle = task::spawn_blocking(expensive_computation);
-    // Do other stuff in the meantime
+    // その間、他のことをしてください
     let result = handle.await.unwrap();
 }
 ```
 
-The blocking pool is long-lived. `spawn_blocking` should be faster
-than creating a new thread directly via `std::thread::spawn`
-because the cost of thread initialization is amortized over multiple calls.
 
-## Further reading
+ブロッキングプールは長寿命です。`spawn_blocking` は、
+`std::thread::spawn` で直接新しいスレッドを作成するよりも高速であるはずです。
+スレッドの初期化コストが複数の呼び出しにわたって分散されるためです。
 
-- Check out [Alice Ryhl's blog post](https://ryhl.io/blog/async-what-is-blocking/)
-  on the topic.
+<a id="further-reading"></a>
+
+## さらに詳しく
+
+- このトピックに関する [Alice Ryhl 氏のブログ記事](https://ryhl.io/blog/async-what-is-blocking/)
+  をご覧ください。

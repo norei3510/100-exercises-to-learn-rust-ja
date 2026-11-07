@@ -1,7 +1,7 @@
-//! TODO: get the code to compile by **re-ordering** the statements
-//!  in the `example` function. You're not allowed to change the
-//!  `spawner` function nor what each line does in `example`.
-//!   You can wrap existing statements in blocks `{}` if needed.
+//! TODO: `example` 関数内のステートメントを**並べ替える**ことで、
+//! コードがコンパイルできるようにしてください。`spawner` 関数や、
+//! `example` の各行の処理内容は変更してはいけません。
+//!   必要に応じて、既存のステートメントをブロック `{}` で囲むことができます。
 use std::rc::Rc;
 use tokio::task::yield_now;
 

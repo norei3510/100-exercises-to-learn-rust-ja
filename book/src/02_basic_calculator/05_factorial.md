@@ -1,11 +1,13 @@
-# Factorial
+<a id="factorial"></a>
 
-So far you've learned:
+# 階乗
 
-- How to define a function
-- How to call a function
-- Which integer types are available in Rust
-- Which arithmetic operators are available for integers
-- How to execute conditional logic via comparisons and `if`/`else` expressions
+これまでに学んだこと：
 
-It looks like you're ready to tackle factorials!
+- 関数の定義方法
+- 関数の呼び出し方
+- Rustで利用できる整数型
+- 整数で利用できる算術演算子
+- 比較や`if`/`else`式による条件分岐の実行方法
+
+いよいよ階乗に取り組む準備が整ったようですね！

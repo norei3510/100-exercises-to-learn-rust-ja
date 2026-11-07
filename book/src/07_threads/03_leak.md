@@ -1,29 +1,30 @@
-# Leaking data
+<a id="leaking-data"></a>
 
-The main concern around passing references to spawned threads is use-after-free bugs:
-accessing data using a pointer to a memory region that's already been freed/de-allocated.\
-If you're working with heap-allocated data, you can avoid the issue by
-telling Rust that you'll never reclaim that memory: you choose to **leak memory**,
-intentionally.
+# データのリーク
 
-This can be done, for example, using the `Box::leak` method from Rust's standard library:
+生成したスレッドに参照を渡す際の主な懸念は、use-after-free バグです。
+これは、すでに解放・デアロケーションされたメモリ領域へのポインタを用いてデータにアクセスすることを指します。\
+ヒープに割り当てられたデータを扱う場合、そのメモリを二度と回収しないことを Rust に伝えることで、この問題を回避できます。つまり、意図的に**メモリをリーク**させるということです。
+
+これは、例えば Rust 標準ライブラリの `Box::leak` メソッドを使用して実現できます。
 
 ```rust
-// Allocate a `u32` on the heap, by wrapping it in a `Box`.
+// `Box`でラップすることで、ヒープ上に`u32`を割り当てます。
 let x = Box::new(41u32);
-// Tell Rust that you'll never free that heap allocation
-// using `Box::leak`. You can thus get back a 'static reference.
+// `Box::leak` を使用して、そのヒープ割り当てを決して解放しないことを Rust に伝えます。これにより、'static 参照を取得できます。
 let static_ref: &'static mut u32 = Box::leak(x);
 ```
 
-## Data leakage is process-scoped
 
-Leaking data is dangerous: if you keep leaking memory, you'll eventually
-run out and crash with an out-of-memory error.
+<a id="data-leakage-is-process-scoped"></a>
+
+## データリークはプロセススコープである
+
+データのリークは危険です。メモリをリークし続けると、いずれメモリが枯渇し、メモリ不足エラーでクラッシュします。
 
 ```rust
-// If you leave this running for a while, 
-// it'll eventually use all the available memory.
+// これをしばらく動かしておくと、
+// そのうち利用可能なメモリをすべて使い切ってしまいます。
 fn oom_trigger() {
     loop {
         let v: Vec<usize> = Vec::with_capacity(1024);
@@ -32,15 +33,14 @@ fn oom_trigger() {
 }
 ```
 
-At the same time, memory leaked via `leak` method is not truly forgotten.\
-The operating system can map each memory region to the process responsible for it.
-When the process exits, the operating system will reclaim that memory.
 
-Keeping this in mind, it can be OK to leak memory when:
+同時に、`leak` メソッドでリークされたメモリは、完全に忘れ去られるわけではありません。\
+オペレーティングシステムは、各メモリ領域をそれを管理するプロセスにマッピングできます。
+プロセスが終了すると、オペレーティングシステムはそのメモリを回収します。
 
-- The amount of memory you need to leak is bounded/known upfront, or
-- Your process is short-lived and you're confident you won't exhaust
-  all the available memory before it exits
+この点を踏まえると、以下のような場合にはメモリをリークさせても問題ありません。
 
-"Let the OS deal with it" is a perfectly valid memory management strategy
-if your usecase allows for it.
+- リークさせるメモリ量が限定されているか、あらかじめ分かっている場合
+- プロセスの寿命が短く、終了までに利用可能なメモリをすべて使い切ることがないと確信できる場合
+
+ユースケースが許すのであれば、「OSに任せる」というのは完全に有効なメモリ管理戦略です。

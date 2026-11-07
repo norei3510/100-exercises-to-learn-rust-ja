@@ -1,8 +1,10 @@
-# A dedicated `Client` type
+<a id="a-dedicated-client-type"></a>
 
-All the interactions from the client side have been fairly low-level: you have to
-manually create a response channel, build the command, send it to the server, and
-then call `recv` on the response channel to get the response.
+# 専用の `Client` 型
 
-This is a lot of boilerplate code that could be abstracted away, and that's
-exactly what we're going to do in this exercise.
+クライアント側からのやり取りは、これまでかなり低レベルなものでした。具体的には、
+手動でレスポンスチャネルを作成し、コマンドを構築してサーバーに送信し、
+その後、レスポンスチャネルに対して `recv` を呼び出してレスポンスを取得するという手順が必要でした。
+
+こうした定型コードの多くは抽象化が可能です。まさにそれを、
+今回の演習で行っていきます。
