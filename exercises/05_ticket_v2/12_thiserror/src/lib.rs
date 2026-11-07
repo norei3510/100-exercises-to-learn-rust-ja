@@ -1,7 +1,7 @@
-// TODO: Implement the `Error` trait for `TicketNewError` using `thiserror`.
-//   We've changed the enum variants to be more specific, thus removing the need for storing
-//   a `String` field into each variant.
-//   You'll also have to add `thiserror` as a dependency in the `Cargo.toml` file.
+// TODO: `thiserror` を使用して `TicketNewError` に `Error` トレイトを実装してください。
+//   列挙型のバリアントをより具体的に変更したため、各バリアントに `String` フィールドを
+//   保持する必要がなくなりました。
+//   また、`Cargo.toml` ファイルに `thiserror` を依存関係として追加する必要があります。
 
 #[derive(Debug, thiserror::Error)]
 enum TicketNewError {

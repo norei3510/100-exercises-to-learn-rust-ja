@@ -6,13 +6,13 @@ pub mod data;
 pub mod store;
 
 #[derive(Clone)]
-// TODO: flesh out the client implementation.
+// TODO: クライアントの実装を具体化してください。
 pub struct TicketStoreClient {
     sender: Sender<Command>,
 }
 
 impl TicketStoreClient {
-    // Feel free to panic on all errors, for simplicity.
+    // 簡略化のため、すべてのエラーで遠慮なくパニックを起こしてください。
     pub fn insert(&self, draft: TicketDraft) -> TicketId {
         let (response_sender, response_receiver) = std::sync::mpsc::channel();
         self.sender
@@ -42,7 +42,7 @@ pub fn launch() -> TicketStoreClient {
     TicketStoreClient { sender }
 }
 
-// No longer public! This becomes an internal detail of the library now.
+// 公開終了です！今後はライブラリの内部実装となります。
 enum Command {
     Insert {
         draft: TicketDraft,
@@ -73,8 +73,8 @@ fn server(receiver: Receiver<Command>) {
                 let _ = response_channel.send(ticket.cloned());
             }
             Err(_) => {
-                // There are no more senders, so we can safely break
-                // and shut down the server.
+                // 送信者はもういないため、安全に処理を中断して
+                // サーバーをシャットダウンできます。
                 break;
             }
         }

@@ -1,6 +1,8 @@
-# Copying values, pt. 2
+<a id="copying-values-pt-2"></a>
 
-Let's consider the same example as before, but with a slight twist: using `u32` rather than `String` as a type.
+# 値のコピー（パート 2）
+
+先ほどと同じ例を、型として `String` ではなく `u32` を使うという、ちょっとしたひねりを加えて考えてみましょう。
 
 ```rust
 fn consumer(s: u32) { /* */ }
@@ -12,52 +14,58 @@ fn example() {
 }
 ```
 
-It'll compile without errors! What's going on here? What's the difference between `String` and `u32`
-that makes the latter work without `.clone()`?
+
+エラーなくコンパイルできます！一体どういうことでしょうか？ `String` と `u32` の
+どのような違いによって、後者は `.clone()` なしで動作するのでしょうか？
+
+<a id="copy"></a>
 
 ## `Copy`
 
-`Copy` is another trait defined in Rust's standard library:
+`Copy` は Rust の標準ライブラリで定義されているもう一つのトレイトです：
 
 ```rust
 pub trait Copy: Clone { }
 ```
 
-It is a marker trait, just like `Sized`.
 
-If a type implements `Copy`, there's no need to call `.clone()` to create a new instance of the type:
-Rust does it **implicitly** for you.\
-`u32` is an example of a type that implements `Copy`, which is why the example above compiles without errors:
-when `consumer(s)` is called, Rust creates a new `u32` instance by performing a **bitwise copy** of `s`,
-and then passes that new instance to `consumer`. It all happens behind the scenes, without you having to do anything.
+これは `Sized` と同様にマーカートレイトです。
 
-## What can be `Copy`?
+ある型が `Copy` を実装していれば、その型の新しいインスタンスを作成するために `.clone()` を呼び出す必要はありません。
+Rust が **暗黙的に** 処理してくれるからです。\
+`u32` は `Copy` を実装している型の一例であり、だからこそ上記の例はエラーなくコンパイルできるのです。
+`consumer(s)` が呼び出されると、Rust は `s` の **ビット単位のコピー** を行うことで新しい `u32` インスタンスを作成し、
+その新しいインスタンスを `consumer` に渡します。これらはすべて、ユーザーが何もしなくてもバックグラウンドで行われます。
 
-`Copy` is not equivalent to "automatic cloning", although it implies it.\
-Types must meet a few requirements in order to be allowed to implement `Copy`.
+<a id="what-can-be-copy"></a>
 
-First of all, it must implement `Clone`, since `Copy` is a subtrait of `Clone`.
-This makes sense: if Rust can create a new instance of a type _implicitly_, it should
-also be able to create a new instance _explicitly_ by calling `.clone()`.
+## `Copy` になれるのはどのようなものか？
 
-That's not all, though. A few more conditions must be met:
+`Copy` は「自動クローニング」と同義ではありませんが、それを暗示してはいます。\
+型が `Copy` を実装することが許可されるには、いくつかの要件を満たす必要があります。
 
-1. The type doesn't manage any _additional_ resources (e.g. heap memory, file handles, etc.) beyond the `std::mem::size_of`
-   bytes that it occupies in memory.
-2. The type is not a mutable reference (`&mut T`).
+まず、`Copy` は `Clone` のサブトレイトであるため、`Clone` を実装していなければなりません。
+これは理にかなっています。Rust がある型の新しいインスタンスを _暗黙的に_ 作成できるのであれば、
+`.clone()` を呼び出すことで _明示的に_ 新しいインスタンスを作成できるはずだからです。
 
-If both conditions are met, then Rust can safely create a new instance of the type by performing a **bitwise copy**
-of the original instance—this is often referred to as a `memcpy` operation, after the C standard library function
-that performs the bitwise copy.
+しかし、それだけではありません。さらにいくつかの条件を満たす必要があります：
 
-### Case study 1: `String`
+1. その型は、メモリ上で占有する `std::mem::size_of` バイト以外の _追加的な_ リソース（例：ヒープメモリ、ファイルハンドルなど）を管理していないこと。
+2. その型が可変参照 (`&mut T`) ではないこと。
 
-`String` is a type that doesn't implement `Copy`.\
-Why? Because it manages an additional resource: the heap-allocated memory buffer that stores the string's data.
+これら両方の条件が満たされていれば、Rust は元のインスタンスの **ビット単位のコピー** を行うことで、その型の新しいインスタンスを安全に作成できます。
+これは、ビット単位のコピーを行う C 標準ライブラリの関数にちなんで、しばしば `memcpy` 操作と呼ばれます。
 
-Let's imagine that Rust allowed `String` to implement `Copy`.\
-Then, when a new `String` instance is created by performing a bitwise copy of the original instance, both the original
-and the new instance would point to the same memory buffer:
+<a id="case-study-1-string"></a>
+
+### ケーススタディ 1: `String`
+
+`String` は `Copy` を実装していない型です。\
+なぜでしょうか？ それは、文字列データを格納するヒープ割り当てのメモリバッファという、追加的なリソースを管理しているからです。
+
+仮に Rust が `String` に `Copy` の実装を許可したとしましょう。\
+すると、元のインスタンスのビット単位のコピーによって新しい `String` インスタンスが作成されたとき、元のインスタンスと
+新しいインスタンスの両方が同じメモリバッファを指すことになります：
 
 ```text
               s                                 copied_s
@@ -76,34 +84,41 @@ and the new instance would point to the same memory buffer:
    +------------------------------------+
 ```
 
-This is bad!
-Both `String` instances would try to free the memory buffer when they go out of scope,
-leading to a double-free error.
-You could also create two distinct `&mut String` references that point to the same memory buffer,
-violating Rust's borrowing rules.
 
-### Case study 2: `u32`
+これは問題です！
+両方の `String` インスタンスが、スコープを抜ける際にメモリバッファを解放しようとし、
+ダブルフリーエラーが発生します。
+また、同じメモリバッファを指す 2 つの異なる `&mut String` 参照を作成することもでき、
+Rust の借用ルールに違反することになります。
 
-`u32` implements `Copy`. All integer types do, in fact.\
-An integer is "just" the bytes that represent the number in memory. There's nothing more!
-If you copy those bytes, you get another perfectly valid integer instance.
-Nothing bad can happen, so Rust allows it.
+<a id="case-study-2-u32"></a>
 
-### Case study 3: `&mut u32`
+### ケーススタディ 2: `u32`
 
-When we introduced ownership and mutable borrows, we stated one rule quite clearly: there
-can only ever be _one_ mutable borrow of a value at any given time.\
-That's why `&mut u32` doesn't implement `Copy`, even though `u32` does.
+`u32` は `Copy` を実装しています。実際、すべての整数型が実装しています。\
+整数とは、メモリ上で数値を表すバイトに _すぎません_。それ以上のものは何もありません！
+それらのバイトをコピーすれば、別の完全に有効な整数インスタンスが得られます。
+悪いことは何も起きないため、Rust はこれを許可しています。
 
-If `&mut u32` implemented `Copy`, you could create multiple mutable references to
-the same value and modify it in multiple places at the same time.
-That'd be a violation of Rust's borrowing rules!
-It follows that `&mut T` never implements `Copy`, no matter what `T` is.
+<a id="case-study-3-mut-u32"></a>
 
-## Implementing `Copy`
+### ケーススタディ 3: `&mut u32`
 
-In most cases, you don't need to manually implement `Copy`.
-You can just derive it, like this:
+所有権と可変借用を導入した際、あるルールを明確に述べました。それは、ある時点において
+一つの値に対する可変借用は _たった一つ_ しか存在できないということです。\
+だからこそ、`u32` は実装しているにもかかわらず、`&mut u32` は `Copy` を実装していないのです。
+
+もし `&mut u32` が `Copy` を実装していたら、同じ値に対する複数の可変参照を作成し、
+同時に複数の場所でその値を変更することができてしまいます。
+それは Rust の借用ルールへの違反となります！
+したがって、`T` が何であれ、`&mut T` が `Copy` を実装することはありません。
+
+<a id="implementing-copy"></a>
+
+## `Copy` の実装
+
+ほとんどの場合、`Copy`を手動で実装する必要はありません。
+次のように派生させるだけで済みます。
 
 ```rust
 #[derive(Copy, Clone)]

@@ -1,10 +1,10 @@
-// TODO: fix the function signature below to make the tests pass.
-//  Make sure to read the compiler error message—the Rust compiler is your pair programming
-//  partner in this course and it'll often guide you in the right direction!
+// TODO: 以下の関数シグネチャを修正して、テストが通るようにしてください。
+//  コンパイラのエラーメッセージを必ず読んでください。このコースでは、Rustコンパイラがペアプログラミングの
+// パートナーとなり、多くの場合、正しい方向へと導いてくれます！
 //
-// The input parameters should have the same type of the return type.
+// 入力パラメータは、戻り値の型と同じ型である必要があります。
 fn compute(a: u32, b: u32) -> u32 {
-    // Don't touch the function body.
+    // 関数本体には手を加えないでください。
     a + b * 2
 }
 

@@ -1,8 +1,7 @@
 pub fn factorial(n: u32) -> u32 {
     let mut result: u32 = 1;
     for i in 1..=n {
-        // Use saturating multiplication to stop at the maximum value of u32
-        // rather than overflowing and wrapping around
+        // オーバーフローしてラップアラウンドするのではなく、飽和乗算を用いてu32の最大値で停止させます。
         result = result.saturating_mul(i);
     }
     result

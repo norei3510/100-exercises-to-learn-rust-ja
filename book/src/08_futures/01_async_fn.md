@@ -1,58 +1,57 @@
-# Asynchronous functions
+<a id="asynchronous-functions"></a>
 
-All the functions and methods you've written so far were eager.\
-Nothing happened until you invoked them. But once you did, they ran to
-completion: they did **all** their work, and then returned their output.
+# 非同期関数
 
-Sometimes that's undesirable.\
-For example, if you're writing an HTTP server, there might be a lot of
-**waiting**: waiting for the request body to arrive, waiting for the
-database to respond, waiting for a downstream service to reply, etc.
+これまで書いてきた関数やメソッドはすべて「即時実行型」でした。\
+呼び出すまで何も起こりませんが、一度呼び出されると最後まで実行されます。つまり、**すべての**処理を完了させてから、その結果を返します。
 
-What if you could do something else while you're waiting?\
-What if you could choose to give up midway through a computation?\
-What if you could choose to prioritise another task over the current one?
+しかし、それが望ましくない場合もあります。\
+例えば、HTTPサーバーを開発している場合、多くの「待機」が発生することがあります。リクエストボディの到着待ち、データベースの応答待ち、ダウンストリームサービスからの返信待ちなどです。
 
-That's where **asynchronous functions** come in.
+待機している間に、別の処理ができたらどうでしょうか？\
+計算の途中で処理を断念することを選択できたらどうでしょうか？\
+現在のタスクよりも別のタスクを優先させる選択ができたらどうでしょうか？
+
+そこで登場するのが「**非同期関数**」です。
+
+<a id="async-fn"></a>
 
 ## `async fn`
 
-You use the `async` keyword to define an asynchronous function:
+非同期関数を定義するには、`async` キーワードを使用します。
 
 ```rust
 use tokio::net::TcpListener;
 
-// This function is asynchronous
+// この関数は非同期です
 async fn bind_random() -> TcpListener {
     // [...]
 }
 ```
 
-What happens if you call `bind_random` as you would a regular function?
+
+通常の関数と同じように `bind_random` を呼び出すと、どうなるでしょうか？
 
 ```rust
 fn run() {
-    // Invoke `bind_random`
+    // `bind_random`を呼び出します
     let listener = bind_random();
-    // Now what?
+    // さて、次はどうすればいいでしょうか？
 }
 ```
 
-Nothing happens!\
-Rust doesn't start executing `bind_random` when you call it,
-not even as a background task (as you might expect based on your experience
-with other languages).
-Asynchronous functions in Rust are **lazy**: they don't do any work until you
-explicitly ask them to.
-Using Rust's terminology, we say that `bind_random` returns a **future**, a type
-that represents a computation that may complete later. They're called futures
-because they implement the `Future` trait, an interface that we'll examine in
-detail later on in this chapter.
+
+何も起こりません！\
+Rustでは、呼び出した時点で `bind_random` の実行は開始されません。\
+（他の言語での経験から予想されるかもしれませんが）バックグラウンドタスクとしてさえ実行されません。
+Rustの非同期関数は「遅延実行型」です。明示的に指示するまで、いかなる処理も行いません。
+Rustの用語で言えば、`bind_random` は「フューチャー（future）」を返すと言えます。フューチャーとは、後で完了する可能性のある計算を表す型です。`Future` トレイトを実装しているためフューチャーと呼ばれます。このトレイトについては、本章の後半で詳しく解説します。
+
+<a id="await"></a>
 
 ## `.await`
 
-The most common way to ask an asynchronous function to do some work is to use
-the `.await` keyword:
+非同期関数に処理を依頼する最も一般的な方法は、`.await` キーワードを使用することです。
 
 ```rust
 use tokio::net::TcpListener;
@@ -62,83 +61,85 @@ async fn bind_random() -> TcpListener {
 }
 
 async fn run() {
-    // Invoke `bind_random` and wait for it to complete
+    // `bind_random`を呼び出し、完了するまで待機します
     let listener = bind_random().await;
-    // Now `listener` is ready
+    // これで`listener`の準備が整いました。
 }
 ```
 
-`.await` doesn't return control to the caller until the asynchronous function
-has run to completion—e.g. until the `TcpListener` has been created in the example above.
 
-## Runtimes
+`.await` は、非同期関数が最後まで実行されるまで（例えば上記の例では `TcpListener` が作成されるまで）、制御を呼び元に返しません。
 
-If you're puzzled, you're right to be!\
-We've just said that the perk of asynchronous functions
-is that they don't do **all** their work at once. We then introduced `.await`, which
-doesn't return until the asynchronous function has run to completion. Haven't we
-just re-introduced the problem we were trying to solve? What's the point?
+<a id="runtimes"></a>
 
-Not quite! A lot happens behind the scenes when you call `.await`!\
-You're yielding control to an **async runtime**, also known as an **async executor**.
-Executors are where the magic happens: they are in charge of managing all your
-ongoing asynchronous **tasks**. In particular, they balance two different goals:
+## ランタイム
 
-- **Progress**: they make sure that tasks make progress whenever they can.
-- **Efficiency**: if a task is waiting for something, they try to make sure that
-  another task can run in the meantime, fully utilising the available resources.
+疑問に思ったなら、それは正しい反応です！\
+非同期関数の利点は、処理を**一度にすべて**行わないことだと言いました。\
+ところが、非同期関数が最後まで実行されるまで戻らない `.await` を導入しました。\
+これでは、解決しようとしていた問題を再び持ち込んだことになりませんか？ 一体何の意味があるのでしょうか？
 
-### No default runtime
+実はそうではありません！ `.await` を呼び出すと、舞台裏で多くのことが起きているのです！\
+制御を「**非同期ランタイム**」（別名「**非同期エグゼキュータ**」）に譲っていることになります。
+エグゼキュータこそが魔法が起きる場所です。現在進行中のすべての非同期「**タスク**」の管理を担っています。具体的には、次の2つの異なる目標のバランスを取っています。
 
-Rust is fairly unique in its approach to asynchronous programing: there is
-no default runtime. The standard library doesn't ship with one. You need to
-bring your own!
+- **進捗**: タスクが可能な限り前進するようにします。
+- **効率**: タスクが何かを待機している間、その間に別のタスクが実行できるようにし、利用可能なリソースを最大限に活用します。
 
-In most cases, you'll choose one of the options available in the ecosystem.
-Some runtimes are designed to be broadly applicable, a solid option for most applications.
-`tokio` and `async-std` belong to this category. Other runtimes are optimised for
-specific use cases—e.g. `embassy` for embedded systems.
+<a id="no-default-runtime"></a>
 
-Throughout this course we'll rely on `tokio`, the most popular runtime for general-purpose
-asynchronous programming in Rust.
+### デフォルトのランタイムはない
+
+Rustの非同期プログラミングへのアプローチはかなり独特で、デフォルトのランタイムが存在しません。標準ライブラリにもランタイムは同梱されていません。自前で用意する必要があります！
+
+ほとんどの場合、エコシステムで提供されているオプションの中から一つを選択することになります。\
+一部のランタイムは汎用性を重視して設計されており、ほとんどのアプリケーションにとって堅実な選択肢となります。\
+`tokio` や `async-std` がこのカテゴリに属します。一方で、特定のユースケースに最適化されたランタイムもあります。例えば、組み込みシステム向けの `embassy` などです。
+
+本コースでは、Rustの汎用的な非同期プログラミングで最も普及しているランタイムである `tokio` を使用します。
+
+<a id="tokiomain"></a>
 
 ### `#[tokio::main]`
 
-The entrypoint of your executable, the `main` function, must be a synchronous function.
-That's where you're supposed to set up and launch your chosen async runtime.
+実行ファイルのエントリポイントである `main` 関数は、必ず同期関数でなければなりません。\
+そこで、選択した非同期ランタイムのセットアップと起動を行う必要があります。
 
-Most runtimes provide a macro to make this easier. For `tokio`, it's `tokio::main`:
+ほとんどのランタイムでは、これを容易にするためのマクロが提供されています。`tokio`の場合、`tokio::main`となります：
 
 ```rust
 #[tokio::main]
 async fn main() {
-    // Your async code goes here
+    // ここに非同期コードを記述します
 }
 ```
 
-which expands to:
+
+これは次のように展開されます：
 
 ```rust
 fn main() {
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(
-        // Your async function goes here
+        // ここに非同期関数を記述します
         // [...]
     );
 }
 ```
 
+
+<a id="tokiotest"></a>
+
 ### `#[tokio::test]`
 
-The same goes for tests: they must be synchronous functions.\
-Each test function is run in its own thread, and you're responsible for
-setting up and launching an async runtime if you need to run async code
-in your tests.\
-`tokio` provides a `#[tokio::test]` macro to make this easier:
+テストについても同様で、同期関数である必要があります。\
+各テスト関数は個別のスレッドで実行されます。テスト内で非同期コードを実行する必要がある場合は、
+非同期ランタイムのセットアップと起動を行う責任があります。\
+`tokio`では、これを容易にするための`#[tokio::test]`マクロが提供されています：
 
 ```rust
 #[tokio::test]
 async fn my_test() {
-    // Your async test code goes here
+    // ここに非同期テストコードを記述します
 }
 ```

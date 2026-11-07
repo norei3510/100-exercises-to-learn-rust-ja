@@ -9,19 +9,19 @@ pub enum Command {
     Insert(TicketDraft),
 }
 
-// Start the system by spawning the server thread.
-// It returns a `Sender` instance which can then be used
-// by one or more clients to interact with the server.
+// サーバースレッドを起動してシステムを開始します。
+// 1つ以上のクライアントがサーバーとやり取りする際に使用できる
+// `Sender`インスタンスを返します。
 pub fn launch() -> Sender<Command> {
     let (sender, receiver) = std::sync::mpsc::channel();
     std::thread::spawn(move || server(receiver));
     sender
 }
 
-// TODO: The server task should **never** stop.
-//  Enter a loop: wait for a command to show up in
-//  the channel, then execute it, then start waiting
-//  for the next command.
+// TODO: サーバータスクは**絶対に**停止してはいけません。
+//  ループに入り、チャンネルにコマンドが現れるのを
+// 待ち、それを実行し、次に次のコマンドを
+// 待つようにしてください。
 pub fn server(receiver: Receiver<Command>) {
     let mut store = TicketStore::new();
     while let Ok(command) = receiver.recv() {

@@ -7,7 +7,7 @@ enum Shape {
 }
 
 impl Shape {
-    // TODO: Implement the `n_sides` method using a `match`.
+    // TODO: `match`を用いて`n_sides`メソッドを実装してください。
     pub fn n_sides(&self) -> u8 {
         match self {
             Shape::Circle => 0,

@@ -1,6 +1,6 @@
-// TODO: Implement `Ticket::assigned_to`.
-//  Return the name of the person assigned to the ticket, if the ticket is in progress.
-//  Panic otherwise.
+// TODO: `Ticket::assigned_to` を実装してください。
+//  チケットが進行中の場合は、そのチケットの担当者名を返してください。
+//  それ以外の場合はパニックしてください。
 
 #[derive(Debug, PartialEq)]
 struct Ticket {

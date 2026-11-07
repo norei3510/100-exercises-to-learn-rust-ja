@@ -1,18 +1,19 @@
-# Modelling A Ticket
+<a id="modelling-a-ticket"></a>
 
-The first chapter should have given you a good grasp over some of Rust's primitive types, operators and
-basic control flow constructs.\
-In this chapter we'll go one step further and cover what makes Rust truly unique: **ownership**.\
-Ownership is what enables Rust to be both memory-safe and performant, with no garbage collector.
+# チケットのモデリング
 
-As our running example, we'll use a (JIRA-like) ticket, the kind you'd use to track bugs, features, or tasks in
-a software project.\
-We'll take a stab at modeling it in Rust. It'll be the first iteration—it won't be perfect nor very idiomatic
-by the end of the chapter. It'll be enough of a challenge though!\
-To move forward you'll have to pick up several new Rust concepts, such as:
+第1章では、Rustのプリミティブ型や演算子、
+基本的な制御フロー構文について十分に理解できたはずです。\
+本章ではさらに一歩踏み込み、Rustを真にユニークたらしめている要素である**所有権**について解説します。\
+所有権があるからこそ、Rustはガベージコレクタなしで、メモリ安全性とパフォーマンスを両立できるのです。
 
-- `struct`s, one of Rust's ways to define custom types
-- Ownership, references and borrowing
-- Memory management: stack, heap, pointers, data layout, destructors
-- Modules and visibility
-- Strings
+具体例として、ソフトウェアプロジェクトでバグや機能、タスクを追跡する際に使用する
+（JIRAのような）チケットを取り上げます。\
+これをRustでモデリングしてみましょう。まずは最初の試行となります。章の終わりまでに完璧なものになったり、非常に慣用的な書き方になったりするわけではありませんが、十分に挑戦しがいのある内容になるはずです！\
+先に進むには、以下のようなRustの新しい概念をいくつか習得する必要があります：
+
+- `struct`s：Rustでカスタム型を定義する方法の一つ
+- 所有権、参照、および借用
+- メモリ管理：スタック、ヒープ、ポインタ、データレイアウト、デストラクタ
+- モジュールと可視性
+- 文字列

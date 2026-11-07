@@ -1,12 +1,15 @@
-# Slices
+<a id="slices"></a>
 
-Let's go back to the memory layout of a `Vec`:
+# スライス
+
+`Vec` のメモリレイアウトに戻ってみましょう：
 
 ```rust
 let mut numbers = Vec::with_capacity(3);
 numbers.push(1);
 numbers.push(2);
 ```
+
 
 ```text
       +---------+--------+----------+
@@ -21,55 +24,63 @@ Heap:  | 1 | 2 | ? |
        +---+---+---+
 ```
 
-We already remarked how `String` is just a `Vec<u8>` in disguise.\
-The similarity should prompt you to ask: "What's the equivalent of `&str` for `Vec`?"
+
+`String` は実質的に `Vec<u8>` の別形態であることは既に述べました。\
+この類似性から、「`Vec` における `&str` に相当するものは何か？」という疑問が湧いてくるはずです。
+
+<a id="t"></a>
 
 ## `&[T]`
 
-`[T]` is a **slice** of a contiguous sequence of elements of type `T`.\
-It's most commonly used in its borrowed form, `&[T]`.
+`[T]` は、型 `T` の連続した要素列の**スライス**です。\
+最も一般的に使われるのは、借用形式である `&[T]` です。
 
-There are various ways to create a slice reference from a `Vec`:
+`Vec` からスライス参照を作成する方法はいくつかあります：
 
 ```rust
 let numbers = vec![1, 2, 3];
-// Via index syntax
+// インデックス構文経由
 let slice: &[i32] = &numbers[..];
-// Via a method
+// メソッド経由で
 let slice: &[i32] = numbers.as_slice();
-// Or for a subset of the elements
+// または、要素の一部について
 let slice: &[i32] = &numbers[1..];
 ```
 
-`Vec` implements the `Deref` trait using `[T]` as the target type, so you can use slice methods on a `Vec` directly
-thanks to deref coercion:
+
+`Vec` は `[T]` をターゲット型として `Deref` トレイトを実装しているため、
+デリファレンス強制（deref coercion）により、`Vec` に対して直接スライスメソッドを使用できます：
 
 ```rust
 let numbers = vec![1, 2, 3];
-// Surprise, surprise: `iter` is not a method on `Vec`!
-// It's a method on `&[T]`, but you can call it on a `Vec` 
-// thanks to deref coercion.
+// 案の定、`iter` は `Vec` のメソッドではありません！
+// `&[T]` のメソッドですが、デリファレンス強制のおかげで `Vec` に対しても呼び出すことができます。
 let sum: i32 = numbers.iter().sum();
 ```
 
-### Memory layout
 
-A `&[T]` is a **fat pointer**, just like `&str`.\
-It consists of a pointer to the first element of the slice and the length of the slice.
+<a id="memory-layout"></a>
 
-If you have a `Vec` with three elements:
+### メモリレイアウト
+
+`&[T]` は、`&str` と同様に**ファットポインタ**です。\
+これは、スライスの先頭要素へのポインタと、スライスの長さで構成されています。
+
+3つの要素を持つ `Vec` があるとします：
 
 ```rust
 let numbers = vec![1, 2, 3];
 ```
 
-and then create a slice reference:
+
+ここでスライス参照を作成すると：
 
 ```rust
 let slice: &[i32] = &numbers[1..];
 ```
 
-you'll get this memory layout:
+
+次のようなメモリレイアウトになります：
 
 ```text
                   numbers                          slice
@@ -88,19 +99,23 @@ Heap:    | 1 | 2 | 3 | ? |                      |
                +--------------------------------+
 ```
 
+
+<a id="vect-vs-t"></a>
+
 ### `&Vec<T>` vs `&[T]`
 
-When you need to pass an immutable reference to a `Vec` to a function, prefer `&[T]` over `&Vec<T>`.\
-This allows the function to accept any kind of slice, not necessarily one backed by a `Vec`.
+`Vec` への不変参照を関数に渡す必要がある場合は、`&Vec<T>` よりも `&[T]` を優先してください。\
+これにより、関数は必ずしも `Vec` をバックエンドとするスライスに限らず、あらゆる種類のスライスを受け付けることができます。
 
-For example, you can then pass a subset of the elements in a `Vec`.
-But it goes further than that—you could also pass a **slice of an array**:
+例えば、`Vec` の要素の一部を渡すことができます。
+さらに、**配列のスライス**を渡すことも可能です：
 
 ```rust
 let array = [1, 2, 3];
 let slice: &[i32] = &array;
 ```
 
-Array slices and `Vec` slices are the same type: they're fat pointers to a contiguous sequence of elements.
-In the case of arrays, the pointer points to the stack rather than the heap, but that doesn't matter
-when it comes to using the slice.
+
+配列スライスと `Vec` スライスは同じ型です。どちらも連続した要素列へのファットポインタです。
+配列の場合、ポインタはヒープではなくスタックを指しますが、
+スライスを使用する上ではそれは問題になりません。

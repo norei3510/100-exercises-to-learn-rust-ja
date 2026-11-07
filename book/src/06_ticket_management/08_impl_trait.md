@@ -1,13 +1,14 @@
+<a id="impl-trait"></a>
+
 # `impl Trait`
 
-`TicketStore::to_dos` returns a `Vec<&Ticket>`.\
-That signature introduces a new heap allocation every time `to_dos` is called, which may be unnecessary depending
-on what the caller needs to do with the result.
-It'd be better if `to_dos` returned an iterator instead of a `Vec`, thus empowering the caller to decide whether to
-collect the results into a `Vec` or just iterate over them.
+`TicketStore::to_dos` は `Vec<&Ticket>` を返します。\
+このシグネチャでは、`to_dos` が呼び出されるたびに新しいヒープ割り当てが発生するため、呼び出し側が結果をどう扱うかによっては、
+不要な場合があります。
+`to_dos` が `Vec` ではなくイテレータを返すようにすれば、呼び出し側が結果を `Vec` に収集するか、あるいは単に反復処理するかを選択できるようになり、より好ましいでしょう。
 
-That's tricky though!
-What's the return type of `to_dos`, as implemented below?
+とはいえ、これは一筋縄ではいきません！
+以下に実装されている `to_dos` の戻り値の型は何でしょうか？
 
 ```rust
 impl TicketStore {
@@ -17,27 +18,33 @@ impl TicketStore {
 }
 ```
 
-## Unnameable types
 
-The `filter` method returns an instance of `std::iter::Filter`, which has the following definition:
+<a id="unnameable-types"></a>
+
+## 名前を付けられない型
+
+`filter` メソッドは `std::iter::Filter` のインスタンスを返します。その定義は以下の通りです：
 
 ```rust
-pub struct Filter<I, P> { /* fields omitted */ }
+pub struct Filter<I, P> { /* フィールド省略 */ }
 ```
 
-where `I` is the type of the iterator being filtered on and `P` is the predicate used to filter the elements.\
-We know that `I` is `std::slice::Iter<'_, Ticket>` in this case, but what about `P`?\
-`P` is a closure, an **anonymous function**. As the name suggests, closures don't have a name,
-so we can't write them down in our code.
 
-Rust has a solution for this: **impl Trait**.
+ここで、`I` はフィルタリング対象のイテレータの型であり、`P` は要素のフィルタリングに使用される述語です。\
+この場合、`I` が `std::slice::Iter<'_, Ticket>` であることは分かっていますが、`P` はどうでしょうか？\
+`P` はクロージャ、つまり**匿名関数**です。その名の通り、クロージャには名前がないため、
+コード内に書き出すことはできません。
+
+Rust にはこれに対する解決策があります：**impl Trait**です。
+
+<a id="impl-trait-1"></a>
 
 ## `impl Trait`
 
-`impl Trait` is a feature that allows you to return a type without specifying its name.
-You just declare what trait(s) the type implements, and Rust figures out the rest.
+`impl Trait` は、型の名前を指定せずに返すことができる機能です。
+その型がどのトレイトを実装しているかを宣言するだけで、あとは Rust が判断してくれます。
 
-In this case, we want to return an iterator of references to `Ticket`s:
+この場合、`Ticket` への参照のイテレータを返したいとします：
 
 ```rust
 impl TicketStore {
@@ -47,23 +54,25 @@ impl TicketStore {
 }
 ```
 
-That's it!
 
-## Generic?
+これで完了です！
 
-`impl Trait` in return position is **not** a generic parameter.
+<a id="generic"></a>
 
-Generics are placeholders for types that are filled in by the caller of the function.
-A function with a generic parameter is **polymorphic**: it can be called with different types, and the compiler will generate
-a different implementation for each type.
+## ジェネリック？
 
-That's not the case with `impl Trait`.
-The return type of a function with `impl Trait` is **fixed** at compile time, and the compiler will generate
-a single implementation for it.
-This is why `impl Trait` is also called **opaque return type**: the caller doesn't know the exact type of the return value,
-only that it implements the specified trait(s). But the compiler knows the exact type, there is no polymorphism involved.
+戻り値の位置にある `impl Trait` は、**ジェネリックパラメータではありません**。
+
+ジェネリックは型のプレースホルダーであり、関数の呼び出し側によって埋められます。
+ジェネリックパラメータを持つ関数は**多相的**であり、異なる型で呼び出すことができ、コンパイラは型ごとに異なる実装を生成します。
+
+`impl Trait` の場合はそうではありません。
+`impl Trait` を持つ関数の戻り値の型はコンパイル時に**固定**されており、コンパイラはそれに対して単一の実装を生成します。
+このため、`impl Trait` は**不透明な戻り値の型**とも呼ばれます。呼び出し側は戻り値の正確な型を知ることはできず、単に指定されたトレイトを実装していることしか分かりません。しかし、コンパイラは正確な型を把握しており、多相は関与していません。
+
+<a id="rpit"></a>
 
 ## RPIT
 
-If you read RFCs or deep-dives about Rust, you might come across the acronym **RPIT**.\
-It stands for **"Return Position Impl Trait"** and refers to the use of `impl Trait` in return position.
+Rust に関する RFC や詳細な解説を読んでいると、**RPIT** という略語を目にするかもしれません。\
+これは **"Return Position Impl Trait"** の略で、戻り値の位置で `impl Trait` を使用することを指します。

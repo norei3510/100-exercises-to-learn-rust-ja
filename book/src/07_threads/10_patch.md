@@ -1,27 +1,35 @@
-# Update operations
+<a id="update-operations"></a>
 
-So far we've implemented only insertion and retrieval operations.\
-Let's see how we can expand the system to provide an update operation.
+# 更新操作
 
-## Legacy updates
+これまでは、挿入操作と取得操作のみを実装してきました。\
+それでは、更新操作を提供できるよう、システムをどのように拡張できるか見ていきましょう。
 
-In the non-threaded version of the system, updates were fairly straightforward: `TicketStore` exposed a
-`get_mut` method that allowed the caller to obtain a mutable reference to a ticket, and then modify it.
+<a id="legacy-updates"></a>
 
-## Multithreaded updates
+## 従来の更新処理
 
-The same strategy won't work in the current multithreaded version. The borrow checker would
-stop us: `SyncSender<&mut Ticket>` isn't `'static` because `&mut Ticket` doesn't satisfy the `'static` lifetime, therefore
-they can't be captured by the closure that gets passed to `std::thread::spawn`.
+スレッドを使用しないバージョンのシステムでは、更新処理は非常にシンプルでした。`TicketStore` は
+`get_mut` メソッドを公開しており、呼び出し元がチケットへの可変参照を取得して変更することができました。
 
-There are a few ways to work around this limitation. We'll explore a few of them in the following exercises.
+<a id="multithreaded-updates"></a>
 
-### Patching
+## マルチスレッド環境での更新処理
 
-We can't send a `&mut Ticket` over a channel, therefore we can't mutate on the client-side.\
-Can we mutate on the server-side?
+現在のマルチスレッドバージョンでは、同じ戦略は通用しません。借用チェッカーが
+これを阻止します。`&mut Ticket` が `'static` ライフタイムを満たさないため、`SyncSender<&mut Ticket>` は `'static` ではなく、
+したがって `std::thread::spawn` に渡されるクロージャでこれらをキャプチャすることはできません。
 
-We can, if we tell the server what needs to be changed. In other words, if we send a **patch** to the server:
+この制限を回避する方法はいくつかあります。以降の演習で、そのいくつかを探っていきます。
+
+<a id="patching"></a>
+
+### パッチ適用
+
+`&mut Ticket` をチャネル経由で送信することはできないため、クライアント側で変更を加えることはできません。\
+では、サーバー側で変更を加えることはできるでしょうか？
+
+サーバーに変更すべき内容を伝えれば、可能です。言い換えれば、サーバーに**パッチ**を送信すればよいのです：
 
 ```rust
 struct TicketPatch {
@@ -32,8 +40,9 @@ struct TicketPatch {
 }
 ```
 
-The `id` field is mandatory, since it's required to identify the ticket that needs to be updated.\
-All other fields are optional:
 
-- If a field is `None`, it means that the field should not be changed.
-- If a field is `Some(value)`, it means that the field should be changed to `value`.
+`id` フィールドは、更新対象のチケットを特定するために必要であるため、必須となります。\
+その他のフィールドはすべて任意です：
+
+- フィールドが `None` である場合は、そのフィールドを変更しないことを意味します。
+- フィールドが `Some(value)` である場合は、そのフィールドを `value` に変更することを意味します。

@@ -1,6 +1,8 @@
-# Fallibility
+<a id="fallibility"></a>
 
-Let's revisit the `Ticket::new` function from the previous exercise:
+# 失敗可能性
+
+前回の演習で扱った `Ticket::new` 関数を振り返ってみましょう：
 
 ```rust
 impl Ticket {
@@ -31,14 +33,17 @@ impl Ticket {
 }
 ```
 
-As soon as one of the checks fails, the function panics.
-This is not ideal, as it doesn't give the caller a chance to **handle the error**.
 
-It's time to introduce the `Result` type, Rust's primary mechanism for error handling.
+いずれかのチェックが失敗した時点で、関数はパニックします。
+これは、呼び出し側に**エラーを処理**する機会を与えないため、理想的ではありません。
 
-## The `Result` type
+ここで、Rustの主要なエラー処理メカニズムである `Result` 型を導入しましょう。
 
-The `Result` type is an enum defined in the standard library:
+<a id="the-result-type"></a>
+
+## `Result` 型
+
+`Result` 型は、標準ライブラリで定義されている列挙型です：
 
 ```rust
 enum Result<T, E> {
@@ -47,42 +52,48 @@ enum Result<T, E> {
 }
 ```
 
-It has two variants:
 
-- `Ok(T)`: represents a successful operation. It holds `T`, the output of the operation.
-- `Err(E)`: represents a failed operation. It holds `E`, the error that occurred.
+この型には2つのバリアントがあります：
 
-Both `Ok` and `Err` are generic, allowing you to specify your own types for the success and error cases.
+- `Ok(T)`: 操作の成功を表します。操作の結果である `T` を保持します。
+- `Err(E)`: 操作の失敗を表します。発生したエラーである `E` を保持します。
 
-## No exceptions
+`Ok` と `Err` はどちらもジェネリックであり、成功時とエラー時にそれぞれ独自の型を指定できます。
 
-Recoverable errors in Rust are **represented as values**.\
-They're just an instance of a type, being passed around and manipulated like any other value.
-This is a significant difference from other languages, such as Python or C#, where **exceptions** are used to signal errors.
+<a id="no-exceptions"></a>
 
-Exceptions create a separate control flow path that can be hard to reason about.\
-You don't know, just by looking at a function's signature, if it can throw an exception or not.
-You don't know, just by looking at a function's signature, **which** exception types it can throw.\
-You must either read the function's documentation or look at its implementation to find out.
+## 例外はない
 
-Exception handling logic has very poor locality: the code that throws the exception is far removed from the code
-that catches it, and there's no direct link between the two.
+Rustにおける回復可能なエラーは、**値として表現**されます。\
+これらは単なる型のインスタンスであり、他の値と同様に受け渡しや操作が行われます。
+これは、**例外**を用いてエラーを通知するPythonやC#などの他の言語との大きな違いです。
 
-## Fallibility is encoded in the type system
+例外は独立した制御フロー経路を作り出すため、その挙動を推論するのが難しくなることがあります。\
+関数のシグネチャを見ただけでは、その関数が例外をスローする可能性があるかどうかが分かりません。
+また、関数のシグネチャを見ただけでは、**どの**例外型をスローし得るのかも分かりません。\
+それを知るには、関数のドキュメントを読むか、実装を確認する必要があります。
 
-Rust, with `Result`, forces you to **encode fallibility in the function's signature**.\
-If a function can fail (and you want the caller to have a shot at handling the error), it must return a `Result`.
+例外処理のロジックは局所性が非常に低いです。例外をスローするコードと、それをキャッチするコードが
+遠く離れており、両者の間に直接的な結びつきがありません。
+
+<a id="fallibility-is-encoded-in-the-type-system"></a>
+
+## 失敗可能性は型システムにエンコードされる
+
+Rustは `Result` により、**失敗可能性を関数のシグネチャにエンコード**することを強制します。\
+関数が失敗する可能性がある場合（そして呼び出し側にエラー処理の機会を与えたい場合）、その関数は `Result` を返す必要があります。
 
 ```rust
-// Just by looking at the signature, you know that this function 
-// can fail. You can also inspect `ParseIntError` to see what 
-// kind of failures to expect.
+// シグネチャを見るだけで、この関数が
+// 失敗する可能性があることがわかります。また、`ParseIntError`を確認することで、
+// どのような失敗が想定されるかを把握できます。
 fn parse_int(s: &str) -> Result<i32, ParseIntError> {
     // ...
 }
 ```
 
-That's the big advantage of `Result`: it makes fallibility explicit.
 
-Keep in mind, though, that panics exist. They aren't tracked by the type system, just like exceptions in other languages.
-But they're meant for **unrecoverable errors** and should be used sparingly.
+これが `Result` の大きな利点です。失敗可能性を明示的にできるのです。
+
+ただし、パニックも存在することに注意してください。パニックは、他の言語の例外と同様に型システムでは追跡されません。
+しかし、パニックは**回復不能なエラー**を想定したものであり、控えめに使用すべきです。

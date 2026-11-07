@@ -1,19 +1,22 @@
-# Bounded vs unbounded channels
+<a id="bounded-vs-unbounded-channels"></a>
 
-So far we've been using unbounded channels.\
-You can send as many messages as you want, and the channel will grow to accommodate them.\
-In a multi-producer single-consumer scenario, this can be problematic: if the producers
-enqueue messages at a faster rate than the consumer can process them, the channel will
-keep growing, potentially consuming all available memory.
+# 有界チャネルと無界チャネル
 
-Our recommendation is to **never** use an unbounded channel in a production system.\
-You should always enforce an upper limit on the number of messages that can be enqueued using a
-**bounded channel**.
+これまでは、無界チャネルを使用してきました。\
+メッセージは好きなだけ送信でき、チャネルはそれらを収容するために拡張されます。\
+マルチプロデューサー・シングルコンシューマーのシナリオでは、これが問題となる場合があります。プロデューサーが
+コンシューマーの処理速度を上回るペースでメッセージをエンキューすると、チャネルは
+拡大し続け、利用可能なメモリをすべて消費してしまう可能性があります。
 
-## Bounded channels
+本番システムでは、無界チャネルを**絶対に**使用しないことを推奨します。\
+常に**有界チャネル**を使用して、エンキュー可能なメッセージ数に上限を設けるべきです。
 
-A bounded channel has a fixed capacity.\
-You can create one by calling `sync_channel` with a capacity greater than zero:
+<a id="bounded-channels"></a>
+
+## 有界チャネル
+
+有界チャネルには固定の容量があります。\
+容量を0より大きく指定して `sync_channel` を呼び出すことで、有界チャネルを作成できます。
 
 ```rust
 use std::sync::mpsc::sync_channel;
@@ -21,23 +24,28 @@ use std::sync::mpsc::sync_channel;
 let (sender, receiver) = sync_channel(10);
 ```
 
-`receiver` has the same type as before, `Receiver<T>`.\
-`sender`, instead, is an instance of `SyncSender<T>`.
 
-### Sending messages
+`receiver` は先ほどと同じ型 `Receiver<T>` です。\
+一方、`sender` は `SyncSender<T>` のインスタンスです。
 
-You have two different methods to send messages through a `SyncSender`:
+<a id="sending-messages"></a>
 
-- `send`: if there is space in the channel, it will enqueue the message and return `Ok(())`.\
-  If the channel is full, it will block and wait until there is space available.
-- `try_send`: if there is space in the channel, it will enqueue the message and return `Ok(())`.\
-  If the channel is full, it will return `Err(TrySendError::Full(value))`, where `value` is the message that couldn't be sent.
+### メッセージの送信
 
-Depending on your use case, you might want to use one or the other.
+`SyncSender` を通じてメッセージを送信するには、2つの異なるメソッドがあります。
 
-### Backpressure
+- `send`: チャネルに空きがある場合、メッセージをエンキューして `Ok(())` を返します。\
+  チャネルが満杯の場合は、空きができるまでブロックされます。
+- `try_send`: チャネルに空きがある場合、メッセージをエンキューして `Ok(())` を返します。\
+  チャネルが満杯の場合は、`Err(TrySendError::Full(value))` を返します。ここで `value` は送信できなかったメッセージです。
 
-The main advantage of using bounded channels is that they provide a form of **backpressure**.\
-They force the producers to slow down if the consumer can't keep up.
-The backpressure can then propagate through the system, potentially affecting the whole architecture and
-preventing end users from overwhelming the system with requests.
+ユースケースに応じて、どちらか一方を使用することになるでしょう。
+
+<a id="backpressure"></a>
+
+### バックプレッシャー
+
+有界チャネルを使用する主な利点は、一種の**バックプレッシャー**を提供できることです。\
+これにより、コンシューマーが処理に追いつかない場合、プロデューサーは速度を落とさざるを得なくなります。
+このバックプレッシャーはシステム全体に伝播し、アーキテクチャ全体に影響を与えることで、
+エンドユーザーがリクエストでシステムに過負荷をかけるのを防ぐことができます。

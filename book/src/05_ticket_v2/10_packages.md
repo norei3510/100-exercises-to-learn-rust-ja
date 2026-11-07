@@ -1,48 +1,60 @@
-# Libraries and binaries
+<a id="libraries-and-binaries"></a>
 
-It took a bit of code to implement the `Error` trait for `TicketNewError`, didn't it?\
-A manual `Display` implementation, plus an `Error` impl block.
+# ライブラリとバイナリ
 
-We can remove some of the boilerplate by using [`thiserror`](https://docs.rs/thiserror/latest/thiserror/),
-a Rust crate that provides a **procedural macro** to simplify the creation of custom error types.\
-But we're getting ahead of ourselves: `thiserror` is a third-party crate, it'd be our first dependency!
+`TicketNewError` に `Error` トレイトを実装するには、少々コードが必要でしたね。\
+手動での `Display` 実装に加え、`Error` impl ブロックも必要でした。
 
-Let's take a step back to talk about Rust's packaging system before we dive into dependencies.
+[`thiserror`](https://docs.rs/thiserror/latest/thiserror/) を使えば、ボイラープレートの一部を削減できます。\
+これは、カスタムエラー型の作成を簡素化する **手続き型マクロ** を提供する Rust クレートです。\
+ですが、少し先走りすぎました。`thiserror` はサードパーティ製クレートであり、これが最初の依存関係になります！
 
-## What is a package?
+依存関係について掘り下げる前に、一度立ち戻って Rust のパッケージシステムについてお話ししましょう。
 
-A Rust package is defined by the `[package]` section in a `Cargo.toml` file, also known as its **manifest**.
-Within `[package]` you can set the package's metadata, such as its name and version.
+<a id="what-is-a-package"></a>
 
-Go check the `Cargo.toml` file in the directory of this section's exercise!
+## パッケージとは？
 
-## What is a crate?
+Rust のパッケージは、**マニフェスト**とも呼ばれる `Cargo.toml` ファイル内の `[package]` セクションで定義されます。\
+`[package]` 内では、パッケージの名前やバージョンなどのメタデータを設定できます。
 
-Inside a package, you can have one or more **crates**, also known as **targets**.\
-The two most common crate types are **binary crates** and **library crates**.
+このセクションの演習ディレクトリにある `Cargo.toml` ファイルを確認してみてください！
 
-### Binaries
+<a id="what-is-a-crate"></a>
 
-A binary is a program that can be compiled to an **executable file**.\
-It must include a function named `main`—the program's entry point. `main` is invoked when the program is executed.
+## クレートとは？
 
-### Libraries
+パッケージの中には、**ターゲット**とも呼ばれる 1 つ以上の **クレート** を含めることができます。\
+最も一般的な 2 つのクレートタイプは、**バイナリクレート** と **ライブラリクレート** です。
 
-Libraries, on the other hand, are not executable on their own. You can't _run_ a library,
-but you can _import its code_ from another package that depends on it.\
-A library groups together code (i.e. functions, types, etc.) that can be leveraged by other packages as a **dependency**.
+<a id="binaries"></a>
 
-All the exercises you've solved so far have been structured as libraries, with a test suite attached to them.
+### バイナリ
 
-### Conventions
+バイナリとは、**実行可能ファイル**にコンパイルできるプログラムのことです。\
+プログラムのエントリポイントとなる `main` という名前の関数を含める必要があります。プログラムが実行されると、`main` が呼び出されます。
 
-There are some conventions around Rust packages that you need to keep in mind:
+<a id="libraries"></a>
 
-- The package's source code is usually located in the `src` directory.
-- If there's a `src/lib.rs` file, `cargo` will infer that the package contains a library crate.
-- If there's a `src/main.rs` file, `cargo` will infer that the package contains a binary crate.
+### ライブラリ
 
-You can override these defaults by explicitly declaring your targets in the `Cargo.toml` file—see
-[`cargo`'s documentation](https://doc.rust-lang.org/cargo/reference/cargo-targets.html#cargo-targets) for more details.
+一方、ライブラリは単体では実行できません。ライブラリを _実行_ することはできませんが、\
+それに依存する別のパッケージから _コードをインポート_ することは可能です。\
+ライブラリは、他のパッケージが **依存関係** として利用できるコード（つまり関数や型など）をまとめたものです。
 
-Keep in mind that while a package can contain multiple crates, it can only contain one library crate.
+これまで解いてきた演習はすべて、テストスイートが付随したライブラリとして構成されていました。
+
+<a id="conventions"></a>
+
+### 慣習
+
+Rust のパッケージに関しては、留意しておくべきいくつかの慣習があります。
+
+- パッケージのソースコードは通常、`src` ディレクトリに配置されます。
+- `src/lib.rs` ファイルがある場合、`cargo` はそのパッケージにライブラリクレートが含まれていると判断します。
+- `src/main.rs` ファイルがある場合、`cargo` はそのパッケージにバイナリクレートが含まれていると判断します。
+
+`Cargo.toml` ファイルでターゲットを明示的に宣言することで、これらのデフォルト設定を上書きできます。詳細は\
+[`cargo` のドキュメント](https://doc.rust-lang.org/cargo/reference/cargo-targets.html#cargo-targets) を参照してください。
+
+パッケージには複数のクレートを含めることができますが、ライブラリクレートは 1 つしか含められない点に注意してください。

@@ -1,15 +1,17 @@
-# Threads
+<a id="threads"></a>
 
-One of Rust's big promises is _fearless concurrency_: making it easier to write safe, concurrent programs.
-We haven't seen much of that yet. All the work we've done so far has been single-threaded.
-Time to change that!
+# スレッド
 
-In this chapter we'll make our ticket store multithreaded.\
-We'll have the opportunity to touch most of Rust's core concurrency features, including:
+Rustの大きな謳い文句の一つに「恐れなき並行処理（_fearless concurrency_）」、つまり安全な並行プログラムをより簡単に記述できるというものがあります。
+これまでは、その側面をあまり見てきませんでした。これまで行ってきた作業はすべてシングルスレッドでした。
+そろそろ、それを変えてみましょう！
 
-- Threads, using the `std::thread` module
-- Message passing, using channels
-- Shared state, using `Arc`, `Mutex` and `RwLock`
-- `Send` and `Sync`, the traits that encode Rust's concurrency guarantees
+この章では、チケットストアをマルチスレッド化します。\
+その過程で、以下のようなRustの主要な並行処理機能のほとんどに触れることになります。
 
-We'll also discuss various design patterns for multithreaded systems and some of their trade-offs.
+- `std::thread` モジュールを使用したスレッド
+- チャネルを使用したメッセージパッシング
+- `Arc`、`Mutex`、`RwLock` を使用した共有状態
+- Rustの並行処理の保証を定義するトレイトである `Send` と `Sync`
+
+また、マルチスレッドシステムにおけるさまざまなデザインパターンと、それらのトレードオフについても解説します。

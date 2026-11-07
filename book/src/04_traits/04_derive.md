@@ -1,14 +1,18 @@
-# Derive macros
+<a id="derive-macros"></a>
 
-Implementing `PartialEq` for `Ticket` was a bit tedious, wasn't it?
-You had to manually compare each field of the struct.
+# Derive マクロ
 
-## Destructuring syntax
+`Ticket` に `PartialEq` を実装するのは、少し面倒でしたね。
+構造体の各フィールドを手動で比較する必要がありました。
 
-Furthermore, the implementation is brittle: if the struct definition changes
-(e.g. a new field is added), you have to remember to update the `PartialEq` implementation.
+<a id="destructuring-syntax"></a>
 
-You can mitigate the risk by **destructuring** the struct into its fields:
+## デストラクチャリング構文
+
+さらに、この実装は壊れやすく、構造体の定義が変更された場合
+（例：新しいフィールドが追加された場合）、`PartialEq` の実装を更新することを忘れてはいけません。
+
+構造体をフィールドに**デストラクチャリング**することで、そのリスクを軽減できます：
 
 ```rust
 impl PartialEq for Ticket {
@@ -23,9 +27,10 @@ impl PartialEq for Ticket {
 }
 ```
 
-If the definition of `Ticket` changes, the compiler will error out, complaining that your
-destructuring is no longer exhaustive.\
-You can also rename struct fields, to avoid variable shadowing:
+
+`Ticket` の定義が変更されると、デストラクチャリングが網羅的ではなくなったとして、
+コンパイラがエラーを出します。\
+また、変数のシャドウイングを避けるために、構造体フィールドの名前を変更することもできます：
 
 ```rust
 impl PartialEq for Ticket {
@@ -45,30 +50,37 @@ impl PartialEq for Ticket {
 }
 ```
 
-Destructuring is a useful pattern to have in your toolkit, but
-there's an even more convenient way to do this: **derive macros**.
 
-## Macros
+デストラクチャリングはツールキットに入れておくと便利なパターンですが、
+さらに便利な方法があります。それが**derive マクロ**です。
 
-You've already encountered a few macros in past exercises:
+<a id="macros"></a>
 
-- `assert_eq!` and `assert!`, in the test cases
-- `println!`, to print to the console
+## マクロ
 
-Rust macros are **code generators**.\
-They generate new Rust code based on the input you provide, and that generated code is then compiled alongside
-the rest of your program. Some macros are built into Rust's standard library, but you can also
-write your own. We won't be creating our own macro in this course, but you can find some useful
-pointers in the ["Further reading" section](#further-reading).
+これまでの演習で、すでにいくつかのマクロに触れてきました：
 
-### Inspection
+- テストケース内の `assert_eq!` と `assert!`
+- コンソールに出力するための `println!`
 
-Some IDEs let you expand a macro to inspect the generated code. If that's not possible, you can use
-[`cargo-expand`](https://github.com/dtolnay/cargo-expand).
+Rust のマクロは**コードジェネレータ**です。\
+提供した入力に基づいて新しい Rust コードを生成し、その生成されたコードがプログラムの他の部分と共に
+コンパイルされます。一部のマクロは Rust の標準ライブラリに組み込まれていますが、
+自分で作成することも可能です。このコースでは独自のマクロは作成しませんが、
+["Further reading" セクション](#further-reading) に有用なヒントが記載されています。
 
-### Derive macros
+<a id="inspection"></a>
 
-A **derive macro** is a particular flavour of Rust macro. It is specified as an **attribute** on top of a struct.
+### 確認
+
+一部の IDE では、マクロを展開して生成されたコードを確認できます。それができない場合は、
+[`cargo-expand`](https://github.com/dtolnay/cargo-expand) を使用できます。
+
+<a id="derive-macros-1"></a>
+
+### Derive マクロ
+
+**derive マクロ**は、Rust マクロの一種です。これは構造体の上に記述される**属性**として指定されます。
 
 ```rust
 #[derive(PartialEq)]
@@ -79,10 +91,11 @@ struct Ticket {
 }
 ```
 
-Derive macros are used to automate the implementation of common (and "obvious") traits for custom types.
-In the example above, the `PartialEq` trait is automatically implemented for `Ticket`.
-If you expand the macro, you'll see that the generated code is functionally equivalent to the one you wrote manually,
-although a bit more cumbersome to read:
+
+derive マクロは、カスタム型に対して一般的（かつ「自明な」）トレイトの実装を自動化するために使用されます。
+上記の例では、`PartialEq` トレイトが `Ticket` に対して自動的に実装されています。
+マクロを展開すると、生成されたコードは手動で書いたものと機能的に同等であることがわかります。
+ただし、読むには少し煩雑です：
 
 ```rust
 #[automatically_derived]
@@ -96,7 +109,10 @@ impl ::core::cmp::PartialEq for Ticket {
 }
 ```
 
-The compiler will nudge you to derive traits when possible.
+
+コンパイラは、可能な場合にはトレイトを derive するように促してくれます。
+
+<a id="further-reading"></a>
 
 ## Further reading
 

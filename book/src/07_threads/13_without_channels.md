@@ -1,54 +1,58 @@
-# Design review
+<a id="design-review"></a>
 
-Let's take a moment to review the journey we've been through.
+# 設計レビュー
 
-## Lockless with channel serialization
+ここまでの道のりを振り返ってみましょう。
 
-Our first implementation of a multithreaded ticket store used:
+<a id="lockless-with-channel-serialization"></a>
 
-- a single long-lived thread (server), to hold the shared state
-- multiple clients sending requests to it via channels from their own threads.
+## チャネルによる直列化を用いたロックレス設計
 
-No locking of the state was necessary, since the server was the only one modifying the state. That's because
-the "inbox" channel naturally **serialized** incoming requests: the server would process them one by one.\
-We've already discussed the limitations of this approach when it comes to patching behaviour, but we didn't
-discuss the performance implications of the original design: the server could only process one request at a time,
-including reads.
+マルチスレッド対応のチケットストアの最初の実装では、以下を採用していました。
 
-## Fine-grained locking
+- 共有状態を保持するための、単一の長寿命スレッド（サーバー）
+- 各自のスレッドからチャネルを介してリクエストを送信する複数のクライアント
 
-We then moved to a more sophisticated design, where each ticket was protected by its own lock and
-clients could independently decide if they wanted to read or atomically modify a ticket, acquiring the appropriate lock.
+サーバーのみが状態を変更するため、状態のロックは不要でした。これは、
+「inbox」チャネルが受信リクエストを自然に**直列化**し、サーバーがそれらを一つずつ処理するためです。\
+動作のパッチ適用におけるこのアプローチの限界については既に議論しましたが、元の設計がパフォーマンスに与える影響については触れていませんでした。サーバーは、読み取りを含め、一度に一つのリクエストしか処理できなかったのです。
 
-This design allows for better parallelism (i.e. multiple clients can read tickets at the same time), but it is
-still fundamentally **serial**: the server processes commands one by one. In particular, it hands out locks to clients
-one by one.
+<a id="fine-grained-locking"></a>
 
-Could we remove the channels entirely and allow clients to directly access the `TicketStore`, relying exclusively on
-locks to synchronize access?
+## 細粒度ロック
 
-## Removing channels
+その後、より洗練された設計に移行しました。ここでは、各チケットが個別のロックで保護され、
+クライアントは読み取りを行うか、あるいはチケットをアトミックに更新するかを独自に判断し、適切なロックを取得する方式となりました。
 
-We have two problems to solve:
+この設計により並列性は向上しますが（つまり、複数のクライアントが同時にチケットを読み取れるようになります）、
+根本的には依然として**直列的**です。サーバーはコマンドを一つずつ処理します。具体的には、クライアントにロックを一つずつ付与します。
 
-- Sharing `TicketStore` across threads
-- Synchronizing access to the store
+チャネルを完全に排除し、アクセスの同期をロックのみに頼って、クライアントが `TicketStore` に直接アクセスできるようにすることは可能でしょうか？
 
-### Sharing `TicketStore` across threads
+<a id="removing-channels"></a>
 
-We want all threads to refer to the same state, otherwise we don't really have a multithreaded system—we're just
-running multiple single-threaded systems in parallel.\
-We've already encountered this problem when we tried to share a lock across threads: we can use an `Arc`.
+## チャネルの除去
 
-### Synchronizing access to the store
+解決すべき課題が2つあります。
 
-There is one interaction that's still lockless thanks to the serialization provided by the channels: inserting
-(or removing) a ticket from the store.\
-If we remove the channels, we need to introduce (another) lock to synchronize access to the `TicketStore` itself.
+- スレッド間での `TicketStore` の共有
+- ストアへのアクセスの同期
 
-If we use a `Mutex`, then it makes no sense to use an additional `RwLock` for each ticket: the `Mutex` will
-already serialize access to the entire store, so we wouldn't be able to read tickets in parallel anyway.\
-If we use a `RwLock`, instead, we can read tickets in parallel. We just need to pause all reads while inserting
-or removing a ticket.
+<a id="sharing-ticketstore-across-threads"></a>
 
-Let's go down this path and see where it leads us.
+### スレッド間での `TicketStore` の共有
+
+すべてのスレッドが同じ状態を参照する必要があります。そうでなければ、それは実質的にマルチスレッドシステムとは言えず、単に複数のシングルスレッドシステムを並列に実行しているに過ぎません。\
+この問題は、スレッド間でロックを共有しようとした際にも既に直面しました。ここでは `Arc` を使用できます。
+
+<a id="synchronizing-access-to-the-store"></a>
+
+### ストアへのアクセスの同期
+
+チャネルによる直列化のおかげで、依然としてロックレスで実現できている操作が一つあります。それは、ストアへのチケットの挿入（または削除）です。\
+チャネルを除去する場合、`TicketStore` 自体へのアクセスを同期させるための（別の）ロックを導入する必要があります。
+
+`Mutex` を使用する場合、チケットごとに追加の `RwLock` を使用する意味はありません。`Mutex` がすでにストア全体へのアクセスを直列化するため、いずれにせよチケットを並列に読み取ることはできないからです。\
+代わりに `RwLock` を使用すれば、チケットを並列に読み取ることができます。チケットの挿入または削除を行う間だけ、すべての読み取りを一時停止させればよいのです。
+
+この方針で進めて、どうなるか見てみましょう。

@@ -1,8 +1,8 @@
-# `Deref` trait
+<a id="deref-trait"></a>
 
-In the previous exercise you didn't have to do much, did you?
+# `Deref` トレイト
 
-Changing
+前回の演習では、特にやることはありませんでしたよね？
 
 ```rust
 impl Ticket {
@@ -12,7 +12,8 @@ impl Ticket {
 }
 ```
 
-to
+
+を
 
 ```rust
 impl Ticket {
@@ -22,28 +23,33 @@ impl Ticket {
 }
 ```
 
-was all you needed to do to get the code to compile and the tests to pass.
-Some alarm bells should be ringing in your head though.
 
-## It shouldn't work, but it does
+に変更するだけで、コードはコンパイルされ、テストもパスしました。
+しかし、ここで少し違和感を覚えるはずです。
 
-Let's review the facts:
+<a id="it-shouldnt-work-but-it-does"></a>
 
-- `self.title` is a `String`
-- `&self.title` is, therefore, a `&String`
-- The output of the (modified) `title` method is `&str`
+## 本来動くはずはないが、実際には動く
 
-You would expect a compiler error, wouldn't you? `Expected &String, found &str` or something similar.
-Instead, it just works. **Why**?
+事実を整理してみましょう：
 
-## `Deref` to the rescue
+- `self.title` は `String` です
+- したがって、`&self.title` は `&String` となります
+- （修正後の）`title` メソッドの出力は `&str` です
 
-The `Deref` trait is the mechanism behind the language feature known as [**deref coercion**](https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion).\
-The trait is defined in the standard library, in the `std::ops` module:
+コンパイラエラーが出ると予想しますよね？ `Expected &String, found &str` かそれに類するエラーが。
+ところが、実際にはそのまま動作してしまいます。**なぜ**でしょうか？
+
+<a id="deref-to-the-rescue"></a>
+
+## `Deref` が解決してくれる
+
+`Deref` トレイトは、[**deref coercion**](https://doc.rust-lang.org/std/ops/trait.Deref.html#deref-coercion) として知られる言語機能の仕組みです。\
+このトレイトは標準ライブラリの `std::ops` モジュールで定義されています：
 
 ```rust
-// I've slightly simplified the definition for now.
-// We'll see the full definition later on.
+// とりあえず定義を少し簡略化しました。
+// 完全な定義は後ほど見ていきます。
 pub trait Deref {
     type Target;
     
@@ -51,24 +57,29 @@ pub trait Deref {
 }
 ```
 
-`type Target` is an **associated type**.\
-It's a placeholder for a concrete type that must be specified when the trait is implemented.
+
+`type Target` は **associated type** です。\
+これは、トレイトを実装する際に指定しなければならない具体的な型のプレースホルダーです。
+
+<a id="deref-coercion"></a>
 
 ## Deref coercion
 
-By implementing `Deref<Target = U>` for a type `T` you're telling the compiler that `&T` and `&U` are
-somewhat interchangeable.\
-In particular, you get the following behavior:
+型 `T` に対して `Deref<Target = U>` を実装することで、`&T` と `&U` が
+ある程度相互に置き換え可能であることをコンパイラに伝えることになります。\
+具体的には、以下のような挙動になります：
 
-- References to `T` are implicitly converted into references to `U` (i.e. `&T` becomes `&U`)
-- You can call on `&T` all the methods defined on `U` that take `&self` as input.
+- `T` への参照は、暗黙的に `U` への参照に変換されます（つまり `&T` が `&U` になります）
+- `&T` に対して、`&self` を入力として受け取る `U` で定義されたすべてのメソッドを呼び出すことができます。
 
-There is one more thing around the dereference operator, `*`, but we don't need it yet (see `std`'s docs
-if you're curious).
+デリファレンス演算子 `*` に関してもう一点ありますが、今のところは必要ありません（気になる方は `std` のドキュメントを
+参照してください）。
 
-## `String` implements `Deref`
+<a id="string-implements-deref"></a>
 
-`String` implements `Deref` with `Target = str`:
+## `String` が `Deref` を実装する
+
+`String` は `Target = str` を用いて `Deref` を実装しています：
 
 ```rust
 impl Deref for String {
@@ -80,12 +91,15 @@ impl Deref for String {
 }
 ```
 
-Thanks to this implementation and deref coercion, a `&String` is automatically converted into a `&str` when needed.
 
-## Don't abuse deref coercion
+この実装と deref coercion のおかげで、必要に応じて `&String` は自動的に `&str` に変換されます。
 
-Deref coercion is a powerful feature, but it can lead to confusion.\
-Automatically converting types can make the code harder to read and understand. If a method with the same name
-is defined on both `T` and `U`, which one will be called?
+<a id="dont-abuse-deref-coercion"></a>
 
-We'll examine later in the course the "safest" use cases for deref coercion: smart pointers.
+## Deref coercion を乱用しない
+
+Deref coercion は強力な機能ですが、混乱を招く可能性があります。\
+型を自動的に変換すると、コードの可読性や理解しやすさが損なわれることがあります。もし `T` と `U` の両方に同じ名前の
+メソッドが定義されていた場合、どちらが呼び出されるのでしょうか？
+
+本コースの後半で、deref coercion の「最も安全な」ユースケースであるスマートポインタについて検討します。

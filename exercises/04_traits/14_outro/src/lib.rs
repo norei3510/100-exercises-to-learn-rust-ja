@@ -1,13 +1,11 @@
-// TODO: Define a new `SaturatingU16` type.
-//   It should hold a `u16` value.
-//   It should provide conversions from `u16`, `u8`, `&u16` and `&u8`.
-//   It should support addition with a right-hand side of type
-//   SaturatingU16, u16, &u16, and &SaturatingU16. Addition should saturate at the
-//   maximum value for `u16`.
-//   It should be possible to compare it with another `SaturatingU16` or a `u16`.
-//   It should be possible to print its debug representation.
+// TODO: 新しい `SaturatingU16` 型を定義してください。
+//   `u16` 値を保持するようにしてください。
+//   `u16`、`u8`、`&u16` および `&u8` からの変換を提供してください。
+//   右辺に SaturatingU16、u16、&u16、および &SaturatingU16 型を指定した加算をサポートしてください。加算は `u16` の最大値で飽和するようにしてください。
+//   他の `SaturatingU16` または `u16` と比較できるようにしてください。
+//   デバッグ表現を出力できるようにしてください。
 //
-// Tests are located in the `tests` folder—pay attention to the visibility of your types and methods.
+// テストは`tests`フォルダにあります。型やメソッドの可視性に注意してください。
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SaturatingU16 {

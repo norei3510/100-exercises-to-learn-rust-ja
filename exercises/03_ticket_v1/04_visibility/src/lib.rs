@@ -32,42 +32,40 @@ mod ticket {
     }
 }
 
-// TODO: **Exceptionally**, you'll be modifying both the `ticket` module and the `tests` module
-//  in this exercise.
+// TODO: **例外的に**、この演習では `ticket` モジュールと `tests` モジュールの両方を修正することになります。
 #[cfg(test)]
 mod tests {
-    // TODO: Add the necessary `pub` modifiers in the parent module to remove the compiler
-    //  errors about the use statement below.
+    // TODO: 以下の use 文に関するコンパイラエラーを解消するため、親モジュールに必要な `pub` 修飾子を追加してください。
     use super::ticket::Ticket;
 
-    // Be careful though! We don't want this function to compile after you have changed
-    // visibility to make the use statement compile!
-    // Once you have verified that it indeed doesn't compile, comment it out.
+    // ただし、ご注意ください！use文をコンパイルできるように可視性を変更した後、
+    // この関数がコンパイルできてしまうのは避けたいところです。
+    // 実際にコンパイルできないことを確認したら、コメントアウトしてください。
     fn should_not_be_possible() {
         let ticket = Ticket::new("A title".into(), "A description".into(), "To-Do".into());
 
-        // You should be seeing this error when trying to run this exercise:
+        // この演習を実行しようとすると、次のようなエラーが表示されるはずです。
         //
-        // error[E0616]: field `description` of struct `Ticket` is private
+        // error[E0616]: 構造体 `Ticket` のフィールド `description` はプライベートです
         //    |
         //    |              assert_eq!(ticket.description, "A description");
         //    |                         ^^^^^^^^^^^^^^^^^^
         //
-        // TODO: Once you have verified that the below does not compile,
-        //   comment the line out to move on to the next exercise!
+        // TODO: 以下がコンパイルできないことを確認したら、
+        //   その行をコメントアウトして次の演習に進んでください！
         // assert_eq!(ticket.description, "A description");
     }
 
     fn encapsulation_cannot_be_violated() {
-        // This should be impossible as well, with a similar error as the one encountered above.
-        // (It will throw a compilation error only after you have commented the faulty line
-        // in the previous test - next compilation stage!)
+        // こちらも、前述と同様のエラーが発生し、不可能であるはずです。
+        // （前のテストで問題のある行をコメントアウトした後にのみ、
+        // コンパイルエラーが発生します ―― 次のコンパイル段階で！）
         //
-        // This proves that `Ticket::new` is now the only way to get a `Ticket` instance.
-        // It's impossible to create a ticket with an illegal title or description!
+        // これにより、`Ticket`インスタンスを取得する方法は`Ticket::new`のみであることが証明されます。
+        // 不正なタイトルや説明文でチケットを作成することはできません！
         //
-        // TODO: Once you have verified that the below does not compile,
-        //   comment the lines out to move on to the next exercise!
+        // TODO: 以下がコンパイルできないことを確認したら、
+        //   該当行をコメントアウトして次の演習に進んでください！
         // let ticket = Ticket {
         //     title: "A title".into(),
         //     description: "A description".into(),

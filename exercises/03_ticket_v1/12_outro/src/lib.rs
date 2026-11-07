@@ -1,16 +1,16 @@
-// TODO: Define a new `Order` type.
-//   It should keep track of three pieces of information: `product_name`, `quantity`, and `unit_price`.
-//   The product name can't be empty and it can't be longer than 300 bytes.
-//   The quantity must be strictly greater than zero.
-//   The unit price is in cents and must be strictly greater than zero.
-//   Order must include a method named `total` that returns the total price of the order.
-//   Order must provide setters and getters for each field.
+// TODO: 新しい `Order` 型を定義してください。
+//   `product_name`、`quantity`、`unit_price` の3つの情報を保持する必要があります。
+//   商品名は空であってはならず、300バイトを超えてはなりません。
+//   数量は0より厳密に大きくなければなりません。
+//   単価はセント単位で、0より厳密に大きくなければなりません。
+//   Order には、注文の合計金額を返す `total` という名前のメソッドを含める必要があります。
+//   Order には、各フィールドに対するセッターとゲッターを提供する必要があります。
 //
-// Tests are located in a different place this time—in the `tests` folder.
-// The `tests` folder is a special location for `cargo`. It's where it looks for **integration tests**.
-// Integration here has a very specific meaning: they test **the public API** of your project.
-// You'll need to pay attention to the visibility of your types and methods; integration
-// tests can't access private or `pub(crate)` items.
+// 今回のテストは別の場所、`tests` フォルダにあります。
+// `tests` フォルダは `cargo` 用の特別な場所です。ここは **統合テスト** を探す場所になります。
+// ここでの「統合」には非常に具体的な意味があります。つまり、プロジェクトの **パブリックAPI** をテストするものです。
+// 型やメソッドの可視性に注意する必要があります。統合
+// テストでは、プライベートまたは `pub(crate)` の項目にアクセスできません。
 pub struct Order {
     product_name: String,
     quantity: u32,

@@ -1,32 +1,38 @@
-# String slices
+<a id="string-slices"></a>
 
-Throughout the previous chapters you've seen quite a few **string literals** being used in the code,
-like `"To-Do"` or `"A ticket description"`.
-They were always followed by a call to `.to_string()` or `.into()`. It's time to understand why!
+# 文字列スライス
 
-## String literals
+これまでの章で、`"To-Do"` や `"A ticket description"` のように、コード内で多くの **文字列リテラル** が使われているのを見てきました。
+それらの後には常に `.to_string()` や `.into()` の呼び出しが続いていました。なぜそうなのか、その理由を理解しましょう！
 
-You define a string literal by enclosing the raw text in double quotes:
+<a id="string-literals"></a>
+
+## 文字列リテラル
+
+文字列リテラルは、生のテキストをダブルクォートで囲むことで定義します：
 
 ```rust
 let s = "Hello, world!";
 ```
 
-The type of `s` is `&str`, a **reference to a string slice**.
 
-## Memory layout
+`s` の型は `&str` であり、これは **文字列スライスへの参照** です。
 
-`&str` and `String` are different types—they're not interchangeable.\
-Let's recall the memory layout of a `String` from our
-[previous exploration](../03_ticket_v1/09_heap.md).
-If we run:
+<a id="memory-layout"></a>
+
+## メモリレイアウト
+
+`&str` と `String` は異なる型であり、相互に置き換えることはできません。\
+[前回の解説](../03_ticket_v1/09_heap.md) で確認した `String` のメモリレイアウトを振り返ってみましょう。
+次のように実行すると：
 
 ```rust
 let mut s = String::with_capacity(5);
 s.push_str("Hello");
 ```
 
-we'll get this scenario in memory:
+
+メモリ上では次のような状態になります：
 
 ```text
       +---------+--------+----------+
@@ -41,8 +47,8 @@ Heap:  | H | e | l | l | o |
        +---+---+---+---+---+
 ```
 
-If you remember, we've [also examined](../03_ticket_v1/10_references_in_memory.md)
-how a `&String` is laid out in memory:
+
+覚えているかもしれませんが、`&String` がメモリ上にどのように配置されるかについても [確認しました](../03_ticket_v1/10_references_in_memory.md)：
 
 ```text
      --------------------------------------
@@ -59,25 +65,29 @@ how a `&String` is laid out in memory:
    +---+---+---+---+---+
 ```
 
-`&String` points to the memory location where the `String`'s metadata is stored.\
-If we follow the pointer, we get to the heap-allocated data. In particular, we get to the first byte of the string, `H`.
 
-What if we wanted a type that represents a **substring** of `s`? E.g. `ello` in `Hello`?
+`&String` は、`String` のメタデータが格納されているメモリ位置を指しています。\
+このポインタを辿ると、ヒープに確保されたデータに到達します。具体的には、文字列の最初のバイトである `H` に到達します。
 
-## String slices
+では、`s` の **部分文字列** を表す型が欲しい場合はどうすればよいでしょうか？ 例えば、`Hello` の中の `ello` のような場合です。
 
-A `&str` is a **view** into a string, a **reference** to a sequence of UTF-8 bytes stored elsewhere.
-You can, for example, create a `&str` from a `String` like this:
+<a id="string-slices-1"></a>
+
+## 文字列スライス
+
+`&str` は文字列への **ビュー** であり、別の場所に格納されている UTF-8 バイト列への **参照** です。
+例えば、`String` から次のように `&str` を作成できます：
 
 ```rust
 let mut s = String::with_capacity(5);
 s.push_str("Hello");
-// Create a string slice reference from the `String`, 
-// skipping the first byte.
+// `String` から、
+// 先頭の1バイトをスキップした文字列スライスの参照を作成してください。
 let slice: &str = &s[1..];
 ```
 
-In memory, it'd look like this:
+
+メモリ上では、次のようになります：
 
 ```text
                     s                              slice
@@ -96,22 +106,22 @@ Heap:    | H | e | l | l | o |                  |
                +--------------------------------+
 ```
 
-`slice` stores two pieces of information on the stack:
 
-- A pointer to the first byte of the slice.
-- The length of the slice.
+`slice` はスタック上に2つの情報を格納しています：
 
-`slice` doesn't own the data, it just points to it: it's a **reference** to the `String`'s heap-allocated data.\
-When `slice` is dropped, the heap-allocated data won't be deallocated, because it's still owned by `s`.
-That's why `slice` doesn't have a `capacity` field: it doesn't own the data, so it doesn't need to know how much
-space it was allocated for it; it only cares about the data it references.
+- スライスの最初のバイトへのポインタ。
+- スライスの長さ。
+
+`slice` はデータを所有しておらず、単にそれを指しているだけです。つまり、`String` のヒープ確保されたデータへの **参照** なのです。\
+`slice` がドロップされても、ヒープ確保されたデータは解放されません。なぜなら、そのデータは依然として `s` が所有しているからです。
+そのため、`slice` には `capacity` フィールドがありません。データを所有していないため、どれだけの領域が割り当てられたかを知る必要はなく、単に参照先のデータだけを気にすればよいのです。
+
+<a id="str-vs-string"></a>
 
 ## `&str` vs `&String`
 
-As a rule of thumb, use `&str` rather than `&String` whenever you need a reference to textual data.\
-`&str` is more flexible and generally considered more idiomatic in Rust code.
+経験則として、テキストデータへの参照が必要な場合は、`&String` ではなく `&str` を使用してください。\
+`&str` の方が柔軟であり、一般的に Rust コードにおいてより慣用的であると考えられています。
 
-If a method returns a `&String`, you're promising that there is heap-allocated UTF-8 text somewhere that
-**matches exactly** the one you're returning a reference to.\
-If a method returns a `&str`, instead, you have a lot more freedom: you're just saying that _somewhere_ there's a
-bunch of text data and that a subset of it matches what you need, therefore you're returning a reference to it.
+メソッドが `&String` を返す場合、参照先のデータと **完全に一致する** ヒープ確保された UTF-8 テキストがどこかに存在することを保証していることになります。\
+一方、メソッドが `&str` を返す場合は、より自由度が高くなります。単に _どこか_ に大量のテキストデータが存在し、その一部が必要なものと一致しているため、その参照を返しているということになります。

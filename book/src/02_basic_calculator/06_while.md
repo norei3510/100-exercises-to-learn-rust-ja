@@ -1,40 +1,48 @@
-# Loops, part 1: `while`
+<a id="loops-part-1-while"></a>
 
-Your implementation of `factorial` has been forced to use recursion.\
-This may feel natural to you, especially if you're coming from a functional programming background.
-Or it may feel strange, if you're used to more imperative languages like C or Python.
+# ループ（パート1）: `while`
 
-Let's see how you can implement the same functionality using a **loop** instead.
+`factorial` の実装では、再帰を使わざるを得ませんでした。\
+関数型プログラミングの経験がある方には、これが自然に感じられるかもしれません。
+あるいは、CやPythonのような命令型言語に慣れている方には、違和感があるかもしれません。
 
-## The `while` loop
+では、代わりに**ループ**を使って同じ機能を実装する方法を見ていきましょう。
 
-A `while` loop is a way to execute a block of code as long as a **condition** is true.\
-Here's the general syntax:
+<a id="the-while-loop"></a>
+
+## `while` ループ
+
+`while` ループは、**条件**が真である限り、コードブロックを実行する仕組みです。\
+一般的な構文は以下の通りです。
 
 ```rust
 while <condition> {
-    // code to execute
+    // 実行するコード
 }
 ```
 
-For example, we might want to sum the numbers from 1 to 5:
+
+例えば、1から5までの数値の合計を求めたいとします。
 
 ```rust
 let sum = 0;
 let i = 1;
-// "while i is less than or equal to 5"
+// 「iが5以下の間」
 while i <= 5 {
-    // `+=` is a shorthand for `sum = sum + i`
+    // `+=`は`sum = sum + i`の略記です。
     sum += i;
     i += 1;
 }
 ```
 
-This will keep adding 1 to `i` and `i` to `sum` until `i` is no longer less than or equal to 5.
 
-## The `mut` keyword
+これにより、`i` が5以下ではなくなるまで、`i` に1を加算し、`i` を `sum` に加算し続けます。
 
-The example above won't compile as is. You'll get an error like:
+<a id="the-mut-keyword"></a>
+
+## `mut` キーワード
+
+上記の例はそのままではコンパイルできません。次のようなエラーが発生します。
 
 ```text
 error[E0384]: cannot assign twice to immutable variable `sum`
@@ -62,13 +70,14 @@ error[E0384]: cannot assign twice to immutable variable `i`
   |         ^^^^^^ cannot assign twice to immutable variable
 ```
 
-This is because variables in Rust are **immutable** by default.\
-You can't change their value once it has been assigned.
 
-If you want to allow modifications, you have to declare the variable as **mutable** using the `mut` keyword:
+これは、Rustの変数がデフォルトで**不変**であるためです。\
+一度値を代入すると、その値を変更することはできません。
+
+値の変更を許可したい場合は、`mut` キーワードを使用して変数を**可変**として宣言する必要があります。
 
 ```rust
-// `sum` and `i` are mutable now!
+// `sum`と`i`は可変になりました！
 let mut sum = 0;
 let mut i = 1;
 
@@ -78,8 +87,11 @@ while i <= 5 {
 }
 ```
 
-This will compile and run without errors.
 
-## Further reading
+これでエラーなくコンパイルし、実行できるようになります。
 
-- [`while` loop documentation](https://doc.rust-lang.org/std/keyword.while.html)
+<a id="further-reading"></a>
+
+## 関連資料
+
+- [`while` ループのドキュメント](https://doc.rust-lang.org/std/keyword.while.html)

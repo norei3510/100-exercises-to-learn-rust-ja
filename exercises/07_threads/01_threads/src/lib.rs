@@ -1,17 +1,17 @@
-// TODO: implement a multi-threaded version of the `sum` function
-//  using `spawn` and `join`.
-//  Given a vector of integers, split the vector into two halves and
-//  sum each half in a separate thread.
+// TODO: `spawn` と `join` を用いて、`sum` 関数のマルチスレッド版を
+// 実装してください。
+// 整数のベクトルが与えられた際、ベクトルを2等分し、
+// それぞれの半分の合計を別々のスレッドで計算してください。
 
-// Caveat: We can't test *how* the function is implemented,
-// we can only verify that it produces the correct result.
-// You _could_ pass this test by just returning `v.iter().sum()`,
-// but that would defeat the purpose of the exercise.
+// 注意点：関数が*どのように*実装されているかをテストすることはできず、
+// 正しい結果が得られることしか検証できません。
+// 単に `v.iter().sum()` を返すだけでこのテストをパスすることは_可能_ですが、
+// それではこの演習の目的が失われてしまいます。
 //
-// Hint: you won't be able to get the spawned threads to _borrow_
-// slices of the vector directly. You'll need to allocate new
-// vectors for each half of the original vector. We'll see why
-// this is necessary in the next exercise.
+// ヒント：生成したスレッドにベクトルのスライスを直接 _借用_
+// させることはできません。元のベクトルの各半分に対して、新しい
+// ベクトルを割り当てる必要があります。なぜこれが必要なのかは、
+// 次の演習で分かります。
 use std::thread;
 
 pub fn sum(v: Vec<i32>) -> i32 {

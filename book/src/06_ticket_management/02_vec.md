@@ -1,12 +1,15 @@
-# Vectors
+<a id="vectors"></a>
 
-Arrays' strength is also their weakness: their size must be known upfront, at compile-time.
-If you try to create an array with a size that's only known at runtime, you'll get a compilation error:
+# ベクタ
+
+配列の強みは同時に弱点でもあります。そのサイズは、コンパイル時にあらかじめ分かっていなければなりません。
+実行時にしか分からないサイズで配列を作成しようとすると、コンパイルエラーが発生します：
 
 ```rust
 let n = 10;
 let numbers: [u32; n];
 ```
+
 
 ```text
 error[E0435]: attempt to use a non-constant value in a constant
@@ -17,19 +20,23 @@ error[E0435]: attempt to use a non-constant value in a constant
   |                    ^ non-constant value
 ```
 
-Arrays wouldn't work for our ticket management system—we don't know how many tickets we'll need to store at compile-time.
-This is where `Vec` comes in.
+
+チケット管理システムに配列は適していません。コンパイル時点で、いくつのチケットを保存する必要があるか分からないからです。
+そこで登場するのが `Vec` です。
+
+<a id="vec"></a>
 
 ## `Vec`
 
-`Vec` is a growable array type, provided by the standard library.\
-You can create an empty array using the `Vec::new` function:
+`Vec` は、標準ライブラリが提供する拡張可能な配列型です。\
+`Vec::new` 関数を使用して、空の配列を作成できます：
 
 ```rust
 let mut numbers: Vec<u32> = Vec::new();
 ```
 
-You would then push elements into the vector using the `push` method:
+
+その後、`push` メソッドを使用してベクタに要素をプッシュします：
 
 ```rust
 numbers.push(1);
@@ -37,16 +44,20 @@ numbers.push(2);
 numbers.push(3);
 ```
 
-New values are added to the end of the vector.\
-You can also create an initialized vector using the `vec!` macro, if you know the values at creation time:
+
+新しい値はベクタの末尾に追加されます。\
+また、作成時に値が決まっている場合は、`vec!` マクロを使用して初期化済みのベクタを作成することもできます：
 
 ```rust
 let numbers = vec![1, 2, 3];
 ```
 
-## Accessing elements
 
-The syntax for accessing elements is the same as with arrays:
+<a id="accessing-elements"></a>
+
+## 要素へのアクセス
+
+要素へのアクセス構文は、配列の場合と同じです：
 
 ```rust
 let numbers = vec![1, 2, 3];
@@ -55,25 +66,29 @@ let second = numbers[1];
 let third = numbers[2];
 ```
 
-The index must be of type `usize`.\
-You can also use the `get` method, which returns an `Option<&T>`:
+
+インデックスは `usize` 型である必要があります。\
+また、`get` メソッドを使用することもでき、これは `Option<&T>` を返します：
 
 ```rust
 let numbers = vec![1, 2, 3];
 assert_eq!(numbers.get(0), Some(&1));
-// You get a `None` if you try to access an out-of-bounds index
-// rather than a panic.
+// 範囲外のインデックスにアクセスしようとした場合、
+// パニックではなく `None` が返されます。
 assert_eq!(numbers.get(3), None);
 ```
 
-Access is bounds-checked, just like element access with arrays. It has O(1) complexity.
 
-## Memory layout
+アクセス時には、配列の要素アクセスと同様に境界チェックが行われます。計算量は O(1) です。
 
-`Vec` is a heap-allocated data structure.\
-When you create a `Vec`, it allocates memory on the heap to store the elements.
+<a id="memory-layout"></a>
 
-If you run the following code:
+## メモリレイアウト
+
+`Vec` はヒープ上に確保されるデータ構造です。\
+`Vec` を作成すると、要素を格納するためにヒープ上にメモリが確保されます。
+
+以下のコードを実行すると：
 
 ```rust
 let mut numbers = Vec::with_capacity(3);
@@ -81,7 +96,8 @@ numbers.push(1);
 numbers.push(2);
 ```
 
-you'll get the following memory layout:
+
+次のようなメモリレイアウトになります：
 
 ```text
       +---------+--------+----------+
@@ -96,14 +112,15 @@ Heap:  | 1 | 2 | ? |
        +---+---+---+
 ```
 
-`Vec` keeps track of three things:
 
-- The **pointer** to the heap region you reserved.
-- The **length** of the vector, i.e. how many elements are in the vector.
-- The **capacity** of the vector, i.e. the number of elements that can fit in the space reserved on the heap.
+`Vec` は、次の3つの情報を管理しています：
 
-This layout should look familiar: it's exactly the same as `String`!\
-That's not a coincidence: `String` is defined as a vector of bytes, `Vec<u8>`, under the hood:
+- 確保したヒープ領域への**ポインタ**。
+- ベクタの**長さ**（つまり、ベクタに含まれる要素数）。
+- ベクタの**容量**（つまり、ヒープ上に確保された領域に格納できる要素数）。
+
+このレイアウトは見覚えがあるはずです。`String` と全く同じです！\
+これは偶然ではありません。`String` は内部的に、バイトのベクタである `Vec<u8>` として定義されています：
 
 ```rust
 pub struct String {

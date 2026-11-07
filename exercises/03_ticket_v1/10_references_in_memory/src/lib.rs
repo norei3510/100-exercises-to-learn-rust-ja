@@ -4,15 +4,15 @@ pub struct Ticket {
     status: String,
 }
 
-// TODO: based on what you learned in this section, replace `todo!()` with
-//  the correct **stack size** for the respective type.
+// TODO: このセクションで学んだ内容に基づき、`todo!()`を
+//  各型に対応する正しい**スタックサイズ**に置き換えてください。
 #[cfg(test)]
 mod tests {
     use super::Ticket;
     use std::mem::size_of;
 
-    // All numbers below assume you're running on a 64-bit system.
-    // If you're running on a 32-bit system, pointers will be 4 bytes long instead of 8.
+    // 以下の数値はすべて、64ビット環境で動作していることを前提としています。
+    // 32ビット環境で動作している場合は、ポインタのサイズは8バイトではなく4バイトになります。
 
     #[test]
     fn u16_ref_size() {

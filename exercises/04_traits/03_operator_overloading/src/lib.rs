@@ -6,7 +6,7 @@ struct Ticket {
     status: String,
 }
 
-// TODO: Implement the `PartialEq` trait for `Ticket`.
+// TODO: `Ticket`に`PartialEq`トレイトを実装してください。
 
 impl PartialEq for Ticket {
     fn eq(&self, other: &Self) -> bool {

@@ -1,15 +1,15 @@
-// Given a number `n`, return the `n+1`th number in the Fibonacci sequence.
+// 数値 `n` が与えられたとき、フィボナッチ数列の `n+1` 番目の数値を返してください。
 //
-// The Fibonacci sequence is defined as follows:
+// フィボナッチ数列は次のように定義されます。
 //
-// - The first number of the sequence is 0.
-// - The second number of the sequence is 1.
-// - Every subsequent number is the sum of the two preceding numbers.
+// - 数列の最初の数は0です。
+// - 数列の2番目の数は1です。
+// - それ以降の各数は、直前の2つの数の和となります。
 //
-// So the sequence goes: 0, 1, 1, 2, 3, 5, 8, 13, 21, and so on.
+// したがって、数列は 0, 1, 1, 2, 3, 5, 8, 13, 21 と続いていきます。
 //
-// We expect `fibonacci(0)` to return `0`, `fibonacci(1)` to return `1`,
-// `fibonacci(2)` to return `1`, and so on.
+// `fibonacci(0)`は`0`を、`fibonacci(1)`は`1`を、
+// `fibonacci(2)`は`1`を、というように返すことを期待しています。
 pub fn fibonacci(n: u32) -> u32 {
     let n = n as usize;
     let mut memo = vec![0, 1];

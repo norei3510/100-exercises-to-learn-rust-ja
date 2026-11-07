@@ -1,108 +1,114 @@
-# Overflow
+<a id="overflow"></a>
 
-The factorial of a number grows quite fast.\
-For example, the factorial of 20 is 2,432,902,008,176,640,000. That's already bigger than the maximum value for a
-32-bit integer, 2,147,483,647.
+# オーバーフロー
 
-When the result of an arithmetic operation is bigger than the maximum value for a given integer type,
-we are talking about **an integer overflow**.
+数値の階乗は非常に速く増大します。\
+例えば、20の階乗は 2,432,902,008,176,640,000 です。これは、すでに32ビット整数の最大値である
+2,147,483,647 を超えています。
 
-Integer overflows are an issue because they violate the contract for arithmetic operations.\
-The result of an arithmetic operation between two integers of a given type should be another integer of the same type.
-But the _mathematically correct result_ doesn't fit into that integer type!
+算術演算の結果が、特定の整数型の最大値を超えた場合、これを**整数オーバーフロー**と呼びます。
 
-> If the result is smaller than the minimum value for a given integer type, we refer to the event as **an integer
-> underflow**.\
-> For brevity, we'll only talk about integer overflows for the rest of this section, but keep in mind that
-> everything we say applies to integer underflows as well.
+整数オーバーフローが問題となるのは、算術演算の契約に違反するためです。\
+特定の型の2つの整数に対する算術演算の結果は、同じ型の別の整数であるべきです。
+しかし、_数学的に正しい結果_ がその整数型に収まらないのです！
+
+> 結果が特定の整数型の最小値を下回った場合、この事象を**整数アンダーフロー**と呼びます。\
+> 簡潔にするため、本セクションの以降では整数オーバーフローについてのみ述べますが、
+> ここで述べることはすべて整数アンダーフローにも当てはまることに留意してください。
 >
-> The `speed` function you wrote in the ["Variables" section](02_variables.md) underflowed for some input
-> combinations.
-> E.g. if `end` is smaller than `start`, `end - start` will underflow the `u32` type since the result is supposed
-> to be negative but `u32` can't represent negative numbers.
+> [「変数」セクション](02_variables.md)で作成した `speed` 関数は、一部の入力の組み合わせでアンダーフローが発生しました。
+> 例えば、`end` が `start` より小さい場合、結果は負の値になるはずですが、`u32` は負の数を表現できないため、`end - start` は `u32` 型でアンダーフローします。
 
-## No automatic promotion
+<a id="no-automatic-promotion"></a>
 
-One possible approach would be automatically promote the result to a bigger integer type.
-E.g. if you're summing two `u8` integers and the result is 256 (`u8::MAX + 1`), Rust could choose to interpret the
-result as `u16`, the next integer type that's big enough to hold 256.
+## 自動昇格なし
 
-But, as we've discussed before, Rust is quite picky about type conversions. Automatic integer promotion
-is not Rust's solution to the integer overflow problem.
+考えられるアプローチの一つは、結果をより大きな整数型に自動的に昇格させることです。
+例えば、2つの `u8` 整数を加算して結果が 256 (`u8::MAX + 1`) になった場合、Rust はその結果を、256 を保持するのに十分な次の整数型である `u16` として解釈することを選択できます。
 
-## Alternatives
+しかし、前述の通り、Rust は型変換に関して非常に厳格です。自動的な整数昇格は、Rust が採用している整数オーバーフローへの解決策ではありません。
 
-Since we ruled out automatic promotion, what can we do when an integer overflow occurs?\
-It boils down to two different approaches:
+<a id="alternatives"></a>
 
-- Reject the operation
-- Come up with a "sensible" result that fits into the expected integer type
+## 代替案
 
-### Reject the operation
+自動昇格を除外した場合、整数オーバーフローが発生したときに何ができるでしょうか？\
+それは大きく分けて2つのアプローチに集約されます：
 
-This is the most conservative approach: we stop the program when an integer overflow occurs.\
-That's done via a panic, the mechanism we've already seen in the ["Panics" section](04_panics.md).
+- 演算を拒否する
+- 想定される整数型に収まる「妥当な」結果を導き出す
 
-### Come up with a "sensible" result
+<a id="reject-the-operation"></a>
 
-When the result of an arithmetic operation is bigger than the maximum value for a given integer type, you can
-choose to **wrap around**.\
-If you think of all the possible values for a given integer type as a circle, wrapping around means that when you
-reach the maximum value, you start again from the minimum value.
+### 演算を拒否する
 
-For example, if you do a **wrapping addition** between 1 and 255 (=`u8::MAX`), the result is 0 (=`u8::MIN`).
-If you're working with signed integers, the same principle applies. E.g. adding 1 to 127 (=`i8::MAX`) with wrapping
-will give you -128 (=`i8::MIN`).
+これは最も保守的なアプローチです。整数オーバーフローが発生したときにプログラムを停止させます。\
+これは、[「パニック」セクション](04_panics.md)ですでに見たメカニズムであるパニックを通じて行われます。
+
+<a id="come-up-with-a-sensible-result"></a>
+
+### 「妥当な」結果を導き出す
+
+算術演算の結果が特定の整数型の最大値を超えたとき、**ラップアラウンド**を選択できます。\
+特定の整数型が取り得るすべての値を円として考えた場合、ラップアラウンドとは、最大値に達したときに最小値から再び始めることを意味します。
+
+例えば、1 と 255 (=`u8::MAX`) の間で**ラップアラウンド加算**を行うと、結果は 0 (=`u8::MIN`) になります。
+符号付き整数を扱う場合も同じ原理が適用されます。例えば、127 (=`i8::MAX`) に 1 をラップアラウンド加算すると、-128 (=`i8::MIN`) になります。
+
+<a id="overflow-checks"></a>
 
 ## `overflow-checks`
 
-Rust lets you, the developer, choose which approach to use when an integer overflow occurs.
-The behaviour is controlled by the `overflow-checks` profile setting.
+Rust では、開発者であるあなたが、整数オーバーフロー発生時にどのアプローチを使用するかを選択できます。
+この挙動は `overflow-checks` プロファイル設定によって制御されます。
 
-If `overflow-checks` is set to `true`, Rust will **panic at runtime** when an integer operation overflows.
-If `overflow-checks` is set to `false`, Rust will **wrap around** when an integer operation overflows.
+`overflow-checks` が `true` に設定されている場合、整数演算がオーバーフローすると Rust は**実行時にパニック**します。
+`overflow-checks` が `false` に設定されている場合、整数演算がオーバーフローすると Rust は**ラップアラウンド**します。
 
-You may be wondering—what is a profile setting? Let's get into that!
+「プロファイル設定とは何か？」と疑問に思うかもしれません。詳しく見ていきましょう！
 
-## Profiles
+<a id="profiles"></a>
 
-A [**profile**](https://doc.rust-lang.org/cargo/reference/profiles.html) is a set of configuration options that can be
-used to customize the way Rust code is compiled.
+## プロファイル
 
-Cargo provides 4 built-in profiles: `dev`, `release`, `test`, and `bench`.\
-The `dev` profile is used every time you run `cargo build`, `cargo run` or `cargo test`. It's aimed at local
-development,
-therefore it sacrifices runtime performance in favor of faster compilation times and a better debugging experience.\
-The `release` profile, instead, is optimized for runtime performance but incurs longer compilation times. You need
-to explicitly request via the `--release` flag—e.g. `cargo build --release` or `cargo run --release`.
-The remaining two profiles build on these: `test` (used by `cargo test`) inherits the `dev` settings,
-while `bench` (used by `cargo bench`) inherits the `release` settings. In practice, you'll spend most of your time in `dev`, and switch to `release` whenever performance matters.
+[**プロファイル**](https://doc.rust-lang.org/cargo/reference/profiles.html) とは、Rust コードのコンパイル方法をカスタマイズするために使用できる設定オプションのセットのことです。
 
-> "Have you built your project in release mode?" is almost a meme in the Rust community.\
-> It refers to developers who are not familiar with Rust and complain about its performance on
-> social media (e.g. Reddit, Twitter) before realizing they haven't built their project in
-> release mode.
+Cargoには、`dev`、`release`、`test`、`bench`の4つの組み込みプロファイルが用意されています。\
+`dev`プロファイルは、`cargo build`、`cargo run`、または`cargo test`を実行するたびに使用されます。これはローカル
+開発向けであるため、
+コンパイル時間の短縮とデバッグ体験の向上を優先し、実行時のパフォーマンスを犠牲にしています。\
+一方、`release`プロファイルは実行時のパフォーマンスに最適化されていますが、コンパイル時間が長くなります。これを利用するには、
+`--release`フラグ（例：`cargo build --release`や`cargo run --release`）で明示的に指定する必要があります。
+残りの2つのプロファイルはこれらをベースにしています。`test`（`cargo test`で使用）は`dev`の設定を、
+`bench`（`cargo bench`で使用）は`release`の設定を継承します。実際には、ほとんどの時間を`dev`で過ごし、パフォーマンスが重要な場合に`release`に切り替えることになるでしょう。
 
-You can also define custom profiles or customize the built-in ones.
+> 「リリースモードでビルドしましたか？」というフレーズは、Rustコミュニティではほぼミームになっています。\
+> これは、Rustに不慣れな開発者が、プロジェクトをリリースモードでビルドしていないことに
+> 気づかぬまま、SNS（RedditやTwitterなど）でパフォーマンスについて不満を漏らす様子を指しています。
+
+また、カスタムプロファイルを定義したり、組み込みプロファイルをカスタマイズしたりすることも可能です。
+
+<a id="overflow-check"></a>
 
 ### `overflow-check`
 
-By default, `overflow-checks` is set to:
+デフォルトでは、`overflow-checks`は以下のように設定されています。
 
-- `true` for the `dev` profile
-- `false` for the `release` profile
+- `dev`プロファイルの場合は `true`
+- `release`プロファイルの場合は `false`
 
-This is in line with the goals of the two profiles.\
-`dev` is aimed at local development, so it panics in order to highlight potential issues as early as possible.\
-`release`, instead, is tuned for runtime performance: checking for overflows would slow down the program, so it
-prefers to wrap around.
+これは2つのプロファイルの目的に沿ったものです。\
+`dev`はローカル開発向けであるため、潜在的な問題を可能な限り早期に浮き彫りにするよう、パニックを発生させます。\
+一方、`release`は実行時のパフォーマンスに調整されています。オーバーフローのチェックはプログラムの速度を低下させるため、
+ラップアラウンドさせるようになっています。
 
-At the same time, having different behaviours for the two profiles can lead to subtle bugs.\
-Our recommendation is to enable `overflow-checks` for both profiles: it's better to crash than to silently produce
-incorrect results. The runtime performance hit is negligible in most cases; if you're working on a performance-critical
-application, you can run benchmarks to decide if it's something you can afford.
+同時に、2つのプロファイルで動作が異なると、微妙なバグにつながる可能性があります。\
+推奨されるのは、両方のプロファイルで`overflow-checks`を有効にすることです。黙って誤った結果を出すよりも、クラッシュさせる方が好ましいからです。実行時のパフォーマンスへの影響はほとんどの場合、無視できる程度です。パフォーマンスが極めて重要な
+アプリケーションを開発している場合は、ベンチマークを実行して、それが許容範囲内かどうかを判断してください。
 
-## Further reading
+<a id="further-reading"></a>
 
-- Check out ["Myths and legends about integer overflow in Rust"](https://huonw.github.io/blog/2016/04/myths-and-legends-about-integer-overflow-in-rust/)
-  for an in-depth discussion about integer overflow in Rust.
+## 関連資料
+
+- Rustにおける整数オーバーフローに関する詳細な解説については、["Myths and legends about integer overflow in Rust"](https://huonw.github.io/blog/2016/04/myths-and-legends-about-integer-overflow-in-rust/)
+  を参照してください。

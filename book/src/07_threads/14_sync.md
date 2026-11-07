@@ -1,28 +1,34 @@
+<a id="sync"></a>
+
 # `Sync`
 
-Before we wrap up this chapter, let's talk about another key trait in Rust's standard library: `Sync`.
+この章を締めくくる前に、Rust標準ライブラリのもう一つの重要なトレイトである `Sync` について解説しましょう。
 
-`Sync` is an auto trait, just like `Send`.\
-It is automatically implemented by all types that can be safely **shared** between threads.
+`Sync` は、`Send` と同様にオートトレイトです。\
+これは、スレッド間で安全に**共有**できるすべての型に対して自動的に実装されます。
 
-In other words: `T` is Sync if `&T` is `Send`.
+言い換えれば、`&T` が `Send` であれば、`T` は Sync となります。
 
-## `T: Sync` doesn't imply `T: Send`
+<a id="t-sync-doesnt-imply-t-send"></a>
 
-It's important to note that `T` can be `Sync` without being `Send`.\
-For example: `MutexGuard` is not `Send`, but it is `Sync`.
+## `T: Sync` は `T: Send` を意味しない
 
-It isn't `Send` because the lock must be released on the same thread that acquired it, therefore we don't
-want `MutexGuard` to be dropped on a different thread.\
-But it is `Sync`, because giving a `&MutexGuard` to another thread has no impact on where the lock is released.
+`T` は、`Send` でなくても `Sync` になり得る点に注意してください。\
+例えば、`MutexGuard` は `Send` ではありませんが、`Sync` です。
 
-## `T: Send` doesn't imply `T: Sync`
+ロックは取得したのと同じスレッドで解放しなければならないため、`Send` ではありません。したがって、
+`MutexGuard` が別のスレッドでドロップされることは避けたいところです。\
+しかし、`&MutexGuard` を別のスレッドに渡してもロックの解放場所には影響しないため、`Sync` となります。
 
-The opposite is also true: `T` can be `Send` without being `Sync`.\
-For example: `RefCell<T>` is `Send` (if `T` is `Send`), but it is not `Sync`.
+<a id="t-send-doesnt-imply-t-sync"></a>
 
-`RefCell<T>` performs runtime borrow checking, but the counters it uses to track borrows are not thread-safe.
-Therefore, having multiple threads holding a `&RefCell` would lead to a data race, with potentially
-multiple threads obtaining mutable references to the same data. Hence `RefCell` is not `Sync`.\
-`Send` is fine, instead, because when we send a `RefCell` to another thread we're not
-leaving behind any references to the data it contains, hence no risk of concurrent mutable access.
+## `T: Send` は `T: Sync` を意味しない
+
+その逆も同様です。`T` は、`Sync` でなくても `Send` になり得ます。\
+例えば、`RefCell<T>` は（`T` が `Send` であれば）`Send` ですが、`Sync` ではありません。
+
+`RefCell<T>` は実行時に借用チェックを行いますが、借用を追跡するために使用するカウンタはスレッドセーフではありません。
+そのため、複数のスレッドが `&RefCell` を保持するとデータレースが発生し、潜在的に
+複数のスレッドが同じデータへの可変参照を取得する可能性があります。したがって、`RefCell` は `Sync` ではありません。\
+一方で `Send` は問題ありません。`RefCell` を別のスレッドに渡す際、
+含まれるデータへの参照を一切残さないため、並行した可変アクセスのリスクがないからです。

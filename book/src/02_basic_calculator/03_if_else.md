@@ -1,15 +1,19 @@
-# Control flow, part 1
+<a id="control-flow-part-1"></a>
 
-All our programs so far have been pretty straightforward.\
-A sequence of instructions is executed from top to bottom, and that's it.
+# 制御フロー（パート1）
 
-It's time to introduce some **branching**.
+これまでのプログラムはどれも非常にシンプルなものでした。\
+一連の命令が上から下へと実行され、それで終わりです。
 
-## `if` clauses
+いよいよ**分岐**を導入しましょう。
 
-The `if` keyword is used to execute a block of code only if a condition is true.
+<a id="if-clauses"></a>
 
-Here's a simple example:
+## `if` 節
+
+`if` キーワードは、条件が真である場合にのみコードブロックを実行するために使用されます。
+
+簡単な例を挙げます：
 
 ```rust
 let number = 3;
@@ -18,13 +22,15 @@ if number < 5 {
 }
 ```
 
-This program will print `number is smaller than 5` because the condition `number < 5` is true.
 
-### `else` clauses
+このプログラムは、条件 `number < 5` が真であるため、`number is smaller than 5` を出力します。
 
-Like most programming languages, Rust supports an optional `else` branch to execute a block of code when the condition in an
-`if` expression is false.\
-For example:
+<a id="else-clauses"></a>
+
+### `else` 節
+
+多くのプログラミング言語と同様に、Rustでは `if` 式の条件が偽である場合にコードブロックを実行するためのオプションの `else` 分岐をサポートしています。\
+例えば：
 
 ```rust
 let number = 3;
@@ -36,9 +42,12 @@ if number < 5 {
 }
 ```
 
-### `else if` clauses
 
-Your code drifts more and more to the right when you have multiple `if` expressions, one nested inside the other.
+<a id="else-if-clauses"></a>
+
+### `else if` 節
+
+`if` 式をネストして複数使用すると、コードがどんどん右にずれていきます。
 
 ```rust
 let number = 3;
@@ -54,7 +63,8 @@ if number < 5 {
 }
 ```
 
-You can use the `else if` keyword to combine multiple `if` expressions into a single one:
+
+`else if` キーワードを使用すると、複数の `if` 式を一つにまとめることができます：
 
 ```rust
 let number = 3;
@@ -68,18 +78,23 @@ if number < 5 {
 }
 ```
 
-## Booleans
 
-The condition in an `if` expression must be of type `bool`, a **boolean**.\
-Booleans, just like integers, are a primitive type in Rust.
+<a id="booleans"></a>
 
-A boolean can have one of two values: `true` or `false`.
+## ブール値
 
-### No truthy or falsy values
+`if` 式の条件は、`bool` 型、すなわち**ブール値**である必要があります。\
+ブール値は、整数と同様にRustのプリミティブ型です。
 
-If the condition in an `if` expression is not a boolean, you'll get a compilation error.
+ブール値は、`true` または `false` のいずれかの値を取ります。
 
-For example, the following code will not compile:
+<a id="no-truthy-or-falsy-values"></a>
+
+### truthy や falsy な値は存在しない
+
+`if` 式の条件がブール値でない場合、コンパイルエラーが発生します。
+
+例えば、以下のコードはコンパイルできません：
 
 ```rust
 let number = 3;
@@ -88,7 +103,8 @@ if number {
 }
 ```
 
-You'll get the following compilation error:
+
+次のようなコンパイルエラーが発生します：
 
 ```text
 error[E0308]: mismatched types
@@ -98,26 +114,31 @@ error[E0308]: mismatched types
   |        ^^^^^^ expected `bool`, found integer
 ```
 
-This follows from Rust's philosophy around type coercion: there's no automatic conversion from non-boolean types to booleans.
-Rust doesn't have the concept of **truthy** or **falsy** values, like JavaScript or Python.\
-You have to be explicit about the condition you want to check.
 
-### Comparison operators
+これは型強制に関するRustの設計思想によるものです。非ブール型からブール型への自動変換は行われません。
+Rustには、JavaScriptやPythonのような**truthy**や**falsy**な値という概念はありません。\
+チェックしたい条件は明示的に記述する必要があります。
 
-It's quite common to use comparison operators to build conditions for `if` expressions.\
-Here are the comparison operators available in Rust when working with integers:
+<a id="comparison-operators"></a>
 
-- `==`: equal to
-- `!=`: not equal to
-- `<`: less than
-- `>`: greater than
-- `<=`: less than or equal to
-- `>=`: greater than or equal to
+### 比較演算子
 
-## `if/else` is an expression
+`if` 式の条件を構築するために、比較演算子を使用することは非常に一般的です。\
+整数を扱う際にRustで利用できる比較演算子は以下の通りです：
 
-In Rust, `if` expressions are **expressions**, not statements: they return a value.\
-That value can be assigned to a variable or used in other expressions. For example:
+- `==`: 等しい
+- `!=`: 等しくない
+- `<`: 未満
+- `>`: より大きい
+- `<=`: 以下
+- `>=`: 以上
+
+<a id="ifelse-is-an-expression"></a>
+
+## `if/else` は式である
+
+Rustにおいて、`if` 式は文ではなく**式**であり、値を返します。\
+その値は変数に代入したり、他の式で使用したりできます。例えば：
 
 ```rust
 let number = 3;
@@ -128,6 +149,7 @@ let message = if number < 5 {
 };
 ```
 
-In the example above, each branch of the `if` evaluates to a string literal,
-which is then assigned to the `message` variable.\
-The only requirement is that both `if` branches return the same type.
+
+上記の例では、`if` の各分岐が文字列リテラルとして評価され、\
+それが `message` 変数に代入されます。\
+唯一の要件は、両方の `if` 分岐が同じ型を返すことです。

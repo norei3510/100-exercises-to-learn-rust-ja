@@ -1,115 +1,123 @@
-# Welcome
+<a id="welcome"></a>
 
-Welcome to **"100 Exercises To Learn Rust"**!
+# ようこそ
 
-This course will teach you Rust's core concepts, one exercise at a time.\
-You'll learn about Rust's syntax, its type system, its standard library, and its ecosystem.
+**「Rustを学ぶための100の演習」**へようこそ！
 
-We don't assume any prior knowledge of Rust, but we assume you know at least
-another programming language.
-We also don't assume any prior knowledge of systems programming or memory management. Those
-topics will be covered in the course.
+このコースでは、演習を一つずつ解きながら、Rustのコアコンセプトを学んでいきます。\
+Rustの構文、型システム、標準ライブラリ、そしてエコシステムについて学習します。
 
-In other words, we'll be starting from scratch!\
-You'll build up your Rust knowledge in small, manageable steps.
-By the end of the course, you will have solved ~100 exercises, enough to
-feel comfortable working on small to medium-sized Rust projects.
+Rustに関する事前知識は一切不要ですが、少なくとも他のプログラミング言語を一つは習得していることを前提としています。\
+また、システムプログラミングやメモリ管理に関する事前知識も不要です。これらのトピックは本コースの中で扱います。
 
-## Methodology
+つまり、ゼロからスタートします！\
+無理なく進められる小さなステップを積み重ねて、Rustの知識を身につけていきましょう。\
+コースを終える頃には約100個の演習を完了しており、中小規模のRustプロジェクトに自信を持って取り組めるようになります。
 
-This course is based on the "learn by doing" principle.\
-It has been designed to be interactive and hands-on.
+<a id="methodology"></a>
 
-[Mainmatter](https://mainmatter.com/rust-consulting/) developed this course
-to be delivered in a classroom setting, over 4 days: each attendee advances
-through the lessons at their own pace, with an experienced instructor providing
-guidance, answering questions and diving deeper into the topics as needed.\
-You can sign up for the next tutored session on [our website](https://ti.to/mainmatter/rust-from-scratch-jan-2025).
-If you'd like to organise a private session for your company, please [get in touch](https://mainmatter.com/contact/).
+## 学習方法
 
-You can also take the courses on your own, but we recommend you find a friend or
-a mentor to help you along the way should you get stuck. You can
-find solutions for all exercises in the
-[`solutions` branch of the GitHub repository](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions).
+このコースは「実践を通じて学ぶ」という原則に基づいています。\
+インタラクティブでハンズオンな形式になるよう設計されています。
 
-## Formats
+[Mainmatter](https://mainmatter.com/rust-consulting/)は、本コースを教室形式で4日間かけて提供するために開発しました。受講者はそれぞれのペースでレッスンを進め、経験豊富な講師がガイダンスを提供し、質問に答え、必要に応じてトピックを深掘りします。\
+次回の講師付きセッションへの申し込みは、[公式サイト](https://ti.to/mainmatter/rust-from-scratch-jan-2025)から行えます。\
+貴社向けにプライベートセッションの開催をご希望の場合は、[お問い合わせください](https://mainmatter.com/contact/)。
 
-You can go through the course material [in the browser](https://rust-exercises.com/100-exercises/) or [download it as a PDF file](https://rust-exercises.com/100-exercises-to-learn-rust.pdf), for offline reading.\
-If you prefer to have the course material printed out, [buy a paperback copy on Amazon](https://www.amazon.com/dp/B0DJ14KQQG/).
+独学で受講することも可能ですが、行き詰まった際にサポートしてくれる友人やメンターを見つけることをお勧めします。すべての演習の解答は、GitHubリポジトリの[`solutions`ブランチ](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions)で確認できます。
 
-## Structure
+<a id="formats"></a>
 
-On the left side of the screen, you can see that the course is divided into sections.
-Each section introduces a new concept or feature of the Rust language.\
-To verify your understanding, each section is paired with an exercise that you need to solve.
+## フォーマット
 
-You can find the exercises in the
-[companion GitHub repository](https://github.com/mainmatter/100-exercises-to-learn-rust).\
-Before starting the course, make sure to clone the repository to your local machine:
+コース教材は[ブラウザ上](https://rust-exercises.com/100-exercises/)で閲覧できるほか、オフラインで閲覧するために[PDFファイルとしてダウンロード](https://rust-exercises.com/100-exercises-to-learn-rust.pdf)することも可能です。\
+教材の印刷版をご希望の方は、[Amazonでペーパーバック版をご購入](https://www.amazon.com/dp/B0DJ14KQQG/)ください。
+
+<a id="structure"></a>
+
+## 構成
+
+画面の左側を見ると、コースがセクションに分かれていることがわかります。\
+各セクションでは、Rust言語の新しいコンセプトや機能を紹介します。\
+理解度を確認するため、各セクションには解くべき演習が用意されています。
+
+演習は[付随するGitHubリポジトリ](https://github.com/mainmatter/100-exercises-to-learn-rust)にあります。\
+コースを開始する前に、必ずリポジトリをローカルマシンにクローンしてください：
 
 ```bash
-# If you have an SSH key set up with GitHub
+# GitHubでSSHキーを設定済みの場合
 git clone git@github.com:mainmatter/100-exercises-to-learn-rust.git
-# Otherwise, use the HTTPS URL:
+# それ以外の場合は、HTTPS URLを使用してください：
 #   https://github.com/mainmatter/100-exercises-to-learn-rust.git
 ```
 
-We also recommend you work on a branch, so you can easily track your progress and pull
-in updates from the main repository, if needed:
+
+また、進捗を簡単に追跡し、必要に応じてメインリポジトリから更新を取り込めるよう、ブランチで作業することをお勧めします：
 
 ```bash
 cd 100-exercises-to-learn-rust
 git checkout -b my-solutions
 ```
 
-All exercises are located in the `exercises` folder.
-Each exercise is structured as a Rust package.
-The package contains the exercise itself, instructions on what to do (in `src/lib.rs`), and a test suite to
-automatically verify your solution.
 
-### Tools
+すべての演習は`exercises`フォルダにあります。\
+各演習はRustパッケージとして構成されています。\
+パッケージには、演習本体、実施内容の指示（`src/lib.rs`内）、および解答を自動的に検証するためのテストスイートが含まれています。
 
-To work through this course, you'll need:
+<a id="tools"></a>
 
-- [**Rust**](https://www.rust-lang.org/tools/install).
-  If `rustup` is already installed on your system, run `rustup update` (or another appropriate command depending on how you installed Rust on your system) to ensure you're running on the latest stable version.
-- _(Optional but recommended)_ An IDE with Rust autocompletion support.
-  We recommend one of the following:
+### ツール
+
+このコースを進めるには、以下が必要です：
+
+- [**Rust**](https://www.rust-lang.org/tools/install)。
+  システムに `rustup` が既にインストールされている場合は、`rustup update`（またはシステムへの Rust インストール方法に応じた適切なコマンド）を実行し、最新の安定版が動作していることを確認してください。
+- _（任意ですが推奨）_ Rust の自動補完に対応した IDE。
+  以下のいずれかを推奨します：
   - [RustRover](https://www.jetbrains.com/rust/);
-  - [Visual Studio Code](https://code.visualstudio.com) with the [`rust-analyzer`](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) extension.
+  - [`rust-analyzer`](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer) 拡張機能を導入した [Visual Studio Code](https://code.visualstudio.com)。
 
-### Workshop runner, `wr`
+<a id="workshop-runner-wr"></a>
 
-To verify your solutions, we've also provided a tool to guide you through the course: the `wr` CLI, short for "workshop runner".
-Install `wr` by following the instructions on [its website](https://mainmatter.github.io/rust-workshop-runner/).
+<a id="wr-the-workshop-runner"></a>
 
-Once you have `wr` installed, open a new terminal and navigate to the top-level folder of the repository.
-Run the `wr` command to start the course:
+### ワークショップランナー、`wr`
+
+解答を検証するため、コースの進行をガイドするツール「`wr` CLI」（「workshop runner」の略）も用意しています。
+[公式サイト](https://mainmatter.github.io/rust-workshop-runner/) の手順に従って `wr` をインストールしてください。
+
+`wr` のインストールが完了したら、新しいターミナルを開き、リポジトリのルートフォルダに移動してください。
+`wr` コマンドを実行してコースを開始します：
 
 ```bash
 wr
 ```
 
-`wr` will verify the solution to the current exercise.\
-Don't move on to the next section until you've solved the exercise for the current one.
 
-> We recommend committing your solutions to Git as you progress through the course,
-> so you can easily track your progress and "restart" from a known point if needed.
+`wr` が現在の演習の解答を検証します。\
+現在のセクションの演習を解くまで、次のセクションへ進まないでください。
 
-Enjoy the course!
+> コースを進めるにつれて、解答を Git にコミットしておくことをお勧めします。
+> そうすることで、進捗を簡単に追跡でき、必要に応じて既知の時点から「再開」することが可能になります。
 
-## Author
+コースをお楽しみください！
 
-This course was written by [Luca Palmieri](https://www.lpalmieri.com/), Principal Engineering
-Consultant at [Mainmatter](https://mainmatter.com/rust-consulting/).\
-Luca has been working with Rust since 2018, initially at TrueLayer and then at AWS.\
-Luca is the author of ["Zero to Production in Rust"](https://zero2prod.com),
-the go-to resource for learning how to build backend applications in Rust.\
-He is also the author and maintainer of a variety of open-source Rust projects, including
-[`cargo-chef`](https://github.com/LukeMathWalker/cargo-chef),
-[Pavex](https://pavex.dev) and [`wiremock`](https://github.com/LukeMathWalker/wiremock-rs).
+<a id="author"></a>
 
-## License
+## 著者
 
-Copyright © 2024- Mainmatter GmbH (https://mainmatter.com), released under the
-[PolyForm-Noncommercial-1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
+本コースは、[Mainmatter](https://mainmatter.com/rust-consulting/) のプリンシパル・エンジニアリング・
+コンサルタントである [Luca Palmieri](https://www.lpalmieri.com/) 氏によって執筆されました。\
+Luca 氏は 2018 年から Rust に携わっており、当初は TrueLayer、その後は AWS で活動していました。\
+Luca 氏は、Rust でバックエンドアプリケーションを構築する方法を学ぶための定番リソースである
+『["Zero to Production in Rust"](https://zero2prod.com)』の著者です。\
+また、[`cargo-chef`](https://github.com/LukeMathWalker/cargo-chef)、
+[Pavex](https://pavex.dev)、[`wiremock`](https://github.com/LukeMathWalker/wiremock-rs) を含む、さまざまなオープンソースの Rust プロジェクトの著者およびメンテナーでもあります。
+
+<a id="license"></a>
+
+## ライセンス
+
+Copyright © 2024- Mainmatter GmbH (https://mainmatter.com)、
+[PolyForm-Noncommercial-1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) の下で公開されています。

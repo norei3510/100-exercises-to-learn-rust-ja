@@ -1,9 +1,11 @@
+<a id="errorsource"></a>
+
 # `Error::source`
 
-There's one more thing we need to talk about to complete our coverage of the `Error` trait: the `source` method.
+`Error` トレイトの解説を完結させるために、もう一つ触れておくべき点があります。それが `source` メソッドです。
 
 ```rust
-// Full definition this time!
+// 今回は完全な定義です！
 pub trait Error: Debug + Display {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         None
@@ -11,16 +13,19 @@ pub trait Error: Debug + Display {
 }
 ```
 
-The `source` method is a way to access the **error cause**, if any.\
-Errors are often chained, meaning that one error is the cause of another: you have a high-level error (e.g.
-cannot connect to the database) that is caused by a lower-level error (e.g. can't resolve the database hostname).
-The `source` method allows you to "walk" the full chain of errors, often used when capturing error context in logs.
 
-## Implementing `source`
+`source` メソッドは、**エラーの原因**（もしあれば）にアクセスするための手段です。\
+エラーはしばしば連鎖します。つまり、あるエラーが別のエラーの原因となるということです。例えば、上位レベルのエラー（例：
+データベースに接続できない）が、下位レベルのエラー（例：データベースのホスト名を解決できない）によって引き起こされるといった具合です。
+`source` メソッドを使えば、エラーの連鎖全体を「辿る」ことができ、ログにエラーコンテキストを記録する際によく利用されます。
 
-The `Error` trait provides a default implementation that always returns `None` (i.e. no underlying cause). That's why
-you didn't have to care about `source` in the previous exercises.\
-You can override this default implementation to provide a cause for your error type.
+<a id="implementing-source"></a>
+
+## `source` の実装
+
+`Error` トレイトは、常に `None`（つまり根本的な原因がないこと）を返すデフォルト実装を提供しています。そのため、
+前回の演習では `source` を意識する必要がありませんでした。\
+このデフォルト実装をオーバーライドすることで、エラー型に原因を持たせることができます。
 
 ```rust
 use std::error::Error;
@@ -43,28 +48,33 @@ impl std::error::Error for DatabaseError {
 }
 ```
 
-In this example, `DatabaseError` wraps an `std::io::Error` as its source.
-We then override the `source` method to return this source when called.
+
+この例では、`DatabaseError` が `std::io::Error` をソースとしてラップしています。
+そして、`source` メソッドをオーバーライドし、呼び出された際にこのソースを返すようにしています。
+
+<a id="dyn-error--static"></a>
 
 ## `&(dyn Error + 'static)`
 
-What's this `&(dyn Error + 'static)` type?\
-Let's unpack it:
+この `&(dyn Error + 'static)` 型とは何でしょうか？\
+詳しく見ていきましょう：
 
-- `dyn Error` is a **trait object**. It's a way to refer to any type that implements the `Error` trait.
-- `'static` is a special **lifetime specifier**.
-  `'static` implies that the reference is valid for "as long as we need it", i.e. the entire program execution.
+- `dyn Error` は **トレイトオブジェクト** です。これは、`Error` トレイトを実装している任意の型を参照するための方法です。
+- `'static` は特殊な **ライフタイム指定子** です。
+  `'static` は、その参照が「必要な限り」、つまりプログラムの実行全体を通じて有効であることを意味します。
 
-Combined: `&(dyn Error + 'static)` is a reference to a trait object that implements the `Error` trait
-and is valid for the entire program execution.
+これらを組み合わせると、`&(dyn Error + 'static)` は `Error` トレイトを実装し、
+プログラムの実行全体を通じて有効なトレイトオブジェクトへの参照となります。
 
-Don't worry too much about either of these concepts for now. We'll cover them in more detail in future chapters.
+今のところ、これらの概念についてあまり深く気にする必要はありません。今後の章でより詳しく解説します。
 
-## Implementing `source` using `thiserror`
+<a id="implementing-source-using-thiserror"></a>
 
-`thiserror` provides three ways to automatically implement `source` for your error types:
+## `thiserror` を使った `source` の実装
 
-- A field named `source` will automatically be used as the source of the error.
+`thiserror` では、エラー型に対して `source` を自動的に実装するための3つの方法が提供されています：
+
+- `source` という名前のフィールドは、自動的にエラーのソースとして使用されます。
   ```rust
   use thiserror::Error;
 
@@ -76,7 +86,7 @@ Don't worry too much about either of these concepts for now. We'll cover them in
       }
   }
   ```
-- A field annotated with the `#[source]` attribute will automatically be used as the source of the error.
+- `#[source]` 属性が付いたフィールドは、自動的にエラーのソースとして使用されます。
   ```rust
   use thiserror::Error;
 
@@ -89,8 +99,8 @@ Don't worry too much about either of these concepts for now. We'll cover them in
       }
   }
   ```
-- A field annotated with the `#[from]` attribute will automatically be used as the source of the error **and**
-  `thiserror` will automatically generate a `From` implementation to convert the annotated type into your error type.
+- `#[from]` 属性が付いたフィールドは、自動的にエラーのソースとして使用され、**さらに**
+  `thiserror` が、アノテーションされた型を自身のエラー型に変換するための `From` 実装を自動的に生成します。
   ```rust
   use thiserror::Error;
 
@@ -104,12 +114,14 @@ Don't worry too much about either of these concepts for now. We'll cover them in
   }
   ```
 
-## The `?` operator
+<a id="the--operator"></a>
 
-The `?` operator is a shorthand for propagating errors.\
-When used in a function that returns a `Result`, it will return early with an error if the `Result` is `Err`.
+## `?` 演算子
 
-For example:
+`?` 演算子は、エラーを伝播させるための短縮記法です。\
+`Result` を返す関数で使用した場合、`Result` が `Err` であれば、エラーを返して早期に処理を終了します。
+
+例えば：
 
 ```rust
 use std::fs::File;
@@ -122,7 +134,8 @@ fn read_file() -> Result<String, std::io::Error> {
 }
 ```
 
-is equivalent to:
+
+は、以下と等価です：
 
 ```rust
 use std::fs::File;
@@ -145,6 +158,7 @@ fn read_file() -> Result<String, std::io::Error> {
 }
 ```
 
-You can use the `?` operator to shorten your error handling code significantly.\
-In particular, the `?` operator will automatically convert the error type of the fallible operation into the error type
-of the function, if a conversion is possible (i.e. if there is a suitable `From` implementation)
+
+`?` 演算子を使えば、エラー処理のコードを大幅に短縮できます。\
+特に `?` 演算子は、変換が可能であれば（つまり適切な `From` 実装があれば）、失敗しうる操作のエラー型を
+関数のエラー型に自動的に変換します。

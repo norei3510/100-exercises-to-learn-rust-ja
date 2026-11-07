@@ -1,7 +1,7 @@
-// Define a trait named `IsEven` that has a method `is_even` that returns a `true` if `self` is
-// even, otherwise `false`.
+// `self`が偶数であれば`true`を、
+// そうでなければ`false`を返すメソッド`is_even`を持つ、`IsEven`という名前のトレイトを定義してください。
 //
-// Then implement the trait for `u32` and `i32`.
+// 次に、`u32`と`i32`に対してトレイトを実装してください。
 pub trait IsEven {
     fn is_even(&self) -> bool;
 }

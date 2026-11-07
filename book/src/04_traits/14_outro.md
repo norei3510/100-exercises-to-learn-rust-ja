@@ -1,27 +1,33 @@
-# Wrapping up
+<a id="wrapping-up"></a>
 
-We've covered quite a few different traits in this chapter—and we've only scratched the surface!
-It may feel like you have a lot to remember, but don't worry: you'll bump into these traits
-so often when writing Rust code that they'll soon become second nature.
+# まとめ
 
-## Closing thoughts
+この章ではかなり多くのトレイトを取り上げましたが、まだまだほんの入り口に過ぎません！
+覚えることがたくさんあると感じるかもしれませんが、心配はいりません。Rustのコードを書いていれば、これらのトレイトに
+頻繁に出会うことになるので、すぐに自然に身につくはずです。
 
-Traits are powerful, but don't overuse them.\
-A few guidelines to keep in mind:
+<a id="closing-thoughts"></a>
 
-- Don't make a function generic if it is always invoked with a single type. It introduces indirection in your
-  codebase, making it harder to understand and maintain.
-- Don't create a trait if you only have one implementation. It's a sign that the trait is not needed.
-- Implement standard traits for your types (`Debug`, `PartialEq`, etc.) whenever it makes sense.
-  It will make your types more idiomatic and easier to work with, unlocking a lot of functionality provided
-  by the standard library and ecosystem crates.
-- Implement traits from third-party crates if you need the functionality they unlock within their ecosystem.
-- Beware of making code generic solely to use mocks in your tests. The maintainability cost of this approach
-  can be high, and it's often better to use a different testing strategy. Check out the
-  [testing masterclass](https://github.com/mainmatter/rust-advanced-testing-workshop)
-  for details on high-fidelity testing.
+## おわりに
 
-## Testing your knowledge
+トレイトは強力ですが、使いすぎないようにしましょう。\
+留意しておくべきガイドラインをいくつか挙げます：
 
-Before moving on, let's go through one last exercise to consolidate what we've learned.
-You'll have minimal guidance this time—just the exercise description and the tests to guide you.
+- 常に単一の型で呼び出される関数をジェネリックにしないでください。コードベースに間接参照が
+  導入され、理解やメンテナンスが困難になります。
+- 実装が1つしかない場合は、トレイトを作成しないでください。それは、そのトレイトが不要であるという兆候です。
+- 適切な場合は、自作の型に標準トレイト（`Debug`、`PartialEq` など）を実装してください。
+  これにより、型がより慣用的で扱いやすくなり、標準ライブラリやエコシステムのクレートが提供する
+  多くの機能を活用できるようになります。
+- サードパーティ製クレートのエコシステム内で提供される機能が必要な場合は、そのクレートのトレイトを実装してください。
+- テストでモックを使用するためだけに、コードをジェネリックにすることには注意してください。このアプローチによる
+  メンテナンスコストは高くなる可能性があり、別のテスト戦略を採用した方が良い場合が多いです。高精度なテストの
+  詳細については、[testing masterclass](https://github.com/mainmatter/rust-advanced-testing-workshop)
+  を参照してください。
+
+<a id="testing-your-knowledge"></a>
+
+## 知識の確認
+
+次に進む前に、学んだことを定着させるために最後の演習に取り組みましょう。
+今回はガイダンスを最小限に抑え、演習の説明とテストのみを用意しています。

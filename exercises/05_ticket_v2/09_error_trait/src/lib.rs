@@ -1,6 +1,6 @@
-// TODO: Implement `Debug`, `Display` and `Error` for the `TicketNewError` enum.
-//  When implementing `Display`, you may want to use the `write!` macro from Rust's standard library.
-//  The docs for the `std::fmt` module are a good place to start and look for examples:
+// TODO: `TicketNewError` 列挙型に `Debug`、`Display`、`Error` を実装してください。
+//  `Display` を実装する際は、Rust標準ライブラリの `write!` マクロを利用するとよいでしょう。
+//  `std::fmt` モジュールのドキュメントは、着手する際の参考や例を探すのに適しています：
 //  https://doc.rust-lang.org/std/fmt/index.html#write
 
 #[derive(Debug)]
@@ -20,10 +20,8 @@ impl std::fmt::Display for TicketNewError {
 
 impl std::error::Error for TicketNewError {}
 
-// TODO: `easy_ticket` should panic when the title is invalid, using the error message
-//   stored inside the relevant variant of the `TicketNewError` enum.
-//   When the description is invalid, instead, it should use a default description:
-//   "Description not provided".
+// TODO: `easy_ticket` は、タイトルが無効な場合、`TicketNewError` 列挙型の該当するバリアントに格納されているエラーメッセージを用いてパニックする必要があります。
+//   説明が無効な場合は、代わりにデフォルトの説明「Description not provided」を使用する必要があります。
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
     match Ticket::new(title.clone(), description, status.clone()) {
         Ok(ticket) => ticket,
