@@ -21,4 +21,4 @@ pub trait IndexMut<Idx>: Index<Idx>
 ```
 
 
-`IndexMut` は、_追加の_機能を有効にするため、型がすでに `Index` を実装している場合にのみ実装可能です。
+`IndexMut` は、*追加の*機能を有効にするため、型がすでに `Index` を実装している場合にのみ実装可能です。
