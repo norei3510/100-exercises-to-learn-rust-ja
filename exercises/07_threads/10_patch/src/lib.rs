@@ -1,6 +1,6 @@
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 
-// TODO: Implement the patching functionality.
+// TODO: パッチ適用の機能を実装してください。
 use crate::data::{Ticket, TicketDraft, TicketPatch};
 use crate::store::{TicketId, TicketStore};
 
@@ -108,8 +108,8 @@ pub fn server(receiver: Receiver<Command>) {
                 let _ = response_channel.send(());
             }
             Err(_) => {
-                // There are no more senders, so we can safely break
-                // and shut down the server.
+                // 送信側（Sender）がもう存在しないため、安全に break して
+                // サーバーをシャットダウンできます。
                 break;
             }
         }

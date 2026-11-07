@@ -1,6 +1,6 @@
 mod helpers {
-    // TODO: Make this code compile, either by adding a `use` statement or by using
-    //  the appropriate path to refer to the `Ticket` struct.
+    // TODO: `use` 文を追加するか、`Ticket` 構造体を参照するための適切なパスを使用して、
+    //  このコードがコンパイルできるようにしてください。
     use super::Ticket;
 
     fn create_todo_ticket(title: String, description: String) -> Ticket {

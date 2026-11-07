@@ -1,5 +1,5 @@
-// TODO: implement the necessary traits to make the test compile and pass.
-//  You *can't* modify the test.
+// TODO: テストがコンパイルされ通過するように、必要なトレイトを実装してください。
+//  テスト自体は変更*できません*。
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WrappingU32 {
