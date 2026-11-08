@@ -1,2 +1,4 @@
 target/
 exercises/progress.db
+book/book/
+__pycache__/

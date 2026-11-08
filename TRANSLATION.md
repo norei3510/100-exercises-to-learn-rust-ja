@@ -13,4 +13,6 @@ README・教材本文・目次・コードコメントをPLaMoで翻訳し、書
 
 コード、文字列、コードフェンス、リンク先を静的に照合しました。cargo test・cargo build・演習コードの実行は行っていません。全訳文の人手による精査は未実施です。
 
+2026年11月8日、日本語版をGitHub Pagesで閲覧できるよう、Web版の開始案内・clone先・解答リンクを日本語版リポジトリに合わせました。各章末の演習リンクも日本語で生成し、日本語の本文・見出しの検索に対応しました。「ようこそ」の書名と「整数」の脚注付き強調は、mdBookで正しく表示されるようMarkdownを補正しました。Web版はHTMLのみを生成します。
+
 [原文](https://github.com/mainmatter/100-exercises-to-learn-rust) / [モデル](https://huggingface.co/pfnet/plamo-3-translate-31b-GGUF) / [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)

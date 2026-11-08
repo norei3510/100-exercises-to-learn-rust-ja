@@ -25,8 +25,10 @@ Rustに関する知識が全くない状態から、演習を一つずつ進め�
 
 ## はじめに
 
-[rust-exercises.com](https://rust-exercises.com) にアクセスし、記載されている手順に従って
-コースを開始してください。
+[日本語版の教材サイト](https://norei3510.github.io/100-exercises-to-learn-rust-ja/) にアクセスし、記載されている手順に従って
+コースを開始してください。本文をブラウザで読み、演習コードを手元で編集して `wr` または `cargo test` で確認する形式です。
+
+[英語の原文サイト](https://rust-exercises.com/100-exercises/) も参照できます。
 
 <a id="requirements"></a>
 
@@ -47,7 +49,7 @@ Rustに関する知識が全くない状態から、演習を一つずつ進め�
 ## 解答
 
 演習問題の解答は、このリポジトリの
-[`solutions`ブランチ](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions) で確認できます。
+[`solutions`ブランチ](https://github.com/norei3510/100-exercises-to-learn-rust-ja/tree/solutions) で確認できます。
 
 <a id="license"></a>
 
@@ -58,3 +60,20 @@ Copyright © 2024- Mainmatter GmbH (https://mainmatter.com)、[PolyForm-Noncomme
 
 本コースを社内で利用される場合は、ライセンスについて [お問い合わせください](mailto:training@mainmatter.com)。
 また、本コースを [講師主導のワークショップ](https://mainmatter.com/training/learn-rust-starting-from-scratch/) としても提供しています。
+
+## 教材サイトの更新・ローカル確認
+
+`book/src/` のMarkdownと目次 `book/src/SUMMARY.md` が教材サイトの元データです。
+`main` への更新をGitHub Actionsが自動でビルドし、GitHub Pagesへ公開します。Pull Requestではビルドと内部リンクの確認だけを行います。
+
+ローカルで確認するにはPython 3と [mdBook 0.5.4](https://github.com/rust-lang/mdBook/releases/tag/v0.5.4) を用意し、リポジトリのルートで実行してください。
+
+```sh
+mdbook build book
+python helpers/check_book_links.py book/book
+mdbook serve book --open
+```
+
+各章の日本語の演習リンクは `helpers/mdbook_exercise_linker.py` が生成します。
+Web版はHTMLのみを生成するため、PDF用のフォント、Pandoc、TeXや外部サービスの秘密情報は不要です。
+GitHub Pagesの公開元はリポジトリの **Settings → Pages → Source: GitHub Actions** です。

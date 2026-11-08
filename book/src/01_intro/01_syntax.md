@@ -6,7 +6,7 @@
 
 先走らないでください！\
 このセクションを始める前に、前のセクションの演習を完了させてください。\
-演習は [course GitHub's repository](https://github.com/mainmatter/100-exercises-to-learn-rust) 内の `exercises/01_intro/00_welcome` にあります。\
+演習は [日本語版のGitHubリポジトリ](https://github.com/norei3510/100-exercises-to-learn-rust-ja) 内の `exercises/01_intro/00_welcome` にあります。\
 コースを開始し、解答を確認するには [`wr`](00_welcome.md#wr-the-workshop-runner) を使用してください。
 
 </div>

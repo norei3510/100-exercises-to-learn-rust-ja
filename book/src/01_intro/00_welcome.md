@@ -2,7 +2,11 @@
 
 # ようこそ
 
-**「Rustを学ぶための100の演習」**へようこそ！
+> これはMainmatter GmbH（原著者: Luca Palmieri）の教材の**非公式AI日本語翻訳版**です。
+> [英語の原文](https://rust-exercises.com/100-exercises/) / [翻訳・ライセンスについて](https://norei3510.github.io/100-exercises-to-learn-rust-ja/translation.html)
+> 本文をこのサイトで読み、演習は手元のPCで進めます。
+
+「**Rustを学ぶための100の演習**」へようこそ！
 
 このコースでは、演習を一つずつ解きながら、Rustのコアコンセプトを学んでいきます。\
 Rustの構文、型システム、標準ライブラリ、そしてエコシステムについて学習します。
@@ -25,14 +29,14 @@ Rustに関する事前知識は一切不要ですが、少なくとも他のプ�
 次回の講師付きセッションへの申し込みは、[公式サイト](https://ti.to/mainmatter/rust-from-scratch-jan-2025)から行えます。\
 貴社向けにプライベートセッションの開催をご希望の場合は、[お問い合わせください](https://mainmatter.com/contact/)。
 
-独学で受講することも可能ですが、行き詰まった際にサポートしてくれる友人やメンターを見つけることをお勧めします。すべての演習の解答は、GitHubリポジトリの[`solutions`ブランチ](https://github.com/mainmatter/100-exercises-to-learn-rust/tree/solutions)で確認できます。
+独学で受講することも可能ですが、行き詰まった際にサポートしてくれる友人やメンターを見つけることをお勧めします。すべての演習の解答は、GitHubリポジトリの[`solutions`ブランチ](https://github.com/norei3510/100-exercises-to-learn-rust-ja/tree/solutions)で確認できます。
 
 <a id="formats"></a>
 
 ## フォーマット
 
-コース教材は[ブラウザ上](https://rust-exercises.com/100-exercises/)で閲覧できるほか、オフラインで閲覧するために[PDFファイルとしてダウンロード](https://rust-exercises.com/100-exercises-to-learn-rust.pdf)することも可能です。\
-教材の印刷版をご希望の方は、[Amazonでペーパーバック版をご購入](https://www.amazon.com/dp/B0DJ14KQQG/)ください。
+日本語版のコース教材は[このサイト](https://norei3510.github.io/100-exercises-to-learn-rust-ja/)で閲覧できます。\
+英語の原文は[原文サイト](https://rust-exercises.com/100-exercises/)のほか、[英語版PDF](https://rust-exercises.com/100-exercises-to-learn-rust.pdf)や[英語のペーパーバック版](https://www.amazon.com/dp/B0DJ14KQQG/)でも読めます。日本語版のPDF・印刷版は用意していません。
 
 <a id="structure"></a>
 
@@ -42,21 +46,21 @@ Rustに関する事前知識は一切不要ですが、少なくとも他のプ�
 各セクションでは、Rust言語の新しいコンセプトや機能を紹介します。\
 理解度を確認するため、各セクションには解くべき演習が用意されています。
 
-演習は[付随するGitHubリポジトリ](https://github.com/mainmatter/100-exercises-to-learn-rust)にあります。\
+演習は[付随するGitHubリポジトリ](https://github.com/norei3510/100-exercises-to-learn-rust-ja)にあります。\
 コースを開始する前に、必ずリポジトリをローカルマシンにクローンしてください：
 
 ```bash
 # GitHubでSSHキーを設定済みの場合
-git clone git@github.com:mainmatter/100-exercises-to-learn-rust.git
+git clone git@github.com:norei3510/100-exercises-to-learn-rust-ja.git
 # それ以外の場合は、HTTPS URLを使用してください：
-#   https://github.com/mainmatter/100-exercises-to-learn-rust.git
+#   https://github.com/norei3510/100-exercises-to-learn-rust-ja.git
 ```
 
 
 また、進捗を簡単に追跡し、必要に応じてメインリポジトリから更新を取り込めるよう、ブランチで作業することをお勧めします：
 
 ```bash
-cd 100-exercises-to-learn-rust
+cd 100-exercises-to-learn-rust-ja
 git checkout -b my-solutions
 ```
 

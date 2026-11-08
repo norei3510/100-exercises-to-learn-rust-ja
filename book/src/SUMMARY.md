@@ -107,3 +107,5 @@
   - [おわりに](08_futures/08_outro.md)
 
 * [さらに詳しく](going_further.md)
+
+[日本語版について](translation.md)
